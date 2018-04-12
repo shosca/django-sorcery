@@ -1,0 +1,15 @@
+---
+language: python
+python:
+  - "2.7"
+  - "3.6"
+
+install:
+  - pip install pipenv coveralls sqlalchemy_utils
+  - pipenv install -d --system --skip-lock
+
+script:
+  - make coverage
+
+after_success:
+  coveralls

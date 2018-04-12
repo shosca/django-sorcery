@@ -1,0 +1,13 @@
+{
+    "add_imports": [
+        "from __future__ import absolute_import, print_function, unicode_literals"
+    ],
+    "groups": [
+        {"type": "stdlib"},
+        {"type": "remainder"},
+        {"type": "packages", "packages": ["sqlalchemy"]},
+        {"type": "packages", "packages": ["django"]},
+        {"type": "packages", "packages": ["django_sorcery"]},
+        {"type": "local"}
+    ]
+}

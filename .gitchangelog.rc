@@ -1,0 +1,47 @@
+# Ignore commits
+ignore_regexps = [
+    r"@minor",
+    r"!minor",
+    r"@cosmetic",
+    r"!cosmetic",
+    r"@refactor",
+    r"!refactor",
+    r"@wip",
+    r"!wip",
+    r"^Merge commit .* into HEAD",
+    r"^Version bump*",
+    r"^Docs: update*",
+    r"^Bump version*",
+    r"^Update history*",
+    r"^Initial commit* into HEAD",
+]
+
+# Detect sections
+section_regexps = [
+    ("New features", [r"^[fF]eat.*:\s*?([^\n]*)$"]),
+    ("Fix", [r"^[fF]ix:\s*?([^\n]*)$"]),
+    ("Refactor", [r"^[rR]efactor:\s*?([^\n]*)$"]),
+    ("Documentation", [r"^[dD]oc.*:\s*?([^\n]*)$"]),
+    ("Other", None),  ## Match all lines
+]
+
+# Rewrite body
+body_process = (ReSub(r".*", "") | ReSub(r"^(\n|\r)$", ""))
+
+# Rewrite subject
+subject_process = (
+    strip
+    | ReSub(r"^(\w+)\s*:\s*([^\n@]*)(@[a-z]+\s+)*$", r"\2")
+    | ReSub(r"^\*\*: ", "")
+    | ReSub(r"\) \(", " ")
+    | strip
+    | ucfirst
+    | final_dot
+)
+
+tag_filter_regexp = r"^[0-9]+\.[0-9]+(\.[0-9]+)?$"
+
+unreleased_version_label = "Next version (unreleased yet)"
+
+output_engine = rest_py
+include_merges = False

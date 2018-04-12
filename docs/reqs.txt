@@ -1,0 +1,5 @@
+Django
+SQLAlchemy
+djangorestframework
+six
+pipenv

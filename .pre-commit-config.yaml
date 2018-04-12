@@ -1,0 +1,24 @@
+---
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  sha: 'master'
+  hooks:
+  - id: check-added-large-files
+  - id: check-byte-order-marker
+  - id: check-case-conflict
+  - id: check-docstring-first
+  - id: check-json
+  - id: check-merge-conflict
+  - id: check-xml
+  - id: check-yaml
+  - id: debug-statements
+  - id: end-of-file-fixer
+  - id: fix-encoding-pragma
+  - id: flake8
+  - id: trailing-whitespace
+
+- repo: https://github.com/ambv/black
+  rev: stable
+  hooks:
+  - id: black
+    args: [--line-length=120, --safe]
+    python_version: python3.6

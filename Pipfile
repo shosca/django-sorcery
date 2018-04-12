@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+pytest-cov = "*"
+flake8 = "*"
+simplejson = "*"
+sphinx-autobuild = "*"
+gitchangelog = "*"
+yapf = "*"
+pdbpp = "*"
+pre_commit = "*"
+Sphinx = "*"
+sphinx_rtd_theme = "*"
+mock = {version = "*", markers="python_version <= '2.7'"}
+beautifulsoup4 = "*"
+attrs = "*"
+
+[packages]
+"e1839a8" = {path = ".", editable = true}
