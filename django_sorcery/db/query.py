@@ -55,6 +55,9 @@ class QueryProperty(object):
                 self, model, self.db.Model
             )
 
+    def __repr__(self):
+        return "<{} db={!r}, model={!r}>".format(self.__class__.__name__, self.db, self.model.__name__)
+
     def _with_op(self, name, *args, **kwargs):
         prop = type(self)(self.db, self.model)
         prop.ops += self.ops

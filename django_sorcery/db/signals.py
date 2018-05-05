@@ -26,8 +26,7 @@ class ScopedSignal(blinker.NamedSignal):
 
     def __init__(self, name, doc=None):
         self.name = name
-        if doc:
-            self.__doc__ = doc
+        self.__doc__ = doc
         self.local = local()
         self.cleanup()
 
