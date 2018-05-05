@@ -35,7 +35,7 @@ class TestCompositeMeta(TestCase):
         self.assertListEqual(list(info.composites.keys()), ["start", "end"])
 
         start = info.composites["start"]
-        self.assertListEqual(list(start.properties.keys()), ["x", "y"])
+        self.assertListEqual(sorted(start.properties.keys()), ["x", "y"])
         self.assertEqual(start.properties["x"].property, Vertex.x1.property)
 
         self.assertListEqual(sorted(start.field_names), ["x", "y"])
