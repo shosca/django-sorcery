@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.forms.fields import CharField
+from django import forms as djangoforms
+from django.forms import fields as djangofields
 
+from django_sorcery.db.meta import model_info
 from django_sorcery.field_mapping import ModelFieldMapper
 from django_sorcery.forms import SQLAModelFormOptions
 
 from .base import TestCase
-from .models import Owner, Vehicle, db
+from .models import AllKindsOfFields, Owner, Vehicle, db
 
 
 class TestFieldMapping(TestCase):
@@ -94,22 +96,23 @@ class TestFieldMapping(TestCase):
 
     def test_get_fields_formfield_callback(self):
 
-        self.callback_called = False
+        info = model_info(Owner)
+        self.called_with = []
 
         def callback(attr, **kwargs):
-            self.callback_called = True
-            return CharField()
+            self.called_with.append(attr)
+            return djangofields.CharField()
 
         class Meta:
             model = Owner
-            fields = ["first_name"]
+            fields = ["first_name", "vehicles"]
 
         mapper = ModelFieldMapper(SQLAModelFormOptions(Meta), formfield_callback=callback)
 
         fields = mapper.get_fields()
 
-        self.assertTrue(self.callback_called)
-        self.assertListEqual(list(fields.keys()), ["first_name"])
+        self.assertListEqual(list(fields.keys()), ["first_name", "vehicles"])
+        self.assertEqual(self.called_with, [info.properties["first_name"], info.relationships["vehicles"]])
 
     def test_get_fields_no_private(self):
 
@@ -125,3 +128,46 @@ class TestFieldMapping(TestCase):
             list(sorted(fields.keys())), ["created_at", "is_used", "name", "options", "owner", "paint", "parts", "type"]
         )
         self.assertNotIn(Vehicle._owner_id.key, fields)
+
+    def test_build_boolean_field_not_nullable(self):
+
+        class Meta:
+            model = AllKindsOfFields
+            session = db
+
+        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+
+        fields = mapper.get_fields()
+        self.assertIn("isit", fields)
+
+        field = fields["isit"]
+        self.assertIsInstance(field, djangofields.BooleanField)
+
+    def test_build_integer_field(self):
+
+        class Meta:
+            model = AllKindsOfFields
+            session = db
+
+        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+
+        fields = mapper.get_fields()
+        self.assertIn("integer", fields)
+
+        field = fields["integer"]
+        self.assertIsInstance(field, djangofields.IntegerField)
+
+    def test_build_text_field(self):
+
+        class Meta:
+            model = AllKindsOfFields
+            session = db
+
+        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+
+        fields = mapper.get_fields()
+        self.assertIn("text", fields)
+
+        field = fields["text"]
+        self.assertIsInstance(field, djangofields.CharField)
+        self.assertIsInstance(field.widget, djangoforms.Textarea)

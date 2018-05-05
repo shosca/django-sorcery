@@ -80,7 +80,6 @@ class _column_info(object):
             kwargs["max_length"] = self.column.type.length
 
         kwargs["required"] = not self.column.nullable
-        kwargs["allow_null"] = self.column.nullable
 
         return kwargs
 

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
+Helper functions for creating Form classes from SQLAlchemy models.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
 from django.conf import settings
-from django.core.exceptions import FieldError, ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured
 from django.forms.forms import BaseForm, DeclarativeFieldsMetaclass
 from django.forms.models import ModelFormOptions
 from django.forms.utils import ErrorList
@@ -64,13 +65,6 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
             ) else ModelFieldMapper
 
             mcs.base_fields = mapper(opts, formfield_callback, apply_limit_choices_to=False).get_fields()
-
-            none_model_fields = {k for k, v in mcs.base_fields.items() if not v}
-            missing_fields = none_model_fields.difference(mcs.declared_fields)
-            if missing_fields:
-                raise FieldError(
-                    "Unknown field(s) (%s) specified for %s" % (", ".join(missing_fields), opts.model.__name__)
-                )
 
         else:
             mcs.base_fields = mcs.declared_fields

@@ -40,23 +40,26 @@ class ModelChoiceIterator(object):
     def __init__(self, field):
         self.field = field
 
-    @property
-    def query(self):
-        return self.field.session.query(self.field.model)
-
     def __iter__(self):
 
         if self.field.empty_label is not None:
             yield ("", self.field.empty_label)
 
-        for obj in self.query:
+        for obj in self.field.queryset:
             yield self.choice(obj)
 
     def __len__(self):
-        return self.query.count() + (1 if self.field.empty_label is not None else 0)
+        return self.field.queryset.count() + (1 if self.field.empty_label is not None else 0)
 
     def choice(self, obj):
         return (self.field.prepare_value(obj), self.field.label_from_instance(obj))
+
+
+def apply_limit_choices_to_form_field(formfield):
+    if hasattr(formfield, "queryset") and hasattr(formfield, "get_limit_choices_to"):
+        limit_choices_to = formfield.get_limit_choices_to()
+        if limit_choices_to is not None:
+            formfield.queryset = formfield.queryset.filter(*limit_choices_to)
 
 
 class ModelChoiceField(djangofields.ChoiceField):
@@ -93,9 +96,17 @@ class ModelChoiceField(djangofields.ChoiceField):
         self._choices = None
         self.model = model
         self.session = session
-        self.widget.choices = self.choices
+        self._queryset = None
         self.limit_choices_to = limit_choices_to  # limit the queryset later.
         self.to_field_name = to_field_name
+
+    def _get_queryset(self):
+        return self._queryset or self.session.query(self.model)
+
+    def _set_queryset(self, queryset):
+        self._queryset = None if queryset is None else queryset
+
+    queryset = property(_get_queryset, _set_queryset)
 
     def _get_choices(self):
         return self.iterator(self)
@@ -135,6 +146,13 @@ class ModelChoiceField(djangofields.ChoiceField):
 
     def validate(self, value):
         return djangofields.Field.validate(self, value)
+
+    def get_bound_field(self, form, field_name):
+        self.widget.choices = self.choices
+        return super(ModelChoiceField, self).get_bound_field(form, field_name)
+
+    def get_limit_choices_to(self):
+        return self.limit_choices_to
 
 
 class ModelMultipleChoiceField(ModelChoiceField):

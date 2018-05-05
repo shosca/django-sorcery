@@ -5,7 +5,7 @@ from django_sorcery.db import models
 from django_sorcery.utils import make_args
 
 from ..base import TestCase
-from ..models import CompositePkModel, Option, Owner, Part, Vehicle, VehicleType, db
+from ..models import CompositePkModel, ModelOne, ModelTwo, Option, Owner, Part, Vehicle, VehicleType, db
 
 
 class TestModels(TestCase):
@@ -51,6 +51,16 @@ class TestModels(TestCase):
 
         self.assertEqual(pks, 1234)
 
+    def test_primary_keys_from_instance_composite(self):
+        vehicle = CompositePkModel(id=1234, pk=4321)
+
+        pks = models.get_primary_keys_from_instance(vehicle)
+
+        self.assertEqual(pks, {"id": 1234, "pk": 4321})
+
+    def test_primary_keys_from_instance_with_none(self):
+        self.assertIsNone(models.get_primary_keys_from_instance(None))
+
     def test_model_to_dict(self):
         vehicle = Vehicle(
             id=1,
@@ -95,11 +105,10 @@ class TestModels(TestCase):
                 "is_used": True,
                 "name": "vehicle",
                 "options": [3, 4],
-                "owner": 2,
                 "paint": "red",
                 "parts": [5, 6],
             },
-            models.model_to_dict(vehicle, exclude=["type"]),
+            models.model_to_dict(vehicle, exclude=["type", "owner"]),
         )
 
     def test_model_to_dict_fields(self):
@@ -117,6 +126,11 @@ class TestModels(TestCase):
             {"is_used": True, "name": "vehicle", "paint": "red"},
             models.model_to_dict(vehicle, fields=["name", "is_used", "paint"]),
         )
+
+    def test_model_to_dict_private_relation(self):
+        obj = ModelTwo(pk=2, name="two", _model_one=ModelOne(pk=1, name="one"))
+
+        self.assertEqual({"name": "two"}, models.model_to_dict(obj))
 
     def test_serialize_none(self):
         self.assertIsNone(models.serialize(None))

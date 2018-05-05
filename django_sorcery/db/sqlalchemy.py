@@ -10,7 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 from django.db import DEFAULT_DB_ALIAS
 
-from ..utils import make_args, setdefaultattr
+from ..utils import make_args, setdefaultattr, suppress
 from .models import Base
 from .query import Query, QueryProperty
 from .session import SignallingSession
@@ -169,10 +169,8 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
             backref_kwargs = None
             if backref:
                 if isinstance(backref, tuple):
-                    try:
+                    with suppress(Exception):
                         backref, backref_kwargs = backref
-                    except Exception:
-                        pass
 
                 backref_kwargs = backref_kwargs or {}
 
@@ -214,10 +212,8 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
             if backref:
                 backref_kwargs = None
                 if isinstance(backref, tuple):
-                    try:
+                    with suppress(Exception):
                         backref, backref_kwargs = backref
-                    except Exception:
-                        pass
 
                 backref_kwargs = backref_kwargs or {}
 
@@ -285,10 +281,8 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
             backref_kwargs = None
             if backref:
                 if isinstance(backref, tuple):
-                    try:
+                    with suppress(Exception):
                         backref, backref_kwargs = backref
-                    except Exception:
-                        pass
 
                 backref_kwargs = backref_kwargs or {}
 
@@ -301,6 +295,14 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
             return rel
 
         return m2m
+
+    def Table(self, name, *args, **kwargs):
+        assert name is not None, "Table requires `name` argument"
+        assert len(args) > 0, "Table at least takes one column argument"
+        for arg in args:
+            assert not isinstance(arg, sa.MetaData), "Passing a `metadata` is not allowed"
+
+        return sa.Table(name, self.metadata, *args, **kwargs)
 
     def _set_query_class(self, cls, kwargs):
         query_class = self.query_class

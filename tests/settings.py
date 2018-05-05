@@ -19,7 +19,10 @@ DATABASES = {
 }
 
 SQLALCHEMY_CONNECTIONS = {
-    "default": {"DIALECT": "sqlite"}, "minimal": {"DIALECT": "sqlite"}, "minimal_backpop": {"DIALECT": "sqlite"}
+    "default": {"DIALECT": "sqlite"},
+    "test": {"DIALECT": "sqlite"},
+    "minimal": {"DIALECT": "sqlite"},
+    "minimal_backpop": {"DIALECT": "sqlite"},
 }
 
 ROOT_URLCONF = "tests.urls"

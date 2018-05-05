@@ -61,32 +61,16 @@ class TestColumnMeta(TestCase):
 
         col = info.primary_keys["id"]
         self.assertEqual(col.name, "id")
-        self.assertDictEqual(
-            {"label": "Id", "help_text": "The primary key", "required": True, "allow_null": False}, col.field_kwargs
-        )
+        self.assertDictEqual({"label": "Id", "help_text": "The primary key", "required": True}, col.field_kwargs)
 
         col = info.properties["type"]
         self.assertDictEqual(
-            {
-                "allow_null": False,
-                "enum_class": VehicleType,
-                "help_text": None,
-                "label": "Type",
-                "max_length": 3,
-                "required": True,
-            },
+            {"enum_class": VehicleType, "help_text": None, "label": "Type", "max_length": 3, "required": True},
             col.field_kwargs,
         )
 
         col = info.properties["paint"]
         self.assertDictEqual(
-            {
-                "allow_null": True,
-                "choices": COLORS,
-                "help_text": None,
-                "label": "Paint",
-                "max_length": 6,
-                "required": False,
-            },
+            {"choices": COLORS, "help_text": None, "label": "Paint", "max_length": 6, "required": False},
             col.field_kwargs,
         )

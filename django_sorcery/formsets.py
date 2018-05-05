@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """
+Helper functions for creating FormSet classes from SQLAlchemy models.
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
 from django.forms import fields as djangofields
 from django.forms.formsets import BaseFormSet, formset_factory
+from django.forms.widgets import HiddenInput
 
 from .db.meta import model_info
 from .db.models import get_primary_keys
@@ -78,9 +80,10 @@ class BaseModelFormSet(BaseFormSet):
     def add_fields(self, form, index):
         info = model_info(self.model)
 
-        for name in info.primary_keys:
-            pk_field = djangofields.Field(initial=getattr(form.instance, name, None))
-            form.fields[name] = pk_field
+        if form.instance in self.session:
+            for name in info.primary_keys:
+                pk_field = djangofields.Field(initial=getattr(form.instance, name, None), widget=HiddenInput)
+                form.fields[name] = pk_field
 
         super(BaseModelFormSet, self).add_fields(form, index)
 
@@ -117,6 +120,8 @@ class BaseModelFormSet(BaseFormSet):
             if form in self.deleted_forms:
                 self.deleted_objects.append(form.instance)
                 self.delete_existing(form.instance)
+                continue
+
             elif form.has_changed():
                 self.changed_objects.append(form.instance)
 

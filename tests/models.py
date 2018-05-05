@@ -6,7 +6,7 @@ from django_sorcery.db import databases
 from django_sorcery.db.query import Query
 
 
-db = databases.get("sqlite://")
+db = databases.get("test")
 
 
 COLORS = ["", "red", "green", "blue", "silver"]
@@ -55,7 +55,7 @@ class Option(db.Model):
     id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
     name = db.Column(db.String())
 
-    vehicles = db.ManyToMany(Vehicle, backref="options", table_name="vehicle_options")
+    vehicles = db.ManyToMany(Vehicle, backref=db.backref("options"), table_name="vehicle_options")
 
 
 class CompositePkModel(db.Model):
@@ -66,6 +66,15 @@ class CompositePkModel(db.Model):
     name = db.Column(db.String())
 
     is_active = db.Column(db.Boolean())
+
+    active = db.queryproperty(is_active=True)
+
+
+class AllKindsOfFields(db.Model):
+    pk = db.Column(db.Integer(), primary_key=True)
+    isit = db.Column(db.Boolean(), nullable=False)
+    integer = db.Column(db.Integer())
+    text = db.Column(db.Text())
 
 
 class Point(object):
@@ -100,7 +109,37 @@ class Vertex(db.Model):
     end = db.composite(Point, x2, y2)
 
 
-CompositePkModel.active = CompositePkModel.query.filter(CompositePkModel.is_active.is_(True))
+class ModelTwo(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String())
+
+
+class ModelOne(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String())
+
+    _model_twos = db.OneToMany(ModelTwo, backref="_model_one")
+
+
+model_three_ones = db.Table(
+    "model_three_ones",
+    db.Column("model_one_pk", db.Integer(), db.ForeignKey("modelone.pk"), primary_key=True),
+    db.Column("model_two_pk", db.Integer(), db.ForeignKey("modelthree.pk"), primary_key=True),
+)
+
+
+class ModelThree(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String())
+
+    model_ones = db.ManyToMany(ModelOne, secondary=model_three_ones)
+
+
+class ModelFour(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String())
+
+    _model_twos = db.OneToMany(ModelTwo, backref=db.backref("_model_four"))
 
 
 db.configure_mappers()

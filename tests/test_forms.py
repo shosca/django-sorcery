@@ -3,7 +3,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from bs4 import BeautifulSoup
 
-from django_sorcery.forms import ALL_FIELDS, modelform_factory
+from django.core.exceptions import ImproperlyConfigured
+
+from django_sorcery.forms import ALL_FIELDS, ModelForm, modelform_factory
 
 from .base import TestCase
 from .models import Option, Owner, Vehicle, VehicleType, db
@@ -239,3 +241,128 @@ class TestModelForm(TestCase):
 
         self.maxDiff = None
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
+
+    def test_form_field_callback_in_base_meta(self):
+
+        self.callback_called = False
+
+        def callback(*args, **kwargs):
+            self.callback_called = True
+
+        class OwnerBaseForm(ModelForm):
+
+            class Meta:
+                model = Owner
+                session = db
+                fields = ALL_FIELDS
+                formfield_callback = staticmethod(callback)
+
+        class OwnerForm(OwnerBaseForm):
+            pass
+
+        self.assertTrue(self.callback_called)
+
+    def test_fields_bad_value(self):
+
+        with self.assertRaises(TypeError) as ctx:
+            modelform_factory(Owner, ModelForm, fields="abc1234")
+
+        self.assertEqual(
+            ctx.exception.args, ("OwnerForm.Meta.fields cannot be a string. Did you mean to type: ('abc1234',)?",)
+        )
+
+    def test_empty_fields_and_exclude(self):
+
+        with self.assertRaises(ImproperlyConfigured) as ctx:
+
+            class OwnerForm(ModelForm):
+
+                class Meta:
+                    model = Owner
+
+        self.assertEqual(
+            ctx.exception.args,
+            (
+                "Creating a ModelForm without either the 'fields' attribute or the 'exclude' attribute is prohibited; "
+                "form OwnerForm needs updating.",
+            ),
+        )
+
+    def test_modelform_no_model(self):
+
+        class OwnerForm(ModelForm):
+            pass
+
+        with self.assertRaises(ValueError) as ctx:
+            OwnerForm()
+
+        self.assertEqual(ctx.exception.args, ("ModelForm has no model class specified.",))
+
+    def test_modelform_no_session(self):
+
+        class OwnerForm(ModelForm):
+
+            class Meta:
+                model = Owner
+                fields = ALL_FIELDS
+
+        with self.assertRaises(ValueError) as ctx:
+            OwnerForm()
+
+        self.assertEqual(ctx.exception.args, ("ModelForm has no session specified.",))
+
+    def test_modelform_custom_setter(self):
+
+        class OwnerForm(ModelForm):
+
+            class Meta:
+                model = Owner
+                session = db
+                fields = ("first_name",)
+
+            def set_first_name(self, instance, name, field, value):
+                instance.first_name = "other"
+
+        form = OwnerForm(data={"first_name": "something"})
+
+        instance = form.save()
+
+        self.assertEqual(instance.first_name, "other")
+
+    def test_modelform_save_with_errors(self):
+
+        class VehicleForm(ModelForm):
+
+            class Meta:
+                model = Vehicle
+                session = db
+                fields = ("type", "name")
+
+        form = VehicleForm(data={"name": "something"})
+
+        self.assertFalse(form.is_valid())
+        with self.assertRaises(ValueError) as ctx:
+            form.save()
+
+        self.assertEqual(ctx.exception.args, ("The Vehicle could not be saved because the data didn't validate.",))
+
+    def test_modelform_factory_with_formfield_callback(self):
+
+        self.callback_called = False
+
+        def callback(*args, **kwargs):
+            self.callback_called = True
+
+        modelform_factory(Owner, fields=ALL_FIELDS, formfield_callback=callback, session=db)
+
+        self.assertTrue(self.callback_called)
+
+    def test_modelform_factory_with_no_fields_exclude(self):
+
+        with self.assertRaises(ImproperlyConfigured) as ctx:
+            modelform_factory(Owner, session=db)
+
+        self.assertEqual(
+            ctx.exception.args,
+            ("Calling modelform_factory without defining 'fields' or 'exclude' explicitly is prohibited.",),
+        )

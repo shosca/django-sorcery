@@ -1,9 +1,49 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-import unittest
+
+import sqlalchemy as sa
+
+from django_sorcery.db.query import Operation
+
+from ..base import TestCase
+from ..models import ModelOne, db
 
 
-class TestSQLAlchemyRelationships(unittest.TestCase):
+class TestSQLAlchemy(TestCase):
+
+    def test_session(self):
+
+        session = db.session()
+        self.assertEqual(db.session(), db.session())
+        self.assertFalse(session.autocommit)
+
+        db.remove()
+        session = db.session(autocommit=True)
+        self.assertTrue(session.autocommit)
+
+        with self.assertRaises(sa.exc.InvalidRequestError):
+            db.session(autocommit=True)
+
+    def test_url(self):
+        self.assertEqual(db.bind.url, db.url)
+
+    def test_repr(self):
+        self.assertEqual(repr(db), "<SQLAlchemy engine=sqlite://>")
+
+    def test_queryproperty(self):
+        qp = db.queryproperty(ModelOne)
+        self.assertEqual(qp.model, ModelOne)
+        self.assertEqual(qp.ops, [])
+
+        qp = db.queryproperty(ModelOne, name="test")
+        self.assertEqual(qp.model, ModelOne)
+        self.assertEqual(qp.ops, [Operation(name="filter_by", args=(), kwargs={"name": "test"})])
+
+    def test_make_args(self):
+        self.assertEqual(db.args("test", other=True), ("test", {"other": True}))
+
+
+class TestSQLAlchemyRelationships(TestCase):
 
     def setUp(self):
         super(TestSQLAlchemyRelationships, self).setUp()
@@ -85,8 +125,16 @@ class TestSQLAlchemyRelationships(unittest.TestCase):
             for order in contact.orders:
                 self.assertIn(order.pk, contactrows[contact.pk])
 
+    def test_bad_many_to_many(self):
+        db = self.db
 
-class TestSQLAlchemyRelationshipsBackPopulates(unittest.TestCase):
+        with self.assertRaises(sa.exc.ArgumentError):
+
+            class SuperDummy(db.Model):
+                bad = db.ManyToMany("blah")
+
+
+class TestSQLAlchemyRelationshipsBackPopulates(TestCase):
 
     def setUp(self):
         super(TestSQLAlchemyRelationshipsBackPopulates, self).setUp()

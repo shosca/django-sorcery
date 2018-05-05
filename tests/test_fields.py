@@ -4,9 +4,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.core.exceptions import ValidationError
 
 from django_sorcery import fields
+from django_sorcery.forms import modelform_factory
 
 from .base import TestCase
-from .models import CompositePkModel, Owner, VehicleType, db
+from .models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 
 class TestEnumField(TestCase):
@@ -40,6 +41,12 @@ class TestModelChoiceField(TestCase):
         super(TestModelChoiceField, self).setUp()
         db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
         db.flush()
+
+    def test_apply_limit(self):
+
+        field = fields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.id == 1])
+        fields.apply_limit_choices_to_form_field(field)
+        self.assertEqual(field.queryset.count(), 1)
 
     def test_choices(self):
 
@@ -109,6 +116,15 @@ class TestModelChoiceField(TestCase):
 
         with self.assertRaises(ValidationError):
             field.validate(None)
+
+    def test_get_bound_field(self):
+        db.rollback()
+        form = modelform_factory(Vehicle, fields=("owner",), session=db)()
+        field = form.fields["owner"]
+        bf = field.get_bound_field(form, "owner")
+        self.assertHTMLEqual(
+            str(bf), '<select name="owner" required id="id_owner"><option value="" selected>---------</option></select>'
+        )
 
 
 class TestModelMultipleChoiceField(TestCase):

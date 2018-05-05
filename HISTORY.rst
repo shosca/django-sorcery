@@ -12,6 +12,7 @@ Fix
 Other
 ~~~~~
 - Increase test coverage. [Serkan Hosca]
+- Increase test coverage. [Serkan Hosca]
 
 
 0.1.1 (2018-05-05)

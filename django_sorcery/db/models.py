@@ -280,8 +280,7 @@ class Base(object):
             elif relation.direction == sa.orm.interfaces.MANYTOONE:
                 cls._add_foreign_keys(relation.mapper.class_, relation)
             elif relation.direction == sa.orm.interfaces.MANYTOMANY:
-                if not relation.secondary:
-                    cls._add_association_table(relation.mapper.class_, relation)
+                cls._add_association_table(relation.mapper.class_, relation)
 
         rels.clear()
 
