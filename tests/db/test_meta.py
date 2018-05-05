@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from django_sorcery.db import meta  # noqa
 
 from ..base import TestCase
-from ..models import Owner, Vertex, Vehicle, VehicleType, COLORS
+from ..models import COLORS, Owner, Vehicle, VehicleType, Vertex
 
 
 class TestModelMeta(TestCase):

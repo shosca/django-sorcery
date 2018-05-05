@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django_sorcery.db.query import QueryProperty
 
 from ..base import TestCase
-from ..models import CompositePkModel, Owner, db, Vehicle, VehicleType
+from ..models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 
 class TestQuery(TestCase):

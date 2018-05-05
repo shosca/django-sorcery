@@ -4,6 +4,13 @@ Changelog
 
 Next version (unreleased yet)
 -----------------------------
+
+Fix
+~~~
+- Model choice field iterator. [Serkan Hosca]
+
+Other
+~~~~~
 - Increase test coverage. [Serkan Hosca]
 
 

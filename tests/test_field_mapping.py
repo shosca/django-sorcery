@@ -58,6 +58,7 @@ class TestFieldMapping(TestCase):
 
         class Meta:
             model = Owner
+            session = db
 
         mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
 
@@ -70,6 +71,7 @@ class TestFieldMapping(TestCase):
         class Meta:
             model = Owner
             fields = ["first_name"]
+            session = db
 
         mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
 
@@ -82,6 +84,7 @@ class TestFieldMapping(TestCase):
         class Meta:
             model = Owner
             exclude = ["first_name", "vehicles"]
+            session = db
 
         mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
 
@@ -112,6 +115,7 @@ class TestFieldMapping(TestCase):
 
         class Meta:
             model = Vehicle
+            session = db
 
         mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
 

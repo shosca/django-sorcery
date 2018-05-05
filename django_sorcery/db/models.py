@@ -37,10 +37,15 @@ def get_primary_keys_from_instance(instance):
     """
     Return a dict containing the primary keys of the ``instance``
     """
+    if instance is None:
+        return None
 
     info = model_info(type(instance))
 
-    return OrderedDict((name, getattr(instance, name)) for name in info.primary_keys)
+    if len(info.primary_keys) > 1:
+        return OrderedDict((name, getattr(instance, name)) for name in info.primary_keys)
+
+    return getattr(instance, next(iter(info.primary_keys)))
 
 
 def model_to_dict(instance, fields=None, exclude=None):
@@ -57,7 +62,9 @@ def model_to_dict(instance, fields=None, exclude=None):
     """
     info = model_info(type(instance))
 
-    fields = set(fields or list(info.properties.keys()) + list(info.primary_keys.keys()))
+    fields = set(
+        fields or list(info.properties.keys()) + list(info.primary_keys.keys()) + list(info.relationships.keys())
+    )
     exclude = set(exclude or [])
     data = {}
     for name in info.properties:
@@ -72,6 +79,28 @@ def model_to_dict(instance, fields=None, exclude=None):
             continue
 
         data[name] = getattr(instance, name)
+
+    for name, rel in info.relationships.items():
+
+        if name.startswith("_"):
+            continue
+
+        if name not in fields:
+            continue
+
+        if name in exclude:
+            continue
+
+        if rel.uselist:
+            for obj in getattr(instance, name):
+                pks = get_primary_keys_from_instance(obj)
+                if pks:
+                    data.setdefault(name, []).append(pks)
+        else:
+            obj = getattr(instance, name)
+            pks = get_primary_keys_from_instance(obj)
+            if pks:
+                data[name] = pks
 
     return data
 

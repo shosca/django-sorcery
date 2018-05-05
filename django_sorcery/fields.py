@@ -39,9 +39,13 @@ class ModelChoiceIterator(object):
 
     def __init__(self, field):
         self.field = field
-        self.query = self.field.session.query(self.field.model)
+
+    @property
+    def query(self):
+        return self.field.session.query(self.field.model)
 
     def __iter__(self):
+
         if self.field.empty_label is not None:
             yield ("", self.field.empty_label)
 
@@ -89,6 +93,7 @@ class ModelChoiceField(djangofields.ChoiceField):
         self._choices = None
         self.model = model
         self.session = session
+        self.widget.choices = self.choices
         self.limit_choices_to = limit_choices_to  # limit the queryset later.
         self.to_field_name = to_field_name
 
@@ -120,11 +125,7 @@ class ModelChoiceField(djangofields.ChoiceField):
         return str(obj)
 
     def prepare_instance_value(self, obj):
-        pks = get_primary_keys_from_instance(obj)
-        if len(pks) == 1:
-            return next(iter(pks.values()))
-
-        return pks
+        return get_primary_keys_from_instance(obj)
 
     def prepare_value(self, obj):
         if obj is not None:

@@ -78,13 +78,13 @@ class OwnerCreateViewWithFieldsAndForm(views.CreateView):
     model = Owner
     session = db
     fields = "__all__"
-    form_class = forms.modelform_factory(Owner, fields="__all__")
+    form_class = forms.modelform_factory(Owner, fields="__all__", session=db)
 
 
 class OwnerCreateViewWithForm(views.CreateView):
     model = Owner
     session = db
-    form_class = forms.modelform_factory(Owner, fields="__all__")
+    form_class = forms.modelform_factory(Owner, fields="__all__", session=db)
 
 
 class VehicleCreateView(views.CreateView):

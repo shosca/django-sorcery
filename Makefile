@@ -17,6 +17,7 @@ help:
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 clean-build:  ## remove build artifacts
+	find -name '*.sqlite3' -delete
 	rm -rf build/ dist/ .eggs/
 	rm -rf '*.egg-info'
 	rm -rf '*.egg'
