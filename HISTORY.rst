@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+Next version (unreleased yet)
+-----------------------------
+- Merge pull request #1 from shosca/field-mapping. [Serkan Hosca]
+- More field mapping coverage. [Serkan Hosca]
+
+
 0.2.0 (2018-05-07)
 ------------------
 
