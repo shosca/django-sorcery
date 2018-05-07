@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
------------------------------
+0.2.0 (2018-05-07)
+------------------
 
 Fix
 ~~~
@@ -11,6 +11,7 @@ Fix
 
 Other
 ~~~~~
+- 0.2.0. [Serkan Hosca]
 - Increase test coverage. [Serkan Hosca]
 - Increase test coverage. [Serkan Hosca]
 
