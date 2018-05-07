@@ -49,25 +49,19 @@ class TransactionContext(object):
 class _sqla_meta(type):
 
     def __new__(cls, name, bases, attrs):
+        typ = super(_sqla_meta, cls).__new__(cls, name, bases, attrs)
 
         # figure out all props to be proxied
         props = set([i for i in dir(sa.orm.Session()) if not i.startswith("__")])
         props.update(sa.orm.Session.public_methods)
 
-        proxies = {}
         for i in props:
-            if not hasattr(sa.orm.Session, i):
-                proxies[i] = sa.orm.scoping.makeprop(i)
-            elif callable(getattr(sa.orm.Session, i)):
-                proxies[i] = sa.orm.scoping.instrument(i)
-                proxies[i].__doc__ = "Proxy to ``Session.{}``".format(i)
-            else:
-                proxies[i] = sa.orm.scoping.makeprop(i)
+            if not hasattr(typ, name):
+                if hasattr(sa.orm.Session, i) and callable(getattr(sa.orm.Session, i)):
+                    setattr(typ, i, sa.orm.scoping.instrument(i))
+                else:
+                    setattr(typ, i, sa.orm.scoping.makeprop(i))
 
-        typ = super(_sqla_meta, cls).__new__(cls, name, bases, attrs)
-        for name, proxy in proxies.items():
-            if not hasattr(typ, name):  # don't override subclass implementations
-                setattr(typ, name, proxy)
         return typ
 
 
