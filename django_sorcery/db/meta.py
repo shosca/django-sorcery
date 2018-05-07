@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict
 from itertools import chain
+from decimal import Decimal
 
 import six
 
@@ -71,10 +72,11 @@ class _column_info(object):
                 kwargs["choices"] = self.column.type.enums
 
         with suppress(AttributeError):
-            kwargs["max_digits"] = self.column.type.precision
-
-        with suppress(AttributeError):
-            kwargs["decimal_places"] = self.column.type.scale
+            max_digits = self.column.type.precision
+            decimal_places = self.column.type.scale
+            if self.column.type.python_type == Decimal:
+                kwargs["max_digits"] = max_digits
+                kwargs["decimal_places"] = decimal_places
 
         with suppress(AttributeError):
             kwargs["max_length"] = self.column.type.length
