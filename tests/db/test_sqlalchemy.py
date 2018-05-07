@@ -4,9 +4,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 import sqlalchemy as sa
 
 from django_sorcery.db.query import Operation
+from django_sorcery.utils import suppress
 
 from ..base import TestCase
-from ..models import ModelOne, db
+from ..models import ModelOne, db, Owner
 
 
 class TestSQLAlchemy(TestCase):
@@ -41,6 +42,42 @@ class TestSQLAlchemy(TestCase):
 
     def test_make_args(self):
         self.assertEqual(db.args("test", other=True), ("test", {"other": True}))
+
+    def test_atomic_decorator(self):
+
+        @db.atomic()
+        def do_something():
+            db.add(Owner(first_name="test", last_name="last"))
+
+        do_something()
+        self.assertEqual(Owner.query.count(), 1)
+
+    def test_atomic_decorator_exception(self):
+
+        @db.atomic()
+        def do_something():
+            db.add(Owner(first_name="test", last_name="last"))
+            raise Exception()
+
+        with suppress(Exception):
+            do_something()
+
+        self.assertEqual(Owner.query.count(), 0)
+
+    def test_atomic_context(self):
+
+        with db.atomic():
+            db.add(Owner(first_name="test", last_name="last"))
+
+        self.assertEqual(Owner.query.count(), 1)
+
+    def test_atomic_context_exception(self):
+
+        with suppress(Exception), db.atomic():
+            db.add(Owner(first_name="test", last_name="last"))
+            raise Exception()
+
+        self.assertEqual(Owner.query.count(), 0)
 
 
 class TestSQLAlchemyRelationships(TestCase):
