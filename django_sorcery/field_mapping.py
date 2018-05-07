@@ -5,6 +5,7 @@ Field mapping from SQLAlchemy type's to form fields
 from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
+import six
 from collections import OrderedDict
 
 import sqlalchemy as sa
@@ -18,21 +19,25 @@ from .fields import EnumField, ModelChoiceField, ModelMultipleChoiceField, apply
 
 ALL_FIELDS = "__all__"
 
+FIELD_LOOKUP = {
+    # only python types here
+    bool: djangofields.BooleanField,
+    datetime.date: djangofields.DateField,
+    datetime.datetime: djangofields.DateTimeField,
+    datetime.time: djangofields.TimeField,
+    datetime.timedelta: djangofields.DurationField,
+    decimal.Decimal: djangofields.DecimalField,
+    float: djangofields.FloatField,
+    int: djangofields.IntegerField,
+    str: djangofields.CharField,
+}
+
+if six.PY2:
+    FIELD_LOOKUP[unicode] = djangofields.CharField  # noqa
+    FIELD_LOOKUP[long] = djangofields.IntegerField  # noqa
+
 
 class ModelFieldMapper(OrderedDict):
-
-    field_lookup = {
-        # only python types here
-        bool: djangofields.BooleanField,
-        datetime.date: djangofields.DateField,
-        datetime.datetime: djangofields.DateTimeField,
-        datetime.time: djangofields.TimeField,
-        datetime.timedelta: djangofields.DurationField,
-        decimal.Decimal: djangofields.DecimalField,
-        float: djangofields.FloatField,
-        int: djangofields.IntegerField,
-        str: djangofields.CharField,
-    }
 
     def __init__(self, opts, formfield_callback=None, apply_limit_choices_to=True):
         self.opts = opts
@@ -130,9 +135,9 @@ class ModelFieldMapper(OrderedDict):
                 return type_func(attr, **kwargs)
 
         python_type = attr.column.type.python_type
-        if python_type in self.field_lookup:
+        if python_type in FIELD_LOOKUP:
             kwargs.update(attr.field_kwargs)
-            return self.field_lookup[python_type](**kwargs)
+            return FIELD_LOOKUP[python_type](**kwargs)
 
     def build_enum_field(self, attr, **kwargs):
         kwargs.pop("max_length", None)
@@ -157,9 +162,15 @@ class ModelFieldMapper(OrderedDict):
     build_smallinteger_field = build_integer_field
     build_biginteger_field = build_integer_field
 
-    def build_float_field(self, attr, **kwargs):
-        return djangofields.FloatField(**kwargs)
-
     def build_text_field(self, attr, **kwargs):
         kwargs["widget"] = djangoforms.Textarea
         return djangofields.CharField(**kwargs)
+
+    build_clob_field = build_text_field
+
+    def build_binary_field(self, attr, **kwargs):
+        pass
+
+    build_blob_field = build_binary_field
+    build_largebinary_field = build_binary_field
+    build_varbinary_field = build_binary_field

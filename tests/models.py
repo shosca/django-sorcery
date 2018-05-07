@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-import enum
+from enum import Enum
 
 from django_sorcery.db import databases
 from django_sorcery.db.query import Query
@@ -12,7 +12,7 @@ db = databases.get("test")
 COLORS = ["", "red", "green", "blue", "silver"]
 
 
-class VehicleType(enum.Enum):
+class VehicleType(Enum):
     bus = "Bus"
     car = "Car"
 
@@ -70,11 +70,58 @@ class CompositePkModel(db.Model):
     active = db.queryproperty(is_active=True)
 
 
+class DummyEnum(Enum):
+    one = 1
+    two = 2
+
+
+Choices = ["three", "four"]
+
+
 class AllKindsOfFields(db.Model):
     pk = db.Column(db.Integer(), primary_key=True)
-    isit = db.Column(db.Boolean(), nullable=False)
+
+    # flags
+    boolean_notnull = db.Column(db.Boolean(), nullable=False)
+    boolean = db.Column(db.Boolean())
+    enum = db.Column(db.Enum(DummyEnum))
+    enum_choice = db.Column(db.Enum(*Choices))
+
+    # numbers
+    bigint = db.Column(db.BIGINT())
+    biginteger = db.Column(db.BigInteger())
+    decimal = db.Column(db.DECIMAL())
+    float = db.Column(db.Float())
+    int = db.Column(db.INT())
     integer = db.Column(db.Integer())
+    numeric = db.Column(db.Numeric())
+    real = db.Column(db.REAL())
+    smallint = db.Column(db.SMALLINT())
+    smallinteger = db.Column(db.SmallInteger())
+
+    # strings
+    char = db.Column(db.CHAR())
+    clob = db.Column(db.CLOB())
+    nchar = db.Column(db.NCHAR())
+    nvarchar = db.Column(db.NVARCHAR())
+    string = db.Column(db.String())
     text = db.Column(db.Text())
+    unicode = db.Column(db.Unicode())
+    unicodetext = db.Column(db.UnicodeText())
+    varchar = db.Column(db.VARCHAR())
+
+    # dates, times and durations
+    date = db.Column(db.Date())
+    datetime = db.Column(db.DateTime())
+    interval = db.Column(db.Interval())
+    time = db.Column(db.Time())
+    timestamp = db.Column(db.TIMESTAMP())
+
+    # blobs
+    binary = db.Column(db.Binary())
+    blob = db.Column(db.BLOB())
+    largebinary = db.Column(db.LargeBinary())
+    varbinary = db.Column(db.VARBINARY())
 
 
 class Point(object):
