@@ -2,8 +2,14 @@ Changelog
 =========
 
 
+0.2.2 (2018-05-08)
+------------------
+- Use app config label in template name. [Serkan Hosca]
+
+
 0.2.1 (2018-05-07)
 ------------------
+- 0.2.1. [Serkan Hosca]
 - Merge pull request #3 from shosca/transaction. [Serkan Hosca]
 - Add transaction tests. [Serkan Hosca]
 - Merge pull request #2 from shosca/proxy. [Serkan Hosca]
