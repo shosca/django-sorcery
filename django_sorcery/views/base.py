@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy.exc import InvalidRequestError
 
+from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import ContextMixin
 
@@ -52,4 +53,16 @@ class SQLAlchemyMixin(ContextMixin):
         raise ImproperlyConfigured(
             "%(cls)s is missing a QuerySet. Define %(cls)s.model and %(cls)s.session, %(cls)s.queryset, or override "
             "%(cls)s.get_queryset()." % {"cls": self.__class__.__name__}
+        )
+
+    def get_model_template_name(self):
+        """
+        Returns the base template path
+        """
+        model = self.get_model()
+        app_config = apps.get_containing_app_config(model.__module__)
+        return "%s/%s%s.html" % (
+            model.__name__.lower() if app_config is None else app_config.label,
+            model.__name__.lower(),
+            self.template_name_suffix,
         )

@@ -25,6 +25,8 @@ SQLALCHEMY_CONNECTIONS = {
     "minimal_backpop": {"DIALECT": "sqlite"},
 }
 
+INSTALLED_APPS = ["tests.apps.TestConfig", "django.contrib.staticfiles"]
+
 ROOT_URLCONF = "tests.urls"
 
 LANGUAGE_CODE = "en-us"
@@ -38,8 +40,6 @@ USE_L10N = True
 USE_TZ = True
 
 SECRET_KEY = "secret"
-
-INSTALLED_APPS = ["django.contrib.staticfiles"]
 
 ALLOWED_HOSTS = ["*"]
 
