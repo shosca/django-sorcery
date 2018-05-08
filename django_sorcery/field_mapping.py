@@ -5,15 +5,17 @@ Field mapping from SQLAlchemy type's to form fields
 from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
-import six
 from collections import OrderedDict
+from itertools import chain
+
+import six
 
 import sqlalchemy as sa
 
 from django import forms as djangoforms
 from django.forms import fields as djangofields
 
-from .db.meta import model_info
+from .db import meta
 from .fields import EnumField, ModelChoiceField, ModelMultipleChoiceField, apply_limit_choices_to_form_field
 
 
@@ -31,10 +33,8 @@ FIELD_LOOKUP = {
     int: djangofields.IntegerField,
     str: djangofields.CharField,
 }
-
-if six.PY2:
-    FIELD_LOOKUP[unicode] = djangofields.CharField  # noqa
-    FIELD_LOOKUP[long] = djangofields.IntegerField  # noqa
+FIELD_LOOKUP.update({t: djangofields.CharField for t in six.string_types})
+FIELD_LOOKUP.update({t: djangofields.IntegerField for t in six.integer_types})
 
 
 class ModelFieldMapper(OrderedDict):
@@ -65,9 +65,9 @@ class ModelFieldMapper(OrderedDict):
 
         field_list = []
 
-        info = model_info(self.opts.model)
+        info = meta.model_info(self.opts.model)
 
-        for name, attr in info.properties.items():
+        for name, attr in chain(info.properties.items(), info.relationships.items()):
 
             if name.startswith("_"):
                 continue
@@ -79,35 +79,24 @@ class ModelFieldMapper(OrderedDict):
                 continue
 
             kwargs = self.get_default_kwargs(name)
-            if callable(self.formfield_callback):
-                formfield = self.formfield_callback(attr, **kwargs)
-            else:
-                formfield = self.build_standard_field(attr)
+            formfield = self.build_field(attr, **kwargs)
 
             if formfield:
                 if self.apply_limit_choices_to:
                     apply_limit_choices_to_form_field(formfield)
                 field_list.append((name, formfield))
 
-        formfield = None
-        for name, rel in info.relationships.items():
-
-            if self.opts.fields and name not in self.opts.fields:
-                continue
-
-            if self.opts.exclude and name in self.opts.exclude:
-                continue
-
-            kwargs = self.get_default_kwargs(name)
-            if callable(self.formfield_callback):
-                formfield = self.formfield_callback(rel, **kwargs)
-            else:
-                formfield = self.build_relationship_field(rel, **kwargs)
-
-            if formfield:
-                field_list.append((name, formfield))
-
         return OrderedDict(field_list)
+
+    def build_field(self, info, **kwargs):
+        if self.formfield_callback is not None:
+            return self.formfield_callback(info, **kwargs)
+
+        if isinstance(info, meta.column_info):
+            return self.build_standard_field(info, **kwargs)
+
+        if isinstance(info, meta.relation_info):
+            return self.build_relationship_field(info, **kwargs)
 
     def build_relationship_field(self, relation, **kwargs):
         if relation.direction == sa.orm.relationships.MANYTOMANY:
@@ -134,10 +123,10 @@ class ModelFieldMapper(OrderedDict):
                 kwargs.update(attr.field_kwargs)
                 return type_func(attr, **kwargs)
 
-        python_type = attr.column.type.python_type
-        if python_type in FIELD_LOOKUP:
-            kwargs.update(attr.field_kwargs)
-            return FIELD_LOOKUP[python_type](**kwargs)
+        for base in attr.column.type.python_type.mro():
+            if base in FIELD_LOOKUP:
+                kwargs.update(attr.field_kwargs)
+                return FIELD_LOOKUP[base](**kwargs)
 
     def build_enum_field(self, attr, **kwargs):
         kwargs.pop("max_length", None)

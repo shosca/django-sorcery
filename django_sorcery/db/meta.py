@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict
-from itertools import chain
 from decimal import Decimal
+from itertools import chain
 
 import six
 
@@ -37,7 +37,7 @@ class composite_info(six.with_metaclass(model_info_meta)):
 
         self.properties = {}
         for attr, prop, col in zip(attrs, self.prop.props, self.prop.columns):
-            self.properties[attr] = _column_info(prop, col)
+            self.properties[attr] = column_info(prop, col)
 
     @property
     def field_names(self):
@@ -49,7 +49,7 @@ class composite_info(six.with_metaclass(model_info_meta)):
         return self._field_names
 
 
-class _column_info(object):
+class column_info(object):
     __slots__ = ("property", "column")
 
     def __init__(self, prop, column):
@@ -97,6 +97,10 @@ class relation_info(object):
         self.relationship = relationship
 
     @property
+    def name(self):
+        return self.relationship.key
+
+    @property
     def related_model(self):
         return self.relationship.mapper.class_
 
@@ -133,12 +137,12 @@ class model_info(six.with_metaclass(model_info_meta)):
 
         for col in self.mapper.primary_key:
             attr = self.mapper.get_property_by_column(col)
-            self.primary_keys[attr.key] = _column_info(attr, col)
+            self.primary_keys[attr.key] = column_info(attr, col)
 
         for col in self.mapper.columns:
             attr = self.mapper.get_property_by_column(col)
             if attr.key not in self.primary_keys:
-                self.properties[attr.key] = _column_info(attr, col)
+                self.properties[attr.key] = column_info(attr, col)
 
         for composite in self.mapper.composites:
             self.composites[composite.key] = composite_info(getattr(model, composite.key))
