@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-0.2.2 (2018-05-08)
+0.2.3 (2018-05-08)
 ------------------
 - Use app config label in template name. [Serkan Hosca]
 
