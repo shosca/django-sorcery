@@ -25,6 +25,19 @@ class TestSQLAlchemy(TestCase):
         with self.assertRaises(sa.exc.InvalidRequestError):
             db.session(autocommit=True)
 
+    def test_callable(self):
+
+        session = db()
+        self.assertEqual(db(), db())
+        self.assertFalse(session.autocommit)
+
+        db.remove()
+        session = db(autocommit=True)
+        self.assertTrue(session.autocommit)
+
+        with self.assertRaises(sa.exc.InvalidRequestError):
+            db(autocommit=True)
+
     def test_url(self):
         self.assertEqual(db.bind.url, db.url)
 

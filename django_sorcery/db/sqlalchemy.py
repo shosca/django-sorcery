@@ -70,33 +70,28 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
     This class itself is a scoped session and provides very thin and useful abstractions and conventions for using
     sqlalchemy with django.
     """
+    session_class = SignallingSession
+    query_class = Query
+    registry_class = sa.util.ThreadLocalRegistry
+    model_class = Base
 
     def __init__(self, alias=None, **kwargs):
-        self.kwargs = kwargs
-        self.query_class = kwargs.setdefault("query_cls", Query)
         self.alias = alias or DEFAULT_DB_ALIAS
+        self.url, self.kwargs = self._make_url(alias)
+        self.kwargs.update(kwargs)
+        self.session_class = kwargs.pop("session_class", None) or self.session_class
+        self.query_class = kwargs.pop("query_class", None) or self.query_class
+        self.registry_class = kwargs.pop("registry_class", None) or self.registry_class
+        self.model_class = kwargs.pop("model_class", None) or self.model_class
+        self.engine_options = kwargs.pop("engine_options", {})
+        self.session_options = kwargs.pop("session_options", {})
 
-        registry_class = kwargs.pop("registry_class", sa.util.ThreadLocalRegistry)
-
-        url, opts = self._make_url(alias)
-        engine_options = kwargs.pop("engine_options", opts.get("engine_options", {}))
-        session_options = kwargs.pop("session_options", opts.get("session_options", {}))
-        session_options.update(
-            {"class_": kwargs.pop("session_class", SignallingSession), "query_cls": self.query_class}
-        )
-
-        engine = self._create_engine(url, **engine_options)
-        apply_engine_hacks(engine)
-        engine_created.send(engine)
-        session_options["bind"] = engine
-
-        self.registry = registry_class(sa.orm.sessionmaker(**session_options))
+        self.session_options.setdefault("query_cls", self.query_class)
+        self.session_options.setdefault("class_", self.session_class)
 
         self.middleware = self.make_middleware()
+        self.Model = self._make_declarative(self.model_class)
 
-        self.Model = self._make_declarative(kwargs.pop("model_class", Base))
-
-        # Copy common stuff here for convenience
         for module in sa, sa.sql, sa.orm:
             for key in module.__all__:
                 if not hasattr(self, key):
@@ -107,6 +102,17 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
         self.relationship = self._wrap(self.relationship)
         self.relation = self._wrap(self.relation)
         self.dynamic_loader = self._wrap(self.dynamic_loader)
+
+    def __call__(self, **kwargs):
+        return self.session(**kwargs)
+
+    @property
+    def registry(self):
+        if not hasattr(self, "_registry"):
+            engine = self._create_engine(self.url, **self.engine_options)
+            self._registry = self.registry_class(sa.orm.sessionmaker(bind=engine, **self.session_options))
+
+        return self._registry
 
     def session(self, **kwargs):
         """
@@ -334,7 +340,10 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
         return func
 
     def _create_engine(self, url, **kwargs):
-        return sa.create_engine(url, **kwargs)
+        engine = sa.create_engine(url, **kwargs)
+        apply_engine_hacks(engine)
+        engine_created.send(engine)
+        return engine
 
     def _make_url(self, alias):
         """
@@ -352,7 +361,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
         model: class
             The base class for the declarative_base to be inherited from
         """
-        base = declarative_base(cls=model, bind=self.engine)
+        base = declarative_base(cls=model)
 
         # allow to customize things in custom base model
         if not hasattr(base, "query_class"):
@@ -363,13 +372,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
             base.objects = self.queryproperty()
 
         return base
-
-    @property
-    def url(self):
-        """
-        Current engine connection url
-        """
-        return self.bind.url
 
     @property
     def engine(self):
@@ -440,4 +442,4 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
         """
         Create the schema in db
         """
-        self.metadata.create_all()
+        self.metadata.create_all(bind=self.engine)
