@@ -111,12 +111,8 @@ class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
                 if name:
                     names.insert(0, name)
 
-            if hasattr(self, "get_model"):
-                model = self.get_model()
-                if model:
-                    names.append(
-                        "%s/%s%s.html" % (model.__name__.lower(), model.__name__.lower(), self.template_name_suffix)
-                    )
+            if hasattr(self, "get_model_template_name"):
+                names.append(self.get_model_template_name())
 
             if not names:
                 six.reraise(ImproperlyConfigured, e)

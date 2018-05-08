@@ -163,11 +163,8 @@ class MultipleObjectTemplateResponseMixin(TemplateResponseMixin):
             # name list so that user-supplied names override the automatically-
             # generated ones.
 
-            if hasattr(self, "get_model"):
-                model = self.get_model()
-                names.append(
-                    "%s/%s%s.html" % (model.__name__.lower(), model.__name__.lower(), self.template_name_suffix)
-                )
+            if hasattr(self, "get_model_template_name"):
+                names.append(self.get_model_template_name())
             elif not names:
                 raise ImproperlyConfigured(
                     "%(cls)s requires either a 'template_name' attribute or a get_queryset() method that returns a "
