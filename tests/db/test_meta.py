@@ -49,6 +49,7 @@ class TestRelationshipMeta(TestCase):
         rel = info.relationships["vehicles"]
 
         self.assertEqual(rel.related_model, Vehicle)
+        self.assertEqual(rel.name, "vehicles")
         self.assertEqual(rel.direction, sa.orm.relationships.ONETOMANY)
         self.assertEqual(list(rel.foreign_keys), Vehicle._owner_id.property.columns)
         self.assertTrue(rel.uselist)

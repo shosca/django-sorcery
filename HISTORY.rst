@@ -2,8 +2,20 @@ Changelog
 =========
 
 
+Next version (unreleased yet)
+-----------------------------
+- Use mro in python_type field mapping. [Serkan Hosca]
+
+
 0.2.3 (2018-05-08)
 ------------------
+- 0.2.3. [Serkan Hosca]
+
+
+0.2.2 (2018-05-08)
+------------------
+- 0.2.2. [Serkan Hosca]
+- Merge pull request #4 from shosca/app-label-template. [Serkan Hosca]
 - Use app config label in template name. [Serkan Hosca]
 
 
