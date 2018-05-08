@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
------------------------------
+0.2.4 (2018-05-08)
+------------------
+- Merge pull request #5 from shosca/field-map. [Serkan Hosca]
 - Use mro in python_type field mapping. [Serkan Hosca]
 
 
