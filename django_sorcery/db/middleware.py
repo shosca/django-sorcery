@@ -3,6 +3,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from . import databases
 
+from .signals import all_signals
+
+before_middleware_request = all_signals.signal("before_middleware_request")
+after_middleware_response = all_signals.signal("after_middleware_response")
+
 
 class BaseMiddleware(object):
 
@@ -12,8 +17,7 @@ class BaseMiddleware(object):
     def __call__(self, request):
         response = self.process_request(request)
         if response is not None:
-            self.remove(request, response)
-            return response
+            return self.return_response(request, response)
 
         response = self.get_response(request)
 
@@ -23,6 +27,7 @@ class BaseMiddleware(object):
         """
         Hook for adding arbitrary logic to request processing
         """
+        before_middleware_request.send(self.__class__, middleware=self, request=request)
 
     def process_response(self, request, response):
         """
@@ -42,7 +47,12 @@ class BaseMiddleware(object):
             else:
                 self.rollback(request=request, response=response)
 
+        return self.return_response(request, response)
+
+    def return_response(self, request, response):
         self.remove(request=request, response=response)
+
+        after_middleware_response.send(self.__class__, middleware=self, request=request, response=response)
 
         return response
 
