@@ -2,8 +2,15 @@ Changelog
 =========
 
 
+0.2.5 (2018-05-09)
+------------------
+- Merge pull request #6 from shosca/lazy-init. [Serkan Hosca]
+- Lazy create engine. [Serkan Hosca]
+
+
 0.2.4 (2018-05-08)
 ------------------
+- 0.2.4. [Serkan Hosca]
 - Merge pull request #5 from shosca/field-map. [Serkan Hosca]
 - Use mro in python_type field mapping. [Serkan Hosca]
 
