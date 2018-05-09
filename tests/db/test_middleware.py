@@ -17,6 +17,7 @@ class DummyMiddeware(middleware.BaseMiddleware):
     remove_called = False
 
     def process_request(self, request):
+        super(DummyMiddeware, self).process_request(request)
         if hasattr(self, "dummy"):
             return self.dummy
 
