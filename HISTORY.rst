@@ -4,6 +4,7 @@ Changelog
 
 0.2.5 (2018-05-09)
 ------------------
+- 0.2.5. [Serkan Hosca]
 - Merge pull request #6 from shosca/lazy-init. [Serkan Hosca]
 - Lazy create engine. [Serkan Hosca]
 
