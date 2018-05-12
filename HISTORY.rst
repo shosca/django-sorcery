@@ -2,6 +2,19 @@ Changelog
 =========
 
 
+0.2.7 (2018-05-12)
+------------------
+- Merge pull request #8 from shosca/enum-field. [Serkan Hosca]
+- Enum field fixes. [Serkan Hosca]
+
+
+0.2.6 (2018-05-09)
+------------------
+- 0.2.6. [Serkan Hosca]
+- Merge pull request #7 from shosca/middeware-signals. [Serkan Hosca]
+- Add middleware signals. [Serkan Hosca]
+
+
 0.2.5 (2018-05-09)
 ------------------
 - 0.2.5. [Serkan Hosca]
