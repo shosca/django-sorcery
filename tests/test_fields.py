@@ -12,7 +12,7 @@ from .models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 class TestEnumField(TestCase):
 
-    def test_to_python(self):
+    def test_field(self):
         field = fields.EnumField(enum_class=VehicleType)
 
         value = field.to_python(None)
@@ -21,18 +21,47 @@ class TestEnumField(TestCase):
         value = field.to_python("car")
         self.assertEqual(value, VehicleType.car)
 
-    def test_valid_value(self):
-        value = fields.EnumField(enum_class=VehicleType).valid_value(None)
+        value = field.valid_value(None)
         self.assertFalse(value)
 
-        value = fields.EnumField(enum_class=VehicleType, required=False).valid_value(None)
-        self.assertTrue(value)
+        value = field.prepare_value(VehicleType.car)
+        self.assertEqual(value, "car")
 
-        value = fields.EnumField(enum_class=VehicleType, required=False).valid_value("car")
+        value = field.bound_data(VehicleType.car, None)
+        self.assertEqual(value, "car")
+
+        value = field.bound_data(None, None)
+        self.assertIsNone(value)
+
+        value = field.bound_data(None, VehicleType.car)
+        self.assertIsNone(value, "car")
+
+        value = field.prepare_value(None)
         self.assertFalse(value)
 
-        value = fields.EnumField(enum_class=VehicleType, required=False).valid_value(VehicleType.car)
+    def test_field_not_required(self):
+        field = fields.EnumField(enum_class=VehicleType, required=False)
+
+        value = field.valid_value(None)
         self.assertTrue(value)
+
+        value = field.valid_value("car")
+        self.assertFalse(value)
+
+        value = field.valid_value(VehicleType.car)
+        self.assertTrue(value)
+
+        value = field.valid_value(VehicleType.car)
+        self.assertTrue(value)
+
+        value = field.bound_data(VehicleType.car, None)
+        self.assertEqual(value, "car")
+
+        value = field.bound_data(None, None)
+        self.assertIsNone(value)
+
+        value = field.bound_data(None, VehicleType.car)
+        self.assertIsNone(value, "car")
 
 
 class TestModelChoiceField(TestCase):

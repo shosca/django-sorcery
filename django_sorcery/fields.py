@@ -15,13 +15,17 @@ from .db.models import get_primary_keys, get_primary_keys_from_instance
 class EnumField(djangofields.TypedChoiceField):
 
     empty_value = None
+    empty_label = None
 
     def __init__(self, *args, **kwargs):
         self.enum_class = kwargs.pop("enum_class", None)
         kwargs["choices"] = [(e.name, e.value) for e in self.enum_class]
         kwargs["coerce"] = self.enum_class
         kwargs.pop("max_length", None)
+        self.empty_label = kwargs.pop("empty_label", "")
         super(EnumField, self).__init__(*args, **kwargs)
+        if not self.required:
+            self.choices = [(self.empty_value, self.empty_label)] + list(self.choices)
 
     def to_python(self, value):
         value = super(EnumField, self).to_python(value)
@@ -33,6 +37,13 @@ class EnumField(djangofields.TypedChoiceField):
             return not self.required
 
         return value in self.enum_class
+
+    def prepare_value(self, value):
+        return value if value is None else value.name
+
+    def bound_data(self, data, initial):
+        value = super(EnumField, self).bound_data(data, initial)
+        return self.prepare_value(value)
 
 
 class ModelChoiceIterator(object):
