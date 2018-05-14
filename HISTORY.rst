@@ -2,8 +2,15 @@ Changelog
 =========
 
 
+0.2.8 (2018-05-14)
+------------------
+- Merge pull request #9 from shosca/refactor-enum. [Serkan Hosca]
+- Refactor enum field. [Serkan Hosca]
+
+
 0.2.7 (2018-05-12)
 ------------------
+- 0.2.7. [Serkan Hosca]
 - Merge pull request #8 from shosca/enum-field. [Serkan Hosca]
 - Enum field fixes. [Serkan Hosca]
 
