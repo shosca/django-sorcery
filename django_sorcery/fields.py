@@ -12,20 +12,20 @@ from django.utils.translation import gettext_lazy
 from .db.models import get_primary_keys, get_primary_keys_from_instance
 
 
-class EnumField(djangofields.TypedChoiceField):
+class EnumField(djangofields.ChoiceField):
 
     empty_value = None
-    empty_label = None
 
     def __init__(self, *args, **kwargs):
         self.enum_class = kwargs.pop("enum_class", None)
-        kwargs["choices"] = [(e.name, e.value) for e in self.enum_class]
-        kwargs["coerce"] = self.enum_class
         kwargs.pop("max_length", None)
-        self.empty_label = kwargs.pop("empty_label", "")
+
+        kwargs["choices"] = [(e.name, e.value) for e in self.enum_class]
+        if not kwargs.get("required", True):
+            empty_label = kwargs.pop("empty_label", "")
+            kwargs["choices"] = [(self.empty_value, empty_label)] + kwargs["choices"]
+
         super(EnumField, self).__init__(*args, **kwargs)
-        if not self.required:
-            self.choices = [(self.empty_value, self.empty_label)] + list(self.choices)
 
     def to_python(self, value):
         value = super(EnumField, self).to_python(value)
