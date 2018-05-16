@@ -36,63 +36,41 @@ def make_url(alias_or_url):
         return url, {}
 
     if hasattr(settings, "SQLALCHEMY_CONNECTIONS") and alias in settings.SQLALCHEMY_CONNECTIONS:
-        return make_url_from_sqlalchemy_connections(alias)
+        return make_url_from(alias, settings.SQLALCHEMY_CONNECTIONS)
 
-    return make_url_from_databases(alias)
+    return make_url_from(alias, settings.DATABASES)
 
 
-def make_url_from_sqlalchemy_connections(alias):
+def make_url_from(alias, settings):
     """
-    Generates a URL using the alias in SQLALCHEMY_CONNECTIONS in settings
-    ---------------------------------------------------------------------
+    Generates a URL using the alias in settings
+    -------------------------------------------
     alias: str
         name of the alias
     """
-    data = settings.SQLALCHEMY_CONNECTIONS[alias]
-    names = [data["DIALECT"].lower()]
 
-    if "DRIVER" in data:
-        names.append(data["DRIVER"].lower())
-
-    drivername = "+".join(names)
-
-    url = sa.engine.url.URL(drivername, username=data.get("USER") or None, password=data.get("PASSWORD") or None)
-
-    url.host = data.get("HOST") or None
-    url.database = data.get("NAME") or None
-    try:
-        url.port = int(data.get("PORT"))
-    except Exception:
-        pass
-
-    return url, data.get("OPTIONS", {})
-
-
-def make_url_from_databases(alias):
-    """
-    Generates a URL using the alias in DATABASES in settings
-    ---------------------------------------------------------------------
-    alias: str
-        name of the alias
-    """
-    data = settings.DATABASES[alias]
+    data = settings[alias]
 
     if "DIALECT" not in data:
         data["DIALECT"] = DIALECT_MAP.get(data["ENGINE"]) or data["ENGINE"].split(".")[-1]
 
     names = [data["DIALECT"].lower()]
+
     if "DRIVER" in data:
         names.append(data["DRIVER"].lower())
 
     drivername = "+".join(names)
 
     url = sa.engine.url.URL(drivername, username=data.get("USER") or None, password=data.get("PASSWORD") or None)
+
     url.host = data.get("HOST") or None
     url.database = data.get("NAME") or None
     try:
         url.port = int(data.get("PORT"))
     except Exception:
         pass
+
+    url.query.update(data.get("QUERY", {}))
 
     return url, data.get("OPTIONS", {})
 
