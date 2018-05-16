@@ -2,8 +2,15 @@ Changelog
 =========
 
 
+0.3.0 (2018-05-16)
+------------------
+- Merge pull request #10 from shosca/url-refactory. [Serkan Hosca]
+- Refactor url generation and allow query settings. [Serkan Hosca]
+
+
 0.2.8 (2018-05-14)
 ------------------
+- 0.2.8. [Serkan Hosca]
 - Merge pull request #9 from shosca/refactor-enum. [Serkan Hosca]
 - Refactor enum field. [Serkan Hosca]
 
