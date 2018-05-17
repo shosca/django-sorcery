@@ -76,18 +76,4 @@ class SQLAlchemyDBMiddleware(BaseMiddleware):
 
 class SQLAlchemyMiddleware(SQLAlchemyDBMiddleware):
 
-    def rollback(self, request, response):
-        for db in databases.values():
-            db.rollback()
-
-    def flush(self, request, response):
-        for db in databases.values():
-            db.flush()
-
-    def commit(self, request, response):
-        for db in databases.values():
-            db.commit()
-
-    def remove(self, request, response):
-        for db in databases.values():
-            db.remove()
+    db = databases
