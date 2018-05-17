@@ -2,8 +2,16 @@ Changelog
 =========
 
 
+0.3.1 (2018-05-17)
+------------------
+- Merge pull request #11 from shosca/shortcuts. [Serkan Hosca]
+- Add get_list_or_404 shortcut. [Serkan Hosca]
+- Add get_object_or_404 shortcut. [Serkan Hosca]
+
+
 0.3.0 (2018-05-16)
 ------------------
+- 0.3.0. [Serkan Hosca]
 - Merge pull request #10 from shosca/url-refactory. [Serkan Hosca]
 - Refactor url generation and allow query settings. [Serkan Hosca]
 
@@ -88,3 +96,5 @@ Other
 0.1.0 (2018-05-05)
 ------------------
 - Initial commit. [Serkan Hosca]
+
+
