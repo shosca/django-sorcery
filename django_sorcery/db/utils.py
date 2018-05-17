@@ -34,3 +34,19 @@ class dbdict(dict):
             raise RuntimeError("Database alias `{alias}` has wrong type".format(alias=alias))
 
         super(dbdict, self).__setitem__(alias, val)
+
+    def rollback(self):
+        for db in self.values():
+            db.rollback()
+
+    def flush(self):
+        for db in self.values():
+            db.flush()
+
+    def commit(self):
+        for db in self.values():
+            db.commit()
+
+    def remove(self):
+        for db in self.values():
+            db.remove()
