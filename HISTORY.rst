@@ -2,8 +2,15 @@ Changelog
 =========
 
 
+0.3.2 (2018-05-17)
+------------------
+- Merge pull request #12 from shosca/middleware. [Serkan Hosca]
+- Refactor middleware. [Serkan Hosca]
+
+
 0.3.1 (2018-05-17)
 ------------------
+- 0.3.1. [Serkan Hosca]
 - Merge pull request #11 from shosca/shortcuts. [Serkan Hosca]
 - Add get_list_or_404 shortcut. [Serkan Hosca]
 - Add get_object_or_404 shortcut. [Serkan Hosca]
