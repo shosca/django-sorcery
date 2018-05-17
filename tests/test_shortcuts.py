@@ -35,3 +35,17 @@ class TestShortcuts(TestCase):
 
         with self.assertRaises(Http404):
             shortcuts.get_object_or_404(Owner.query, id=999)
+
+    def test_get_list_or_404(self):
+
+        obj = shortcuts.get_list_or_404(Owner)
+        self.assertTrue(list(obj))
+
+        with self.assertRaises(Http404):
+            shortcuts.get_list_or_404(Owner, Owner.first_name.ilike("XXX"))
+
+        obj = shortcuts.get_list_or_404(Owner, first_name="Test 1")
+        self.assertTrue(list(obj))
+
+        with self.assertRaises(Http404):
+            shortcuts.get_list_or_404(Owner, first_name="XXX")
