@@ -20,3 +20,4 @@ Submodules
    django_sorcery.db.sqlalchemy
    django_sorcery.db.url
    django_sorcery.db.utils
+

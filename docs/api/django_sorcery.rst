@@ -19,8 +19,11 @@ Submodules
 
 .. toctree::
 
+   django_sorcery.compat
    django_sorcery.field_mapping
    django_sorcery.fields
    django_sorcery.forms
    django_sorcery.formsets
+   django_sorcery.shortcuts
    django_sorcery.utils
+
