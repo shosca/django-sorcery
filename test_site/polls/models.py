@@ -13,7 +13,9 @@ class Question(db.Model):
 class Choice(db.Model):
     pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
     choice_text = db.Column(db.String(length=200))
-    votes = db.Column(db.Integer())
+    votes = db.Column(db.Integer(), default=0)
+
+    question = db.ManyToOne(Question, backref=db.backref("choices", cascade="all, delete-orphan"))
 
 
 db.configure_mappers()
