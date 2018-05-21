@@ -2,8 +2,19 @@ Changelog
 =========
 
 
+0.3.3 (2018-05-21)
+------------------
+- Merge pull request #15 from shosca/middleware-logger. [Serkan Hosca]
+- Add middleware logger. [Serkan Hosca]
+- Merge pull request #14 from shosca/docs. [Serkan Hosca]
+- More docs. [Serkan Hosca]
+- Merge pull request #13 from shosca/docs. [Serkan Hosca]
+- Add a test_site and docs. [Serkan Hosca]
+
+
 0.3.2 (2018-05-17)
 ------------------
+- 0.3.2. [Serkan Hosca]
 - Merge pull request #12 from shosca/middleware. [Serkan Hosca]
 - Refactor middleware. [Serkan Hosca]
 
@@ -103,5 +114,3 @@ Other
 0.1.0 (2018-05-05)
 ------------------
 - Initial commit. [Serkan Hosca]
-
-
