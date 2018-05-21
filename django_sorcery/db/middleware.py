@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
+import logging
 
 from . import databases
 
@@ -8,8 +9,12 @@ from .signals import all_signals
 before_middleware_request = all_signals.signal("before_middleware_request")
 after_middleware_response = all_signals.signal("after_middleware_response")
 
+logger = logging.getLogger(__name__)
+
 
 class BaseMiddleware(object):
+
+    logger = logger
 
     def __init__(self, get_response=None):
         self.get_response = get_response
@@ -42,6 +47,7 @@ class BaseMiddleware(object):
                     self.flush(request=request, response=response)
                     self.commit(request=request, response=response)
                 except Exception:
+                    self.logger.error("Error during flush or commit")
                     self.rollback(request=request, response=response)
 
             else:
