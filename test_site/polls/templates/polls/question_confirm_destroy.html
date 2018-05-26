@@ -1,0 +1,9 @@
+
+<p>
+    Are you sure you want to delete {{ question }}?
+</p>
+
+<form action="{% url 'polls:question-destroy' question.pk %}" method="post">
+{% csrf_token %}
+<input type="submit" value="Delete" />
+</form>

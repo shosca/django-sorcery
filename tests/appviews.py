@@ -3,7 +3,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.urls import reverse_lazy
 
-from django_sorcery import forms, views
+from django_sorcery import forms, views, viewsets
+from django_sorcery.routers import action
 
 from .models import Owner, Vehicle, db
 
@@ -97,3 +98,11 @@ class OwnerDeleteView(views.DeleteView):
     model = Owner
     session = db
     success_url = reverse_lazy("owners_list")
+
+
+class OwnerViewSet(viewsets.ModelViewSet):
+    model = Owner
+
+    @action(detail=True)
+    def custom(self, request, *args, **kwargs):
+        return self.detail(request, *args, **kwargs)

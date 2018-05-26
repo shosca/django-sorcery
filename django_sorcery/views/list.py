@@ -1,89 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from sqlalchemy import literal
-
 from django.core.exceptions import ImproperlyConfigured
-from django.core.paginator import InvalidPage, Paginator
-from django.http import Http404
-from django.utils.translation import gettext
 from django.views.generic.base import TemplateResponseMixin, View
 
-from .base import SQLAlchemyMixin
+from .base import BaseMultipleObjectMixin
 
 
-class MultipleObjectMixin(SQLAlchemyMixin):
+class MultipleObjectMixin(BaseMultipleObjectMixin):
     """A mixin for views manipulating multiple objects."""
-    allow_empty = True
-    paginate_by = None
-    paginate_orphans = 0
-    paginator_class = Paginator
-    page_kwarg = "page"
-    ordering = None
+
     context_object_name = "object_list"
-
-    def get_queryset(self):
-        """
-        Return the list of items for this view.
-        The return value must be an iterable and may be an instance of
-        `QuerySet` in which case `QuerySet` specific behavior will be enabled.
-        """
-        queryset = super(MultipleObjectMixin, self).get_queryset()
-
-        ordering = self.get_ordering()
-        if ordering is not None:
-            queryset = queryset.order_by(*ordering)
-
-        return queryset
-
-    def get_ordering(self):
-        """Return the field or fields to use for ordering the queryset."""
-        return self.ordering
-
-    def get_paginate_by(self, queryset):
-        """
-        Get the number of items to paginate by, or ``None`` for no pagination.
-        """
-        return self.paginate_by
-
-    def get_paginate_orphans(self):
-        """
-        Return the maximum number of orphans extend the last page by when
-        paginating.
-        """
-        return self.paginate_orphans
-
-    def get_paginator(self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs):
-        """Return an instance of the paginator for this view."""
-        return self.paginator_class(
-            queryset, per_page, orphans=orphans, allow_empty_first_page=allow_empty_first_page, **kwargs
-        )
-
-    def paginate_queryset(self, queryset, page_size):
-        """
-        Paginate queryset
-        """
-        paginator = self.get_paginator(
-            queryset, page_size, orphans=self.get_paginate_orphans(), allow_empty_first_page=self.get_allow_empty()
-        )
-        page_kwarg = self.page_kwarg
-        page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        try:
-            page_number = int(page)
-        except ValueError:
-            if page == "last":
-                page_number = paginator.num_pages
-            else:
-                raise Http404(gettext("Page is not 'last', nor can it be converted to an int."))
-
-        try:
-            page = paginator.page(page_number)
-            return (paginator, page, page.object_list, page.has_other_pages())
-
-        except InvalidPage as e:
-            raise Http404(
-                gettext("Invalid page (%(page_number)s): %(message)s") % {"page_number": page_number, "message": str(e)}
-            )
 
     def get_context_object_name(self, object_list):
         """Get the name to use for the object."""
@@ -92,13 +19,6 @@ class MultipleObjectMixin(SQLAlchemyMixin):
 
         model = self.get_model()
         return "%s_list" % model.__name__.lower()
-
-    def get_allow_empty(self):
-        """
-        Return ``True`` if the view should display empty lists and ``False``
-        if a 404 should be raised instead.
-        """
-        return self.allow_empty
 
     def get_context_data(self, object_list=None, **kwargs):
         """Get the context for this view."""
@@ -121,23 +41,6 @@ class BaseListView(MultipleObjectMixin, View):
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
-        allow_empty = self.get_allow_empty()
-
-        if not allow_empty:
-            # When pagination is enabled and object_list is a queryset,
-            # it's better to do a cheap query than to load the unpaginated
-            # queryset in memory.
-            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, "exists"):
-                session = self.session or self.object_list.session
-                is_empty = not session.query(literal(True)).filter(self.object_list.exists()).scalar()
-            else:
-                is_empty = not self.object_list
-            if is_empty:
-                raise Http404(
-                    gettext("Empty list and '%(class_name)s.allow_empty' is False.")
-                    % {"class_name": self.__class__.__name__}
-                )
-
         context = self.get_context_data()
         return self.render_to_response(context)
 

@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.conf.urls import url
+from django.conf.urls import url, include
+
+from django_sorcery import routers
 
 from . import appviews
 
+
+router = routers.SimpleRouter()
+router.register("owners", appviews.OwnerViewSet)
 
 urlpatterns = [
     # list views
@@ -48,4 +53,5 @@ urlpatterns = [
     url(r"^edit/vehicles/create/$", appviews.VehicleCreateView.as_view(), name="vehicle_create"),
     # delete views
     url(r"^delete/owners/(?P<id>[0-9]+)/$", appviews.OwnerDeleteView.as_view(), name="owner_delete"),
+    url(r"^viewsets/", include(router.urls)),
 ]

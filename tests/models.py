@@ -189,5 +189,15 @@ class ModelFour(db.Model):
     _model_twos = db.OneToMany(ModelTwo, backref=db.backref("_model_four"))
 
 
+class ClassicModel(object):
+    pass
+
+
+classic_model_table = db.Table(
+    "classic_model", db.Column("pk", db.Integer(), autoincrement=True, primary_key=True), db.Column("name", db.String())
+)
+db.mapper(ClassicModel, classic_model_table)
+
+
 db.configure_mappers()
 db.create_all()

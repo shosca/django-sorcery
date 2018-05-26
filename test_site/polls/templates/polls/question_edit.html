@@ -1,0 +1,7 @@
+<form action="{% url 'polls:question-detail' question.pk %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <p>
+        <input type="submit" value="Update"></input>
+    </p>
+</form>

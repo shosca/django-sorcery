@@ -6,9 +6,9 @@ import sqlalchemy as sa
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 
-from django_sorcery.views.detail import SQLAlchemyMixin
+from django_sorcery.views.base import SQLAlchemyMixin
 
-from ..models import Owner, db
+from ..models import Owner, db, ClassicModel
 
 
 class TestBaseView(TestCase):
@@ -26,6 +26,18 @@ class TestBaseView(TestCase):
         class DummyView(SQLAlchemyMixin):
             model = Owner
             queryset = Owner.query
+
+        view = DummyView()
+
+        query = view.get_queryset()
+
+        self.assertIsInstance(query, sa.orm.Query)
+        self.assertEqual(query._only_entity_zero().class_, Owner)
+
+    def test_get_queryset_from_model_only(self):
+
+        class DummyView(SQLAlchemyMixin):
+            model = Owner
 
         view = DummyView()
 
@@ -64,8 +76,11 @@ class TestBaseView(TestCase):
 
     def test_get_queryset_fail(self):
 
+        class DummyObject(object):
+            pass
+
         class DummyViewFail(SQLAlchemyMixin):
-            model = Owner
+            model = DummyObject
 
         view = DummyViewFail()
 
@@ -77,3 +92,28 @@ class TestBaseView(TestCase):
             "DummyViewFail is missing a QuerySet. Define DummyViewFail.model and DummyViewFail.session, "
             "DummyViewFail.queryset, or override DummyViewFail.get_queryset().",
         )
+
+    def test_get_queryset_classical_mapping(self):
+
+        class ClassicModelView(SQLAlchemyMixin):
+            model = ClassicModel
+            session = db
+
+        view = ClassicModelView()
+
+        query = view.get_queryset()
+
+        self.assertIsInstance(query, sa.orm.Query)
+        self.assertEqual(query._only_entity_zero().class_, ClassicModel)
+
+    def test_get_session(self):
+
+        class OwnerView(SQLAlchemyMixin):
+            model = Owner
+            queryset = Owner.query
+
+        view = OwnerView()
+
+        view.get_session()
+
+        self.assertEqual(view.session, db)
