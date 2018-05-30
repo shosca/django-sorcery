@@ -2,8 +2,14 @@ Changelog
 =========
 
 
+0.4.0 (2018-05-30)
+------------------
+- Add basic viewset support. [Serkan Hosca]
+
+
 0.3.3 (2018-05-21)
 ------------------
+- 0.3.3. [Serkan Hosca]
 - Merge pull request #15 from shosca/middleware-logger. [Serkan Hosca]
 - Add middleware logger. [Serkan Hosca]
 - Merge pull request #14 from shosca/docs. [Serkan Hosca]
