@@ -13,6 +13,7 @@ Subpackages
 
     django_sorcery.db
     django_sorcery.views
+    django_sorcery.viewsets
 
 Submodules
 ----------
@@ -24,6 +25,6 @@ Submodules
    django_sorcery.fields
    django_sorcery.forms
    django_sorcery.formsets
+   django_sorcery.routers
    django_sorcery.shortcuts
    django_sorcery.utils
-

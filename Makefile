@@ -58,7 +58,7 @@ docs:  ## generate docs
 	$(MAKE) -C docs html
 
 livedocs:  ## generate docs live
-	$(MAKE) -C docs html
+	$(MAKE) -C docs live
 
 version:  # print version
 	@python setup.py --version

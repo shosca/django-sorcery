@@ -25,4 +25,4 @@ autodoc:
 
 live:
 	pip install watchdog
-	sphinx-autobuild -p 8000 -H 0.0.0.0 -z . . _build/html/
+	sphinx-autobuild -p 8000 -H 0.0.0.0 -z .. . _build/html/
