@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.4.0 (2018-05-30)
+0.4.1 (2018-05-31)
 ------------------
+- Merge pull request #18 from shosca/docs. [Serkan Hosca]
+- Add more docs for viewsets. [Serkan Hosca]
+
+
+0.4.0 (2018-05-31)
+------------------
+- 0.4.0. [Serkan Hosca]
 - Add basic viewset support. [Serkan Hosca]
 
 
