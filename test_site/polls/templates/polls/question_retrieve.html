@@ -2,7 +2,7 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="{% url 'polls:vote' question.pk %}" method="post">
+<form action="{% url 'polls:question-vote' question.pk %}" method="post">
 {% csrf_token %}
 {% for choice in question.choices %}
     <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.pk }}" />
@@ -11,6 +11,7 @@
 <input type="submit" value="Vote" />
 </form>
 
+<a href="{% url 'polls:question-results' question.pk %}">Results</a>
 <a href="{% url 'polls:question-edit' question.pk %}">Edit</a>
 <a href="{% url 'polls:question-destroy' question.pk %}">Delete</a>
 <a href="{% url 'polls:question-list' %}">Back to list</a>

@@ -344,6 +344,78 @@ handn't defined those the default for template names would've been ``polls/quest
 ``polls/question_list.html`` for the detail and list template names, and ``question`` and ``question_list`` for context
 names for detail and list views.
 
+This is all fine but we can even do one better using a viewset. Lets adjust our views in ``polls/views.py``:
+
+.. code:: python
+
+    from django.http import HttpResponseRedirect
+    from django.urls import reverse, reverse_lazy
+
+    from django_sorcery.routers import action
+    from django_sorcery.viewsets import ModelViewSet
+
+    from .models import Question, Choice, db
+
+
+    class PollsViewSet(ModelViewSet):
+        model = Question
+        fields = "__all__"
+        destroy_success_url = reverse_lazy("polls:question-list")
+
+        def get_success_url(self):
+            return reverse("polls:question-detail", kwargs={"pk": self.object.pk})
+
+        @action(detail=True)
+        def results(self, request, *args, **kwargs):
+            return self.retrieve(request, *args, **kwargs)
+
+        @action(detail=True, methods=["POST"])
+        def vote(self, request, *args, **kwargs):
+            self.object = self.get_object()
+
+            selected_choice = Choice.query.filter(
+                Choice.question == self.object, Choice.pk == request.POST.get("choice")
+            ).one_or_none()
+
+            if not selected_choice:
+                context = self.get_detail_context_data(object=self.object)
+                context["error_message"] = "You didn't select a choice."
+                self.action = "retrieve"
+                return self.render_to_response(context)
+
+            selected_choice.votes += 1
+            db.flush()
+            return HttpResponseRedirect(reverse("polls:question-results", args=(self.object.pk,)))
+
+And adjusting our ``polls/urls.py`` like:
+
+.. code:: python
+
+    from django.urls import path, include
+
+    from django_sorcery.routers import SimpleRouter
+
+    from . import views
+
+    router = SimpleRouter()
+    router.register("", views.PollsViewSet)
+
+    app_name = "polls"
+    urlpatterns = [path("", include(router.urls))]
+
+With these changes we'll have the following urls:
+
+.. code:: console
+
+    $ ./manage.py run show_urls
+    /polls/	polls.views.PollsViewSet	polls:question-list
+    /polls/<pk>/	polls.views.PollsViewSet	polls:question-detail
+    /polls/<pk>/delete/	polls.views.PollsViewSet	polls:question-destroy
+    /polls/<pk>/edit/	polls.views.PollsViewSet	polls:question-edit
+    /polls/<pk>/results/	polls.views.PollsViewSet	polls:question-results
+    /polls/<pk>/vote/	polls.views.PollsViewSet	polls:question-vote
+    /polls/new/	polls.views.PollsViewSet	polls:question-new
+
 
 .. |Build Status| image:: https://travis-ci.org/shosca/django-sorcery.svg?branch=master
    :target: https://travis-ci.org/shosca/django-sorcery
