@@ -150,7 +150,7 @@ class ModelChoiceField(djangofields.ChoiceField):
         return get_primary_keys_from_instance(obj)
 
     def prepare_value(self, obj):
-        if obj is not None:
+        if isinstance(obj, self.model):
             return self.prepare_instance_value(obj)
 
         return super(ModelChoiceField, self).prepare_value(obj)

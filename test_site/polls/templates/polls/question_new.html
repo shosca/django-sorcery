@@ -1,6 +1,7 @@
 <form action="{% url 'polls:question-list' %}" method="post">
     {% csrf_token %}
     {{ form }}
+    {{ choice_set }}
     <p>
         <input type="submit" value="Create"></input>
     </p>

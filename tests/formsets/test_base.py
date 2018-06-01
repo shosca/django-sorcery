@@ -8,8 +8,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import modelformset_factory
 
-from .base import TestCase
-from .models import Owner, db
+from ..base import TestCase
+from ..models import Owner, db
 
 
 class TestModelFormSet(TestCase):
@@ -104,7 +104,7 @@ class TestModelFormSet(TestCase):
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
     def test_edit(self):
-        formset_class = modelformset_factory(Owner, fields="__all__", session=db)
+        formset_class = modelformset_factory(Owner, fields=("first_name", "last_name"), session=db)
         query = Owner.query
 
         data = {
@@ -125,17 +125,39 @@ class TestModelFormSet(TestCase):
             "form-3-first_name": "Edited first name 4",
             "form-3-last_name": "Edited last name 4",
             "form-4-id": "",
-            "form-4-first_name": "",
-            "form-4-last_name": "",
+            "form-4-first_name": "Edited first name 5",
+            "form-4-last_name": "Edited last name 5",
         }
 
         formset = formset_class(queryset=query, data=data)
+        self.assertTrue(formset.is_valid())
         instances = formset.save()
         db.expire_all()
 
         for owner in instances:
             self.assertEqual(owner.first_name, "Edited first name {}".format(owner.id))
             self.assertEqual(owner.last_name, "Edited last name {}".format(owner.id))
+
+    def test_edit_new_delete_ignore(self):
+        formset_class = modelformset_factory(Owner, fields=("first_name", "last_name"), session=db, can_delete=True)
+
+        data = {
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-first_name": "Edited first name 1",
+            "form-0-last_name": "Edited last name 1",
+            "form-0-DELETE": "on",
+        }
+
+        formset = formset_class(queryset=[], data=data)
+        self.assertTrue(formset.is_valid())
+        instances = formset.save()
+        self.assertEqual(instances, [])
+        self.assertEqual(formset.new_objects, [])
+        self.assertEqual(formset.changed_objects, [])
+        self.assertEqual(formset.deleted_objects, [])
 
     def test_delete_render(self):
         formset_class = modelformset_factory(Owner, fields=("first_name", "last_name"), session=db, can_delete=True)
@@ -226,7 +248,7 @@ class TestModelFormSet(TestCase):
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
     def test_delete(self):
-        formset_class = modelformset_factory(Owner, fields="__all__", session=db, can_delete=True)
+        formset_class = modelformset_factory(Owner, fields=("first_name", "last_name"), session=db, can_delete=True)
         query = Owner.query
 
         data = {
@@ -253,6 +275,7 @@ class TestModelFormSet(TestCase):
         }
 
         formset = formset_class(queryset=query, data=data)
+        self.assertTrue(formset.is_valid())
         instances = formset.save()
 
         self.assertEqual(len(instances), 3)

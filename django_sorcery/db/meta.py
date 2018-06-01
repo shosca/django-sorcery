@@ -17,6 +17,9 @@ class model_info_meta(type):
     _registry = {}
 
     def __call__(cls, model, *args, **kwargs):
+        if isinstance(model, sa.orm.Mapper):
+            model = model.class_
+
         if model not in cls._registry:
             instance = super(model_info_meta, cls).__call__(model, *args, **kwargs)
             cls._registry[model] = instance
@@ -61,6 +64,10 @@ class column_info(object):
         return self.property.key
 
     @property
+    def parent_model(self):
+        return self.property.parent.class_
+
+    @property
     def field_kwargs(self):
         kwargs = {"label": capfirst(" ".join(self.property.key.split("_"))), "help_text": self.property.doc}
 
@@ -85,6 +92,9 @@ class column_info(object):
 
         return kwargs
 
+    def __repr__(self):
+        return "<column_info(%s.%s)>" % (self.parent_model.__name__, self.name)
+
 
 class relation_info(object):
     """
@@ -99,6 +109,10 @@ class relation_info(object):
     @property
     def name(self):
         return self.relationship.key
+
+    @property
+    def parent_model(self):
+        return self.relationship.parent.class_
 
     @property
     def related_model(self):
@@ -117,6 +131,9 @@ class relation_info(object):
     @property
     def uselist(self):
         return self.relationship.uselist
+
+    def __repr__(self):
+        return "<relation_info(%s.%s)>" % (self.parent_model.__name__, self.name)
 
 
 class model_info(six.with_metaclass(model_info_meta)):
@@ -162,3 +179,6 @@ class model_info(six.with_metaclass(model_info_meta)):
             ]
 
         return self._field_names
+
+    def __repr__(self):
+        return "<model_info(%s)>" % self.model_class.__name__
