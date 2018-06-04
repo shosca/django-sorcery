@@ -2,8 +2,15 @@ Changelog
 =========
 
 
+0.4.2 (2018-06-04)
+------------------
+- Merge pull request #19 from shosca/inlineformset. [Serkan Hosca]
+- Inline formsets. [Serkan Hosca]
+
+
 0.4.1 (2018-05-31)
 ------------------
+- 0.4.1. [Serkan Hosca]
 - Merge pull request #18 from shosca/docs. [Serkan Hosca]
 - Add more docs for viewsets. [Serkan Hosca]
 
