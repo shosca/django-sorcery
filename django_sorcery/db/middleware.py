@@ -25,8 +25,8 @@ class BaseMiddleware(object):
             return self.return_response(request, response)
 
         response = self.get_response(request)
-
-        return self.process_response(request, response)
+        response = self.process_response(request, response)
+        return self.return_response(request, response)
 
     def process_request(self, request):
         """

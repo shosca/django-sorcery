@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from django_sorcery.db import meta  # noqa
 
 from ..base import TestCase
-from ..models import COLORS, Owner, Vehicle, VehicleType, Vertex
+from ..models import COLORS, Owner, Vehicle, VehicleType, Vertex, AllKindsOfFields
 
 
 class TestModelMeta(TestCase):
@@ -14,6 +14,7 @@ class TestModelMeta(TestCase):
     def test_model_meta(self):
         info = meta.model_info(Owner)
 
+        self.assertEqual(repr(info), "<model_info(Owner)>")
         self.assertListEqual(list(info.primary_keys.keys()), ["id"])
         self.assertEqual(info.primary_keys["id"].property, Owner.id.property)
 
@@ -25,6 +26,10 @@ class TestModelMeta(TestCase):
         self.assertTrue(info.relationships["vehicles"].relationship is Owner.vehicles.property)
 
         self.assertListEqual(info.field_names, ["id", "first_name", "last_name", "vehicles"])
+
+    def test_model_meta_with_mapper(self):
+        mapper = Vehicle.owner.property.parent
+        self.assertEqual(meta.model_info(mapper), meta.model_info(Vehicle))
 
 
 class TestCompositeMeta(TestCase):
@@ -53,6 +58,7 @@ class TestRelationshipMeta(TestCase):
         self.assertEqual(rel.direction, sa.orm.relationships.ONETOMANY)
         self.assertEqual(list(rel.foreign_keys), Vehicle._owner_id.property.columns)
         self.assertTrue(rel.uselist)
+        self.assertEqual(repr(rel), "<relation_info(Owner.vehicles)>")
 
 
 class TestColumnMeta(TestCase):
@@ -73,5 +79,14 @@ class TestColumnMeta(TestCase):
         col = info.properties["paint"]
         self.assertDictEqual(
             {"choices": COLORS, "help_text": None, "label": "Paint", "max_length": 6, "required": False},
+            col.field_kwargs,
+        )
+        self.assertEqual(col.parent_model, Vehicle)
+        self.assertEqual(repr(col), "<column_info(Vehicle.paint)>")
+
+        info = meta.model_info(AllKindsOfFields)
+        col = info.properties["decimal"]
+        self.assertDictEqual(
+            {"decimal_places": None, "help_text": None, "label": "Decimal", "max_digits": None, "required": False},
             col.field_kwargs,
         )

@@ -9,9 +9,9 @@ from django.forms import fields as djangofields
 from django.forms.formsets import BaseFormSet, formset_factory
 from django.forms.widgets import HiddenInput
 
-from .db.meta import model_info
-from .db.models import get_primary_keys
-from .forms import ModelForm, modelform_factory
+from ..db.meta import model_info
+from ..db.models import get_primary_keys
+from ..forms import ModelForm, modelform_factory
 
 
 class BaseModelFormSet(BaseFormSet):
@@ -60,7 +60,7 @@ class BaseModelFormSet(BaseFormSet):
                 for name, pk_info in info.primary_keys.items():
                     pk_key = "%s-%s" % (self.add_prefix(i), name)
                     pk_val = self.data.get(pk_key)
-                    pks[name] = pk_info.column.type.python_type(pk_val)
+                    pks[name] = pk_info.column.type.python_type(pk_val) if pk_val else None
 
                 pk = get_primary_keys(self.model, pks)
 
@@ -110,12 +110,22 @@ class BaseModelFormSet(BaseFormSet):
         Save model instances for every form, adding and changing instances
         as necessary, and return the list of instances.
         """
+        self.new_objects = []
         self.changed_objects = []
         self.deleted_objects = []
-        if not self.initial_forms:
-            return []
-
         saved_instances = []
+
+        for form in self.extra_forms:
+            if not form.has_changed():
+                continue
+
+            if self.can_delete and self._should_delete_form(form):
+                continue
+
+            obj = form.save(flush=flush)
+            self.new_objects.append(obj)
+            saved_instances.append(obj)
+
         for form in self.initial_forms:
             if form in self.deleted_forms:
                 self.deleted_objects.append(form.instance)
@@ -125,7 +135,7 @@ class BaseModelFormSet(BaseFormSet):
             elif form.has_changed():
                 self.changed_objects.append(form.instance)
 
-            obj = form.save()
+            obj = form.save(flush=flush)
             saved_instances.append(obj)
 
         return saved_instances
