@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
+0.4.3 (2018-06-09)
 -----------------------------
+- Merge pull request #20 from shosca/config_refactor. [Serkan Hosca]
 - Remove engine hacks and refactor config for custom sqla class. [Serkan
   Hosca]
 
