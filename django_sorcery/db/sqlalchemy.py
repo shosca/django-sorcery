@@ -15,7 +15,7 @@ from .models import Base
 from .query import Query, QueryProperty
 from .session import SignallingSession
 from .signals import all_signals, engine_created
-from .url import apply_engine_hacks, make_url
+from .url import make_url
 
 
 class TransactionContext(object):
@@ -341,7 +341,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
 
     def _create_engine(self, url, **kwargs):
         engine = sa.create_engine(url, **kwargs)
-        apply_engine_hacks(engine)
         engine_created.send(engine)
         return engine
 

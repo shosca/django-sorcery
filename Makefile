@@ -1,6 +1,7 @@
-WATCH_EVENTS=modify,close_write,moved_to,create
 PACKAGE=django_sorcery
 FILES=$(shell find $(PACKAGE) -iname '*.py')
+VERSION=$(shell python setup.py --version)
+NEXT=$(shell semver -i $(BUMP) $(VERSION))
 
 .PHONY: docs $(FILES)
 
@@ -62,6 +63,11 @@ livedocs:  ## generate docs live
 
 version:  # print version
 	@python setup.py --version
+
+bump: history
+	@sed -i 's/$(VERSION)/$(NEXT)/g' $(PACKAGE)/__version__.py
+	@sed -i 's/Next version (unreleased yet)/$(NEXT) ($(shell date +"%Y-%m-%d"))/g' HISTORY.rst
+	@git commit -am "Bump version: $(VERSION) → $(NEXT)"
 
 tag:  ## tags branch
 	git tag -a $$(python setup.py --version) -m $$(python setup.py --version)

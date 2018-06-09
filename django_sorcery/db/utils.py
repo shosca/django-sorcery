@@ -2,8 +2,11 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.db import DEFAULT_DB_ALIAS
+from django.utils.module_loading import import_string
 
 from .sqlalchemy import SQLAlchemy
+from .url import get_settings
+from ..utils import suppress
 
 
 class dbdict(dict):
@@ -13,7 +16,16 @@ class dbdict(dict):
         if alias in self:
             return self[alias]
 
-        return self.setdefault(alias, cls(alias=alias, **kwargs))
+        options = {}
+        with suppress(Exception):
+            settings = get_settings(alias)
+            options = settings.get("OPTIONS", {})
+            cls = import_string(settings.get("SQLALCHEMY"))
+
+        options.update(kwargs)
+        assert SQLAlchemy in cls.mro(), "'%s' needs to subclass from SQLAlchemy" % cls.__name__
+
+        return self.setdefault(alias, cls(alias=alias, **options))
 
     def update(self, *args, **kwargs):
         for arg in args:
