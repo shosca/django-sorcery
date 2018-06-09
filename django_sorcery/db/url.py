@@ -16,6 +16,13 @@ DIALECT_MAP = {
 }
 
 
+def get_settings(alias):
+    if hasattr(settings, "SQLALCHEMY_CONNECTIONS") and alias in settings.SQLALCHEMY_CONNECTIONS:
+        return settings.SQLALCHEMY_CONNECTIONS[alias]
+
+    return settings.DATABASES[alias]
+
+
 def make_url(alias_or_url):
     """
     Generates a URL either from environment, DATABASES or SQLALCHEMY_CONNECTIONS settings
@@ -35,13 +42,10 @@ def make_url(alias_or_url):
     if url:
         return url, {}
 
-    if hasattr(settings, "SQLALCHEMY_CONNECTIONS") and alias in settings.SQLALCHEMY_CONNECTIONS:
-        return make_url_from(alias, settings.SQLALCHEMY_CONNECTIONS)
-
-    return make_url_from(alias, settings.DATABASES)
+    return make_url_from_settings(alias)
 
 
-def make_url_from(alias, settings):
+def make_url_from_settings(alias):
     """
     Generates a URL using the alias in settings
     -------------------------------------------
@@ -49,7 +53,7 @@ def make_url_from(alias, settings):
         name of the alias
     """
 
-    data = settings[alias]
+    data = get_settings(alias)
 
     if "DIALECT" not in data:
         data["DIALECT"] = DIALECT_MAP.get(data["ENGINE"]) or data["ENGINE"].split(".")[-1]
@@ -73,25 +77,3 @@ def make_url_from(alias, settings):
     url.query.update(data.get("QUERY", {}))
 
     return url, data.get("OPTIONS", {})
-
-
-def apply_engine_hacks(engine):
-    """
-    Adjusts the engine to hack around driver issues
-    -----------------------------------------------------------------------
-    engine: Engine
-        sqlalchemy engine
-    """
-    # pysqlite workarounds for savepoints
-    if "sqlite" in engine.url.drivername:
-
-        @sa.event.listens_for(engine, "connect")
-        def do_connect(dbapi_connection, connection_record):
-            # disable pysqlite's emitting of the BEGIN statement entirely.
-            # also stops it from emitting COMMIT before any DDL.
-            dbapi_connection.isolation_level = None  # pragma: no cover
-
-        @sa.event.listens_for(engine, "begin")
-        def do_begin(conn):
-            # emit our own BEGIN
-            conn.execute("BEGIN")  # pragma: no cover

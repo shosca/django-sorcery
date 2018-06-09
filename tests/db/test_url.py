@@ -2,11 +2,9 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import os
 
-import sqlalchemy as sa
-
 from django.test import TestCase, override_settings
 
-from django_sorcery.db.url import apply_engine_hacks, make_url
+from django_sorcery.db.url import make_url
 
 
 @override_settings(
@@ -102,10 +100,3 @@ class TestMakeUrl(TestCase):
         self.assertEqual(url.port, None)
         self.assertEqual(url.query, {})
         self.assertEqual(url.username, None)
-
-
-class TestDriverHacks(TestCase):
-
-    def test_apply_driver_hacks_for_sqlite(self):
-        engine = sa.create_engine("sqlite://")
-        apply_engine_hacks(engine)

@@ -6,8 +6,8 @@ import inspect
 
 try:
     suppress = contextlib.suppress
-except AttributeError:
-    from .compat import suppress  # noqa
+except AttributeError:  # pragma: nocover
+    from .compat import suppress  # noqa pragma: nocover
 
 
 def get_args(func):
@@ -17,8 +17,8 @@ def get_args(func):
     try:
         return list(inspect.signature(func).parameters.keys())[1:]
 
-    except AttributeError:
-        return inspect.getargspec(func).args[1:]  # pylint:disable=deprecated-pragma
+    except AttributeError:  # pragma: nocover
+        return inspect.getargspec(func).args[1:]  # pylint:disable=deprecated-pragma pragma:nocover
 
 
 def setdefaultattr(obj, name, value):

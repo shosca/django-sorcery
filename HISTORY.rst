@@ -2,8 +2,15 @@ Changelog
 =========
 
 
+Next version (unreleased yet)
+-----------------------------
+- Remove engine hacks and refactor config for custom sqla class. [Serkan
+  Hosca]
+
+
 0.4.2 (2018-06-04)
 ------------------
+- 0.4.2. [Serkan Hosca]
 - Merge pull request #19 from shosca/inlineformset. [Serkan Hosca]
 - Inline formsets. [Serkan Hosca]
 
@@ -134,3 +141,5 @@ Other
 0.1.0 (2018-05-05)
 ------------------
 - Initial commit. [Serkan Hosca]
+
+
