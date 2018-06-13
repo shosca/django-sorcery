@@ -19,13 +19,12 @@ class dbdict(dict):
         options = {}
         with suppress(Exception):
             settings = get_settings(alias)
-            options = settings.get("OPTIONS", {})
             cls = import_string(settings.get("SQLALCHEMY"))
 
         options.update(kwargs)
         assert SQLAlchemy in cls.mro(), "'%s' needs to subclass from SQLAlchemy" % cls.__name__
 
-        return self.setdefault(alias, cls(alias=alias, **options))
+        return self.setdefault(alias, cls(alias=alias))
 
     def update(self, *args, **kwargs):
         for arg in args:
