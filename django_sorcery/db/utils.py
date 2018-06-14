@@ -16,15 +16,13 @@ class dbdict(dict):
         if alias in self:
             return self[alias]
 
-        options = {}
         with suppress(Exception):
             settings = get_settings(alias)
             cls = import_string(settings.get("SQLALCHEMY"))
 
-        options.update(kwargs)
         assert SQLAlchemy in cls.mro(), "'%s' needs to subclass from SQLAlchemy" % cls.__name__
 
-        return self.setdefault(alias, cls(alias=alias))
+        return self.setdefault(alias, cls(alias=alias, **kwargs))
 
     def update(self, *args, **kwargs):
         for arg in args:
