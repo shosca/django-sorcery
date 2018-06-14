@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.4.4 (2018-06-13)
+0.4.5 (2018-06-13)
 -----------------------------
+- Merge pull request #22 from shosca/config_refactor. [Serkan Hosca]
+- Pass along kwargs with custom sqla class. [Serkan Hosca]
+
+
+0.4.4 (2018-06-13)
+------------------
 - Merge pull request #21 from shosca/config_refactor. [Serkan Hosca]
 - Grab only custom sqla class from config. [Serkan Hosca]
 
