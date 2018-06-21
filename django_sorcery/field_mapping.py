@@ -38,7 +38,6 @@ FIELD_LOOKUP.update({t: djangofields.IntegerField for t in six.integer_types})
 
 
 class ModelFieldMapper(OrderedDict):
-
     def __init__(self, opts, formfield_callback=None, apply_limit_choices_to=True):
         self.opts = opts
         self.formfield_callback = formfield_callback

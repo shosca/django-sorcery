@@ -4,13 +4,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.db import DEFAULT_DB_ALIAS
 from django.utils.module_loading import import_string
 
+from ..utils import suppress
 from .sqlalchemy import SQLAlchemy
 from .url import get_settings
-from ..utils import suppress
 
 
 class dbdict(dict):
-
     def get(self, alias=None, cls=SQLAlchemy, **kwargs):
         alias = alias or DEFAULT_DB_ALIAS
         if alias in self:

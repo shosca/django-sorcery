@@ -46,7 +46,6 @@ def action(methods=None, detail=None, url_path=None, url_name=None, **kwargs):
 
 
 class BaseRouter(object):
-
     def __init__(self):
         self.registry = []
 

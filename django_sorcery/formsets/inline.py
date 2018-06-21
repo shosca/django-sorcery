@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from ..forms import ModelForm
+from __future__ import absolute_import, print_function, unicode_literals
+
 from ..db.meta import model_info
+from ..forms import ModelForm
 from .base import BaseModelFormSet, modelformset_factory
 
 
 class BaseInlineFormSet(BaseModelFormSet):
-
     def __init__(self, data=None, files=None, instance=None, save_as_new=False, prefix=None, queryset=None, **kwargs):
 
         self.instance = self.fk.parent_model() if instance is None else instance

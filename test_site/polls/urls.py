@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-from django.urls import path, include
+from __future__ import absolute_import, print_function, unicode_literals
+
+from django.urls import include, path
 
 from django_sorcery.routers import SimpleRouter
 
 from . import views
+
 
 router = SimpleRouter()
 router.register("", views.PollsViewSet)

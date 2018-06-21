@@ -125,7 +125,6 @@ class ModelFormMixin(FormMixin, RetrieveModelMixin):
 
 
 class CreateModelMixin(ModelFormMixin):
-
     def new(self, request, *args, **kwargs):
         return self.render_to_response(self.get_create_context_data())
 
@@ -138,7 +137,6 @@ class CreateModelMixin(ModelFormMixin):
 
 
 class UpdateModelMixin(ModelFormMixin):
-
     def edit(self, request, *args, **kwargs):
         self.object = self.get_object()
         return self.render_to_response(self.get_update_context_data())

@@ -8,13 +8,11 @@ from django.test import TestCase
 
 from django_sorcery.views.base import SQLAlchemyMixin
 
-from ..models import Owner, db, ClassicModel
+from ..models import ClassicModel, Owner, db
 
 
 class TestBaseView(TestCase):
-
     def test_get_model(self):
-
         class DummyView(SQLAlchemyMixin):
             model = None
 
@@ -22,7 +20,6 @@ class TestBaseView(TestCase):
             DummyView.get_model()
 
     def test_get_queryset(self):
-
         class DummyView(SQLAlchemyMixin):
             model = Owner
             queryset = Owner.query
@@ -35,7 +32,6 @@ class TestBaseView(TestCase):
         self.assertEqual(query._only_entity_zero().class_, Owner)
 
     def test_get_queryset_from_model_only(self):
-
         class DummyView(SQLAlchemyMixin):
             model = Owner
 
@@ -47,7 +43,6 @@ class TestBaseView(TestCase):
         self.assertEqual(query._only_entity_zero().class_, Owner)
 
     def test_get_queryset_from_session(self):
-
         class DummyView(SQLAlchemyMixin):
             model = Owner
             session = db
@@ -60,7 +55,6 @@ class TestBaseView(TestCase):
         self.assertEqual(query._only_entity_zero().class_, Owner)
 
     def test_get_queryset_with_options(self):
-
         class DummyViewWithOptions(SQLAlchemyMixin):
             model = Owner
             session = db
@@ -75,7 +69,6 @@ class TestBaseView(TestCase):
         self.assertEqual(len(query._with_options), 1)
 
     def test_get_queryset_fail(self):
-
         class DummyObject(object):
             pass
 
@@ -94,7 +87,6 @@ class TestBaseView(TestCase):
         )
 
     def test_get_queryset_classical_mapping(self):
-
         class ClassicModelView(SQLAlchemyMixin):
             model = ClassicModel
             session = db
@@ -107,7 +99,6 @@ class TestBaseView(TestCase):
         self.assertEqual(query._only_entity_zero().class_, ClassicModel)
 
     def test_get_session(self):
-
         class OwnerView(SQLAlchemyMixin):
             model = Owner
             queryset = Owner.query

@@ -13,7 +13,6 @@ from ..models import Owner, db
 
 
 class TestCreateView(TestCase):
-
     def test_create(self):
 
         url = reverse("owner_create")
@@ -74,7 +73,6 @@ class TestCreateView(TestCase):
 
 
 class TestUpdateView(TestCase):
-
     def test_update(self):
         owner = Owner(first_name="Radnall", last_name="Munroe")
         db.add(owner)
@@ -102,7 +100,6 @@ class TestUpdateView(TestCase):
 
 
 class TestDeleteView(TestCase):
-
     def test_delete(self):
         owner = Owner(first_name="Radnall", last_name="Munroe")
         db.add(owner)

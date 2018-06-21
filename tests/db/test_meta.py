@@ -6,11 +6,10 @@ import sqlalchemy as sa
 from django_sorcery.db import meta  # noqa
 
 from ..base import TestCase
-from ..models import COLORS, Owner, Vehicle, VehicleType, Vertex, AllKindsOfFields
+from ..models import COLORS, AllKindsOfFields, Owner, Vehicle, VehicleType, Vertex
 
 
 class TestModelMeta(TestCase):
-
     def test_model_meta(self):
         info = meta.model_info(Owner)
 
@@ -33,7 +32,6 @@ class TestModelMeta(TestCase):
 
 
 class TestCompositeMeta(TestCase):
-
     def test_composite_meta(self):
 
         info = meta.model_info(Vertex)
@@ -47,7 +45,6 @@ class TestCompositeMeta(TestCase):
 
 
 class TestRelationshipMeta(TestCase):
-
     def test_relationship_meta(self):
         info = meta.model_info(Owner)
 
@@ -62,7 +59,6 @@ class TestRelationshipMeta(TestCase):
 
 
 class TestColumnMeta(TestCase):
-
     def test_columnInfo(self):
         info = meta.model_info(Vehicle)
 

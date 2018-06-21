@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-from inspect import getmembers
 from functools import update_wrapper
+from inspect import getmembers
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.decorators import classonlymethod
-from django.views.generic.base import View, TemplateResponseMixin
+from django.views.generic.base import TemplateResponseMixin, View
 
 from . import mixins
 
 
 class GenericViewSet(TemplateResponseMixin, View):
-
     def get_template_names(self):
 
         self.template_name_suffix = "_" + self.action

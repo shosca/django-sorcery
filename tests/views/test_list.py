@@ -14,7 +14,6 @@ from ..models import Owner, db
 
 
 class TestListView(TestCase):
-
     def setUp(self):
         super(TestListView, self).setUp()
         db.add_all(

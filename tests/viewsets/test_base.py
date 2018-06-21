@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from ..base import TestCase
-
 from ..appviews import OwnerViewSet
+from ..base import TestCase
 
 
 class TestViewSet(TestCase):
-
     def test_as_view_without_action_map(self):
 
         with self.assertRaises(TypeError):

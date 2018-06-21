@@ -13,7 +13,6 @@ except ImportError:
 
 
 class TestCase(test.TestCase):
-
     def setUp(self):
         super(TestCase, self).setUp()
         self.factory = test.RequestFactory()

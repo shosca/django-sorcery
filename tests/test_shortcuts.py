@@ -2,14 +2,14 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.http import Http404
+
 from django_sorcery import shortcuts
 
-from .models import Owner, db
 from .base import TestCase
+from .models import Owner, db
 
 
 class TestShortcuts(TestCase):
-
     def setUp(self):
         super(TestShortcuts, self).setUp()
         db.add_all(

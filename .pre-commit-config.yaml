@@ -15,6 +15,12 @@
   - id: flake8
   - id: trailing-whitespace
 
+- repo: https://github.com/miki725/importanize
+  sha: master
+  hooks:
+  - id: importanize
+    python_version: python3.6
+
 - repo: https://github.com/ambv/black
   rev: stable
   hooks:

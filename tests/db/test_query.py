@@ -8,7 +8,6 @@ from ..models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 
 class TestQuery(TestCase):
-
     def setUp(self):
         super(TestQuery, self).setUp()
         db.add_all(
@@ -45,7 +44,6 @@ class TestQuery(TestCase):
 
 
 class TestQueryProperty(TestCase):
-
     def setUp(self):
         super(TestQueryProperty, self).setUp()
         db.add_all(
@@ -57,7 +55,6 @@ class TestQueryProperty(TestCase):
         db.flush()
 
     def test_options_filter_and_filter_by(self):
-
         class Dummy(object):
             vehicles = QueryProperty(db, Vehicle).options(db.joinedload(Vehicle.owner))
             used_vehicles = QueryProperty(db, Vehicle, Vehicle.is_used.is_(True))
@@ -80,7 +77,6 @@ class TestQueryProperty(TestCase):
         )
 
     def test_no_model(self):
-
         class Dummy(object):
             vehicles = QueryProperty(db, None)
 

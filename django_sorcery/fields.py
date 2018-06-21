@@ -47,7 +47,6 @@ class EnumField(djangofields.ChoiceField):
 
 
 class ModelChoiceIterator(object):
-
     def __init__(self, field):
         self.field = field
 

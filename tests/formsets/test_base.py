@@ -13,7 +13,6 @@ from ..models import Owner, db
 
 
 class TestModelFormSet(TestCase):
-
     def setUp(cls):
         super(TestModelFormSet, cls).setUp()
         db.add_all(

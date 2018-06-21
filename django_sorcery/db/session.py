@@ -7,7 +7,6 @@ from . import signals
 
 
 class SignallingSession(orm.Session):
-
     def __init__(self, *args, **kwargs):
         super(SignallingSession, self).__init__(*args, **kwargs)
 

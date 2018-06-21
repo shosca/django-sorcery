@@ -12,7 +12,6 @@ from .models import Owner
 
 
 class TestBaseRouter(TestCase):
-
     def test_router(self):
         router = BaseRouter()
 
@@ -39,7 +38,6 @@ class TestBaseRouter(TestCase):
 
 
 class TestSimpleRouter(TestCase):
-
     def get_regex(self, pattern):
         try:
             return pattern.pattern._regex
@@ -75,7 +73,11 @@ class TestSimpleRouter(TestCase):
                 Route(
                     url="^{prefix}/{lookup}{trailing_slash}$",
                     mapping={
-                        "get": "retrieve", "post": "update", "put": "update", "patch": "update", "delete": "destroy"
+                        "get": "retrieve",
+                        "post": "update",
+                        "put": "update",
+                        "patch": "update",
+                        "delete": "destroy",
                     },
                     name="{basename}-detail",
                     detail=True,
@@ -115,7 +117,6 @@ class TestSimpleRouter(TestCase):
         self.assertEqual(self.get_regex(urls["owner-new"]), "^prefix/new/$")
 
     def test_action_on_existing_action(self):
-
         class OwnerViewSet(viewsets.ListModelMixin, viewsets.GenericViewSet):
             model = Owner
 
@@ -129,7 +130,6 @@ class TestSimpleRouter(TestCase):
             router.get_routes(OwnerViewSet)
 
     def test_custom_lookup_regex(self):
-
         class OwnerViewSet(viewsets.RetrieveModelMixin, viewsets.GenericViewSet):
             model = Owner
             lookup_url_regex = "lookup_regex"
@@ -139,7 +139,6 @@ class TestSimpleRouter(TestCase):
         self.assertEqual(router.get_lookup_regex(OwnerViewSet), "lookup_regex")
 
     def test_lookup_regex_no_model(self):
-
         class OwnerViewSet(viewsets.GenericViewSet):
             pass
 
@@ -147,9 +146,7 @@ class TestSimpleRouter(TestCase):
         self.assertEqual(router.get_lookup_regex(OwnerViewSet), "(?P<pk>[^/.]+)")
 
     def test_path_with_mustaches(self):
-
         class OwnerViewSet(viewsets.GenericViewSet):
-
             @action(detail=False, url_path="{dummy}")
             def dummy(self, request, *args, **kwargs):
                 pass
@@ -161,7 +158,6 @@ class TestSimpleRouter(TestCase):
         self.assertEqual(dummy_route.url, "^{prefix}/{{dummy}}{trailing_slash}$")
 
     def test_get_url_with_empty_prefix(self):
-
         class OwnerViewSet(viewsets.ListModelMixin, viewsets.GenericViewSet):
             model = Owner
 

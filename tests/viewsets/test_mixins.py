@@ -12,7 +12,6 @@ from ..models import Owner, db
 
 
 class TestListModelMixin(TestCase):
-
     def setUp(self):
         super(TestListModelMixin, self).setUp()
         db.add_all(
@@ -26,7 +25,6 @@ class TestListModelMixin(TestCase):
         db.flush()
 
     def test_list(self):
-
         class OwnerViewSet(viewsets.ListModelMixin, viewsets.GenericViewSet):
             model = Owner
 
@@ -51,7 +49,6 @@ class TestListModelMixin(TestCase):
         )
 
     def test_list_allow_no_empty(self):
-
         class OwnerViewSet(viewsets.ListModelMixin, viewsets.GenericViewSet):
             model = Owner
             allow_empty = False
@@ -96,7 +93,6 @@ class TestListModelMixin(TestCase):
 
 
 class TestRetieveModelMixin(TestCase):
-
     def setUp(self):
         super(TestRetieveModelMixin, self).setUp()
         db.add_all(
@@ -110,7 +106,6 @@ class TestRetieveModelMixin(TestCase):
         db.flush()
 
     def test_retrieve(self):
-
         class OwnerViewSet(viewsets.RetrieveModelMixin, viewsets.GenericViewSet):
             model = Owner
 
@@ -131,9 +126,7 @@ class TestRetieveModelMixin(TestCase):
 
 
 class TestCreateModelMixin(TestCase):
-
     def test_new_require_fields_or_form_class(self):
-
         class OwnerViewSet(viewsets.CreateModelMixin, viewsets.GenericViewSet):
             model = Owner
             fields = "__all__"
@@ -167,7 +160,6 @@ class TestCreateModelMixin(TestCase):
         self.assertIsInstance(response.context_data["form"], form_cls)
 
     def test_new(self):
-
         class OwnerViewSet(viewsets.CreateModelMixin, viewsets.GenericViewSet):
             model = Owner
             fields = "__all__"
@@ -183,7 +175,6 @@ class TestCreateModelMixin(TestCase):
         self.assertDictEqual(response.context_data, {"form": response.context_data["form"], "view": viewset})
 
     def test_create_bad_config(self):
-
         class OwnerViewSet(viewsets.CreateModelMixin, viewsets.GenericViewSet):
             model = Owner
             fields = (Owner.first_name.key, Owner.last_name.key)
@@ -197,7 +188,6 @@ class TestCreateModelMixin(TestCase):
             viewset.create(viewset.request)
 
     def test_create(self):
-
         class OwnerViewSet(viewsets.CreateModelMixin, viewsets.GenericViewSet):
             model = Owner
             fields = (Owner.first_name.key, Owner.last_name.key)
@@ -241,14 +231,12 @@ class TestCreateModelMixin(TestCase):
 
 
 class TestUpdateModelMixin(TestCase):
-
     def setUp(self):
         super(TestUpdateModelMixin, self).setUp()
         db.add(Owner(id=1, first_name="Test 1", last_name="Owner 1"))
         db.flush()
 
     def test_edit(self):
-
         class OwnerViewSet(viewsets.UpdateModelMixin, viewsets.GenericViewSet):
             model = Owner
             fields = ("first_name", "last_name")
@@ -267,7 +255,6 @@ class TestUpdateModelMixin(TestCase):
         )
 
     def test_update(self):
-
         class OwnerViewSet(viewsets.UpdateModelMixin, viewsets.GenericViewSet):
             model = Owner
             fields = ("first_name", "last_name")
@@ -285,14 +272,12 @@ class TestUpdateModelMixin(TestCase):
 
 
 class TestDeleteModelMixin(TestCase):
-
     def setUp(self):
         super(TestDeleteModelMixin, self).setUp()
         db.add(Owner(id=1, first_name="Test 1", last_name="Owner 1"))
         db.flush()
 
     def test_confirm_destroy(self):
-
         class OwnerViewSet(viewsets.DeleteModelMixin, viewsets.GenericViewSet):
             model = Owner
 
@@ -309,7 +294,6 @@ class TestDeleteModelMixin(TestCase):
         )
 
     def test_destroy(self):
-
         class OwnerViewSet(viewsets.DeleteModelMixin, viewsets.GenericViewSet):
             model = Owner
             destroy_success_url = "/viewsets/owners/"
@@ -326,7 +310,6 @@ class TestDeleteModelMixin(TestCase):
         self.assertIsNone(Owner.query.get(1))
 
     def test_destroy_no_success_url(self):
-
         class OwnerViewSet(viewsets.DeleteModelMixin, viewsets.GenericViewSet):
             model = Owner
 

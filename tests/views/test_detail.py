@@ -12,7 +12,6 @@ from ..models import Owner, db
 
 
 class TestDetailView(TestCase):
-
     def setUp(self):
         super(TestDetailView, self).setUp()
         db.add_all(
@@ -26,7 +25,6 @@ class TestDetailView(TestCase):
         db.flush()
 
     def test_get_object_fail_no_kwargs(self):
-
         class DummyView(SingleObjectMixin):
             model = Owner
 

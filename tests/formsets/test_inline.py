@@ -3,16 +3,15 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from bs4 import BeautifulSoup
 
+from django_sorcery.db.meta import model_info
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import inlineformset_factory
-from django_sorcery.db.meta import model_info
 
 from ..base import TestCase
-from ..models import Owner, Vehicle, db, VehicleType
+from ..models import Owner, Vehicle, VehicleType, db
 
 
 class TestInlineFormSet(TestCase):
-
     def setUp(cls):
         super(TestInlineFormSet, cls).setUp()
         db.add(Owner(first_name="Test 1", last_name="Owner 1"))

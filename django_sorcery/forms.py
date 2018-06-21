@@ -18,14 +18,12 @@ from .field_mapping import ALL_FIELDS, ModelFieldMapper, apply_limit_choices_to_
 
 
 class SQLAModelFormOptions(ModelFormOptions):
-
     def __init__(self, options=None):
         super(SQLAModelFormOptions, self).__init__(options=options)
         self.session = getattr(options, "session", None)
 
 
 class ModelFormMetaclass(DeclarativeFieldsMetaclass):
-
     def __new__(cls, name, bases, attrs):
         mcs = super(ModelFormMetaclass, cls).__new__(cls, name, bases, attrs)
 
@@ -60,9 +58,11 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
             if opts.fields == ALL_FIELDS:
                 opts.fields = None
 
-            mapper = import_string(settings.SQLALCHEMY_FORM_MAPPER) if hasattr(
-                settings, "SQLALCHEMY_FORM_MAPPER"
-            ) else ModelFieldMapper
+            mapper = (
+                import_string(settings.SQLALCHEMY_FORM_MAPPER)
+                if hasattr(settings, "SQLALCHEMY_FORM_MAPPER")
+                else ModelFieldMapper
+            )
 
             mcs.base_fields = mapper(opts, formfield_callback, apply_limit_choices_to=False).get_fields()
 
@@ -73,7 +73,6 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
 
 
 class BaseModelForm(BaseForm):
-
     def __init__(
         self,
         data=None,

@@ -12,7 +12,6 @@ from .models import Option, Owner, Vehicle, VehicleType, db
 
 
 class TestModelForm(TestCase):
-
     def setUp(cls):
         super(TestModelForm, cls).setUp()
         db.add(Owner(id=1, first_name="Test", last_name="Owner"))
@@ -66,7 +65,7 @@ class TestModelForm(TestCase):
         self.assertEqual(form.initial, {"paint": None, "created_at": None, "type": None, "name": None, "is_used": None})
         self.assertEqual(
             form.cleaned_data,
-            {"paint": "", "created_at": None, "options": [], "parts": [], "name": u"", "is_used": None},
+            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None},
         )
 
         form.order_fields(sorted(form.fields.keys()))
@@ -160,7 +159,7 @@ class TestModelForm(TestCase):
         )
         self.assertEqual(
             form.cleaned_data,
-            {"paint": "", "created_at": None, "options": [], "parts": [], "name": u"", "is_used": None},
+            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None},
         )
 
         form.order_fields(sorted(form.fields.keys()))
@@ -250,7 +249,6 @@ class TestModelForm(TestCase):
             self.callback_called = True
 
         class OwnerBaseForm(ModelForm):
-
             class Meta:
                 model = Owner
                 session = db
@@ -276,7 +274,6 @@ class TestModelForm(TestCase):
         with self.assertRaises(ImproperlyConfigured) as ctx:
 
             class OwnerForm(ModelForm):
-
                 class Meta:
                     model = Owner
 
@@ -289,7 +286,6 @@ class TestModelForm(TestCase):
         )
 
     def test_modelform_no_model(self):
-
         class OwnerForm(ModelForm):
             pass
 
@@ -299,9 +295,7 @@ class TestModelForm(TestCase):
         self.assertEqual(ctx.exception.args, ("ModelForm has no model class specified.",))
 
     def test_modelform_no_session(self):
-
         class OwnerForm(ModelForm):
-
             class Meta:
                 model = Owner
                 fields = ALL_FIELDS
@@ -312,9 +306,7 @@ class TestModelForm(TestCase):
         self.assertEqual(ctx.exception.args, ("ModelForm has no session specified.",))
 
     def test_modelform_custom_setter(self):
-
         class OwnerForm(ModelForm):
-
             class Meta:
                 model = Owner
                 session = db
@@ -330,9 +322,7 @@ class TestModelForm(TestCase):
         self.assertEqual(instance.first_name, "other")
 
     def test_modelform_save_with_errors(self):
-
         class VehicleForm(ModelForm):
-
             class Meta:
                 model = Vehicle
                 session = db

@@ -31,12 +31,16 @@ class composite_info(six.with_metaclass(model_info_meta)):
     """
     A helper class that makes sqlalchemy composite model inspection easier
     """
+
     __slots__ = ("prop", "properties", "_field_names")
 
     def __init__(self, composite):
         self._field_names = set()
         self.prop = composite.prop
-        attrs = get_args(self.prop.composite_class.__init__)
+
+        attrs = list(sorted([k for k, v in vars(self.prop.composite_class).items() if isinstance(v, sa.Column)]))
+        if not attrs:
+            attrs = get_args(self.prop.composite_class.__init__)
 
         self.properties = {}
         for attr, prop, col in zip(attrs, self.prop.props, self.prop.columns):

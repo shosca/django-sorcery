@@ -11,7 +11,6 @@ from ..base import mock
 
 
 class TestDbDict(unittest.TestCase):
-
     def setUp(self):
         super(TestDbDict, self).setUp()
         self.settings = mock.patch.dict(settings.SQLALCHEMY_CONNECTIONS, {"minimal": {"DIALECT": "sqlite"}})
