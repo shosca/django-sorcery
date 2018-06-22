@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
+from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy.orm import CompositeProperty
@@ -22,12 +23,12 @@ class CompositeField(CompositeProperty):
         if not self.prefix:
             self.prefix = self.random_prefix
 
-        columns = {k: v.copy() for k, v in sorted(vars(class_).items()) if isinstance(v, sa.Column)}
+        columns = OrderedDict([(k, v.copy()) for k, v in sorted(vars(class_).items()) if isinstance(v, sa.Column)])
         for k, c in columns.items():
             c.name = self.prefix + "_" + (c.name or k)
             c.key = "_" + c.name
 
-        super(CompositeField, self).__init__(class_, *[i[1] for i in sorted(columns.items())], **kwargs)
+        super(CompositeField, self).__init__(class_, *list(columns.values()), **kwargs)
 
     def instrument_class(self, mapper):
         if self.prefix == self.random_prefix:
@@ -61,10 +62,10 @@ class BaseComposite(CleanMixin):
 
     @classproperty
     def _columns(cls):
-        return {k: v for k, v in sorted(vars(cls).items()) if isinstance(v, sa.Column)}
+        return OrderedDict([(k, v) for k, v in sorted(vars(cls).items()) if isinstance(v, sa.Column)])
 
     def __composite_values__(self):
-        return tuple(getattr(self, i) for i in sorted(self._columns))
+        return tuple(getattr(self, i) for i in self._columns)
 
     def _get_properties_for_validation(self):
         """

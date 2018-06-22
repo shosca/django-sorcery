@@ -14,17 +14,17 @@ class TestModelMeta(TestCase):
         info = meta.model_info(Owner)
 
         self.assertEqual(repr(info), "<model_info(Owner)>")
-        self.assertListEqual(list(info.primary_keys.keys()), ["id"])
+        self.assertEqual(set(info.primary_keys.keys()), {"id"})
         self.assertEqual(info.primary_keys["id"].property, Owner.id.property)
 
-        self.assertListEqual(list(info.properties.keys()), ["first_name", "last_name"])
+        self.assertEqual(set(info.properties.keys()), {"first_name", "last_name"})
         self.assertEqual(info.properties["first_name"].property, Owner.first_name.property)
         self.assertEqual(info.properties["last_name"].property, Owner.last_name.property)
 
-        self.assertListEqual(list(info.relationships.keys()), ["vehicles"])
+        self.assertEqual(set(info.relationships.keys()), {"vehicles"})
         self.assertTrue(info.relationships["vehicles"].relationship is Owner.vehicles.property)
 
-        self.assertListEqual(info.field_names, ["id", "first_name", "last_name", "vehicles"])
+        self.assertEqual(set(info.field_names), {"id", "first_name", "last_name", "vehicles"})
 
     def test_model_meta_with_mapper(self):
         mapper = Vehicle.owner.property.parent
@@ -35,13 +35,13 @@ class TestCompositeMeta(TestCase):
     def test_composite_meta(self):
 
         info = meta.model_info(Vertex)
-        self.assertListEqual(list(info.composites.keys()), ["start", "end"])
+        self.assertEqual(set(info.composites.keys()), {"start", "end"})
 
         start = info.composites["start"]
-        self.assertListEqual(sorted(start.properties.keys()), ["x", "y"])
+        self.assertEqual(set(start.properties.keys()), {"x", "y"})
         self.assertEqual(start.properties["x"].property, Vertex.x1.property)
 
-        self.assertListEqual(sorted(start.field_names), ["x", "y"])
+        self.assertEqual(set(start.field_names), {"x", "y"})
 
 
 class TestRelationshipMeta(TestCase):

@@ -8,7 +8,6 @@ from ..models import Address, Business, db
 
 
 class TestComposite(TestCase):
-
     def test_autogenerate_columns(self):
 
         self.assertIsInstance(Business.location.property, CompositeField)

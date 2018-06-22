@@ -42,7 +42,7 @@ class composite_info(six.with_metaclass(model_info_meta)):
         if not attrs:
             attrs = get_args(self.prop.composite_class.__init__)
 
-        self.properties = {}
+        self.properties = OrderedDict()
         for attr, prop, col in zip(attrs, self.prop.props, self.prop.columns):
             self.properties[attr] = column_info(prop, col)
 
