@@ -369,7 +369,8 @@ class Base(CleanMixin):
         """
         Return all model columns which can be validated
         """
-        return model_info(self.__class__).properties
+        info = model_info(self.__class__)
+        return {k: v for k, v in info.properties.items() if k in info.field_names}
 
     def _get_nested_objects_for_validation(self):
         """

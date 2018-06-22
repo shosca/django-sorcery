@@ -19,6 +19,7 @@ class NestedValidationError(ValidationError):
             }
         })
     """
+
     def __init__(self, message, code=None, params=None):
         if not isinstance(message, dict):
             return super(NestedValidationError, self).__init__(message, code, params)
@@ -43,3 +44,15 @@ class NestedValidationError(ValidationError):
             return error_dict
         else:
             return super(NestedValidationError, self).update_error_dict(error_dict)
+
+    def __iter__(self):
+        if hasattr(self, "error_dict"):
+            for field, errors in self.error_dict.items():
+                errors = NestedValidationError(errors)
+                if hasattr(errors, "error_dict"):
+                    yield field, dict(errors)
+                else:
+                    yield field, list(errors)
+        else:
+            for error in super(NestedValidationError, self).__iter__():
+                yield error

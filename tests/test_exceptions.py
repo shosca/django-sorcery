@@ -8,7 +8,6 @@ from django_sorcery.exceptions import NestedValidationError
 
 
 class TestNestedValidationError(TestCase):
-
     def test_string_message(self):
         error = NestedValidationError("error")
 
@@ -46,6 +45,12 @@ class TestNestedValidationError(TestCase):
         self.assertIsInstance(error.error_list, list)
         self.assertEqual(len(error.error_list), 1)
         self.assertEqual(error.error_list, [error])
+
+    def test_dict_nested(self):
+        error = NestedValidationError({"some": {"field": "error", "list": ["errors"], "object": {"field": "error"}}})
+        self.assertEqual(
+            error.message_dict, {"some": {"field": ["error"], "list": ["errors"], "object": {"field": ["error"]}}}
+        )
 
     def test_nested_error(self):
         error = NestedValidationError({"some": ValidationError("error")})

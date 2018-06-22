@@ -2,8 +2,12 @@
 from __future__ import absolute_import, print_function, unicode_literals
 from enum import Enum
 
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+
 from django_sorcery.db import databases
 from django_sorcery.db.query import Query
+from django_sorcery.validators import ValidateTogetherModelFields
 
 
 db = databases.get("test")
@@ -21,10 +25,25 @@ class OwnerQuery(Query):
     pass
 
 
+def street_validator(value):
+    if len(value) < 3:
+        raise ValidationError({"street": "Street should be at least 2 characters."})
+
+
 class Address(db.BaseComposite):
-    street = db.Column(db.String(300))
+    street = db.Column(db.String(300), info={"validators": [street_validator]})
     state = db.Column(db.String(300))
-    zip = db.Column(db.String(15))
+    zip = db.Column(db.String(15), info={"validators": [RegexValidator(r"^\d+$")]})
+
+    validators = [ValidateTogetherModelFields(["street", "state", "zip"])]
+
+    def clean_state(self):
+        if self.state != self.state.upper():
+            raise ValidationError({"state": "State must be uppercase."})
+
+    def clean_zip(self):
+        if self.zip.startswith("0"):
+            raise ValidationError("Zip cannot start with 0.")
 
 
 class Business(db.Model):
@@ -34,6 +53,10 @@ class Business(db.Model):
 
     location = db.CompositeField(Address)
     other_location = db.CompositeField(Address, prefix="foo")
+
+    def clean(self):
+        if self.other_location and not self.location:
+            raise ValidationError({"location": "Primary key is required when other location is provided."})
 
 
 class Owner(db.Model):
@@ -140,7 +163,6 @@ class AllKindsOfFields(db.Model):
 
 
 class Point(object):
-
     def __init__(self, x, y):
         self.x = x
         self.y = y

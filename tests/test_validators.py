@@ -13,7 +13,6 @@ Node.__new__.__defaults__ = (None, None, None)
 
 
 class TestValidateTogetherModelFields(TestCase):
-
     def test_success_all_none(self):
         node = Node()
 

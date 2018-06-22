@@ -57,18 +57,22 @@ class CleanMixin(object):
                     v(getattr(self, name))
                 except ValidationError as e:
                     try:
-                        errors[name] = e.error_list
+                        e.error_list
                     except AttributeError:
                         errors = e.update_error_dict(errors)
+                    else:
+                        errors.setdefault(name, []).extend(e.error_list)
 
             try:
                 getattr(self, "clean_{}".format(name), bool)()
 
             except ValidationError as e:
                 try:
-                    errors[name] = e.error_list
+                    e.error_list
                 except AttributeError:
                     errors = e.update_error_dict(errors)
+                else:
+                    errors.setdefault(name, []).extend(e.error_list)
 
         if errors:
             raise ValidationError(errors)
@@ -77,7 +81,6 @@ class CleanMixin(object):
         """
         Needs to be implemented to return all properties for the object
         """
-        return []
 
     def clean_nested_fields(self, exclude):
         """
@@ -86,15 +89,17 @@ class CleanMixin(object):
         errors = {}
 
         for name in self._get_nested_objects_for_validation():
-            if name in exclude:
+            try:
+                e = exclude.get(name, [])
+            except AttributeError:
+                e = []
+
+            # only exclude when subexclude is not either list or dict
+            # otherwise validate nested object and let it ignore its own subfields
+            if name in exclude and not (e and isinstance(e, (dict, list, tuple))):
                 continue
 
             try:
-                try:
-                    e = exclude.get(name, [])
-                except AttributeError:
-                    e = []
-
                 try:
                     getattr(self, name).full_clean(exclude=e)
                 except AttributeError:
@@ -110,7 +115,6 @@ class CleanMixin(object):
         """
         Needs to be implemented to return all nested objects
         """
-        return []
 
     def run_validators(self):
         """

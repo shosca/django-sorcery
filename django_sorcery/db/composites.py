@@ -52,6 +52,7 @@ class BaseComposite(CleanMixin):
             # both test_foo and test_bar columns will be added to model
             # their instrumented properties will be _test_foo and _test_bar
     """
+
     def __init__(self, *args, **kwargs):
         for k, v in zip(self._columns, args):
             setattr(self, k, v)
@@ -70,3 +71,9 @@ class BaseComposite(CleanMixin):
         Return all composite attributes
         """
         return {k: column_info(None, v) for k, v in self._columns.items()}
+
+    def _get_nested_objects_for_validation(self):
+        """
+        Dont return any fields since composites cant be nested
+        """
+        return []
