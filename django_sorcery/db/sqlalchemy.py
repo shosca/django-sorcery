@@ -11,6 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from django.db import DEFAULT_DB_ALIAS
 
 from ..utils import make_args, setdefaultattr, suppress
+from .composites import BaseComposite, CompositeField
 from .models import Base
 from .query import Query, QueryProperty
 from .session import SignallingSession
@@ -29,7 +30,6 @@ class TransactionContext(object):
         self.transaction = None
 
     def __call__(self, func, *args, **kwargs):
-
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
             with self.db.begin(subtransactions=True, nested=self.savepoint):
@@ -47,7 +47,6 @@ class TransactionContext(object):
 
 
 class _sqla_meta(type):
-
     def __new__(cls, name, bases, attrs):
         typ = super(_sqla_meta, cls).__new__(cls, name, bases, attrs)
 
@@ -70,10 +69,14 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
     This class itself is a scoped session and provides very thin and useful abstractions and conventions for using
     sqlalchemy with django.
     """
+
     session_class = SignallingSession
     query_class = Query
     registry_class = sa.util.ThreadLocalRegistry
     model_class = Base
+
+    BaseComposite = BaseComposite
+    CompositeField = CompositeField
 
     def __init__(self, alias=None, **kwargs):
         self.alias = alias or DEFAULT_DB_ALIAS

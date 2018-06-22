@@ -7,6 +7,5 @@ from ..base import TestCase
 
 
 class TestSession(TestCase):
-
     def test_session_signals(self):
         pass

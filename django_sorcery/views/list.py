@@ -47,6 +47,7 @@ class BaseListView(MultipleObjectMixin, View):
 
 class MultipleObjectTemplateResponseMixin(TemplateResponseMixin):
     """Mixin for responding with a template and list of objects."""
+
     template_name_suffix = "_list"
 
     def get_template_names(self):

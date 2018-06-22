@@ -98,6 +98,7 @@ class CreateView(SingleObjectTemplateResponseMixin, BaseCreateView):
     """
     View for creating a new object, with a response rendered by a template.
     """
+
     template_name_suffix = "_form"
 
 
@@ -118,11 +119,13 @@ class BaseUpdateView(ModelFormMixin, ProcessFormView):
 
 class UpdateView(SingleObjectTemplateResponseMixin, BaseUpdateView):
     """View for updating an object, with a response rendered by a template."""
+
     template_name_suffix = "_form"
 
 
 class DeletionMixin:
     """Provide the ability to delete objects."""
+
     success_url = None
 
     def delete(self, request, *args, **kwargs):
@@ -161,4 +164,5 @@ class DeleteView(SingleObjectTemplateResponseMixin, BaseDeleteView):
     View for deleting an object retrieved with self.get_object(), with a
     response rendered by a template.
     """
+
     template_name_suffix = "_confirm_delete"

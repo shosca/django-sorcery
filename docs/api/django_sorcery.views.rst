@@ -15,3 +15,4 @@ Submodules
    django_sorcery.views.detail
    django_sorcery.views.edit
    django_sorcery.views.list
+

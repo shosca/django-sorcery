@@ -47,7 +47,6 @@ class Request(object):
 
 
 class TestBaseMiddleware(unittest.TestCase):
-
     def setUp(self):
         super(TestBaseMiddleware, self).setUp()
         self.middleware = DummyMiddeware(get_response=get_response)
@@ -105,7 +104,6 @@ class TestBaseMiddleware(unittest.TestCase):
 
 
 class TestSQLAlchemyDBMiddleware(unittest.TestCase):
-
     def setUp(self):
         super(TestSQLAlchemyDBMiddleware, self).setUp()
 
@@ -132,7 +130,6 @@ class TestSQLAlchemyDBMiddleware(unittest.TestCase):
 
 
 class TestSQLAlchemyMiddleware(unittest.TestCase):
-
     def setUp(self):
         super(TestSQLAlchemyMiddleware, self).setUp()
         self.middleware = middleware.SQLAlchemyMiddleware(get_response)

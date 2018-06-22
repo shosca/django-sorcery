@@ -14,9 +14,7 @@ from .models import AllKindsOfFields, Owner, Vehicle, db
 
 
 class TestFieldMapping(TestCase):
-
     def test_get_default_kwargs(self):
-
         class Meta:
             model = Owner
             session = db.session
@@ -58,7 +56,6 @@ class TestFieldMapping(TestCase):
         )
 
     def test_get_fields(self):
-
         class Meta:
             model = Owner
             session = db
@@ -70,7 +67,6 @@ class TestFieldMapping(TestCase):
         self.assertListEqual(sorted(list(fields.keys())), ["first_name", "last_name", "vehicles"])
 
     def test_get_fields_with_include(self):
-
         class Meta:
             model = Owner
             fields = ["first_name"]
@@ -83,7 +79,6 @@ class TestFieldMapping(TestCase):
         self.assertListEqual(list(fields.keys()), ["first_name"])
 
     def test_get_fields_with_exclude(self):
-
         class Meta:
             model = Owner
             exclude = ["first_name", "vehicles"]
@@ -116,7 +111,6 @@ class TestFieldMapping(TestCase):
         self.assertEqual(self.called_with, [info.properties["first_name"], info.relationships["vehicles"]])
 
     def test_get_fields_no_private(self):
-
         class Meta:
             model = Vehicle
             session = db
@@ -132,7 +126,6 @@ class TestFieldMapping(TestCase):
 
 
 class TestTypeMap(TestCase):
-
     def setUp(self):
         super(TestTypeMap, self).setUp()
 

@@ -7,14 +7,12 @@ from django_sorcery import utils
 
 
 class TestUtils(TestCase):
-
     def test_suppress(self):
 
         with utils.suppress(AssertionError):
             assert 1 == 2
 
     def test_setdefaultattr(self):
-
         class Dummy(object):
             pass
 

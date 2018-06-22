@@ -8,7 +8,6 @@ from ..models import CompositePkModel, Owner, OwnerQuery, db
 
 
 class TestSession(TestCase):
-
     def setUp(self):
         super(TestSession, self).setUp()
         Owner.query.delete()

@@ -11,7 +11,6 @@ from .models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 
 class TestEnumField(TestCase):
-
     def test_field(self):
         field = fields.EnumField(enum_class=VehicleType)
 
@@ -65,7 +64,6 @@ class TestEnumField(TestCase):
 
 
 class TestModelChoiceField(TestCase):
-
     def setUp(self):
         super(TestModelChoiceField, self).setUp()
         db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
@@ -157,7 +155,6 @@ class TestModelChoiceField(TestCase):
 
 
 class TestModelMultipleChoiceField(TestCase):
-
     def setUp(self):
         super(TestModelMultipleChoiceField, self).setUp()
         db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])

@@ -28,7 +28,6 @@ from django_sorcery.db.url import make_url
     },
 )
 class TestMakeUrl(TestCase):
-
     def setUp(self):
         super(TestMakeUrl, self).setUp()
         os.environ["FROM_ENV_URL"] = "postgresql://usr:hunter2@awesomedomain/db"

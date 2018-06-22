@@ -9,7 +9,6 @@ from ..models import CompositePkModel, ModelOne, ModelTwo, Option, Owner, Part, 
 
 
 class TestModels(TestCase):
-
     def test_model_repr(self):
         owner = Owner(id=1, first_name="Meaty", last_name="McManPipes")
 
@@ -182,7 +181,6 @@ class TestModels(TestCase):
 
 
 class TestClone(TestCase):
-
     def setUp(self):
         super(TestClone, self).setUp()
         self.vehicle = Vehicle(

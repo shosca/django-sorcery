@@ -51,7 +51,6 @@ class ScopedSignal(blinker.NamedSignal):
 
 
 class Namespace(blinker.Namespace):
-
     def scopedsignal(self, name, doc=None):
         try:
             return self[name]

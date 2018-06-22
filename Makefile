@@ -41,13 +41,13 @@ coverage: ## check code coverage quickly with the default Python
 		--cov-report term-missing \
 		--cov=django_sorcery tests \
 		--doctest-modules \
-		django_sorcery tests
+		tests django_sorcery
 
 $(FILES):  ## helper target to run coverage tests on a module
 	pipenv run py.test --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
-	pipenv run py.test --doctest-modules django_sorcery tests
+	pipenv run py.test --doctest-modules tests django_sorcery
 
 check:  ## run all tests
 	tox

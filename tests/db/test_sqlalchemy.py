@@ -7,11 +7,10 @@ from django_sorcery.db.query import Operation
 from django_sorcery.utils import suppress
 
 from ..base import TestCase
-from ..models import ModelOne, db, Owner
+from ..models import ModelOne, Owner, db
 
 
 class TestSQLAlchemy(TestCase):
-
     def test_session(self):
 
         session = db.session()
@@ -57,7 +56,6 @@ class TestSQLAlchemy(TestCase):
         self.assertEqual(db.args("test", other=True), ("test", {"other": True}))
 
     def test_atomic_decorator(self):
-
         @db.atomic()
         def do_something():
             db.add(Owner(first_name="test", last_name="last"))
@@ -66,7 +64,6 @@ class TestSQLAlchemy(TestCase):
         self.assertEqual(Owner.query.count(), 1)
 
     def test_atomic_decorator_exception(self):
-
         @db.atomic()
         def do_something():
             db.add(Owner(first_name="test", last_name="last"))
@@ -94,7 +91,6 @@ class TestSQLAlchemy(TestCase):
 
 
 class TestSQLAlchemyRelationships(TestCase):
-
     def setUp(self):
         super(TestSQLAlchemyRelationships, self).setUp()
         from ..models_order import db, Asset, Customer, Order, Contact
@@ -185,7 +181,6 @@ class TestSQLAlchemyRelationships(TestCase):
 
 
 class TestSQLAlchemyRelationshipsBackPopulates(TestCase):
-
     def setUp(self):
         super(TestSQLAlchemyRelationshipsBackPopulates, self).setUp()
 

@@ -18,6 +18,7 @@ class BaseModelFormSet(BaseFormSet):
     """
     A ``FormSet`` for editing a queryset and/or adding new objects to it.
     """
+
     model = None
     session = None
     absolute_max = 2000
@@ -92,7 +93,7 @@ class BaseModelFormSet(BaseFormSet):
             if self.queryset is not None:
                 qs = self.queryset
             else:
-                qs = self.session.query(self.model)[:self.absolute_max]
+                qs = self.session.query(self.model)[: self.absolute_max]
 
             if hasattr(qs, "all"):
                 qs = qs.all()
