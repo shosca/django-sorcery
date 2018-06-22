@@ -33,3 +33,9 @@ class TestComposite(TestCase):
 
         self.assertEqual(sorted(instance.location.__composite_values__()), sorted(("street", "NY", "123")))
         self.assertEqual(sorted(instance.other_location.__composite_values__()), sorted(("other street", "NJ", "456")))
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(Address(street=str("other street"), state=str("NJ"), zip=str("456"))),
+            "Address(state='NJ', street='other street', zip='456')",
+        )

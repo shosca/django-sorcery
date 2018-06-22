@@ -23,8 +23,9 @@ class CompositeField(CompositeProperty):
         if not self.prefix:
             self.prefix = self.random_prefix
 
-        columns = OrderedDict([(k, v.copy()) for k, v in sorted(vars(class_).items()) if isinstance(v, sa.Column)])
-        for k, c in columns.items():
+        columns = OrderedDict()
+        for k, c in class_._columns.items():
+            columns[k] = c = c.copy()
             c.name = self.prefix + "_" + (c.name or k)
             c.key = "_" + c.name
 
@@ -55,6 +56,8 @@ class BaseComposite(CleanMixin):
     """
 
     def __init__(self, *args, **kwargs):
+        for k in self._columns:
+            setattr(self, k, None)
         for k, v in zip(self._columns, args):
             setattr(self, k, v)
         for k, v in kwargs.items():
@@ -78,3 +81,24 @@ class BaseComposite(CleanMixin):
         Dont return any fields since composites cant be nested
         """
         return []
+
+    def as_dict(self):
+        """
+        Serializer composite to a dictionary
+        """
+        return OrderedDict([(k, getattr(self, k)) for k in self._columns])
+
+    def __repr__(self):
+        return "".join(
+            [
+                self.__class__.__name__,
+                "(",
+                ", ".join("{}={!r}".format(k, v) for k, v in self.as_dict().items() if v),
+                ")",
+            ]
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__composite_values__() == other.__composite_values__()
