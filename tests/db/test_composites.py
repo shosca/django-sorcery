@@ -39,3 +39,21 @@ class TestComposite(TestCase):
             repr(Address(street=str("other street"), state=str("NJ"), zip=str("456"))),
             "Address(state='NJ', street='other street', zip='456')",
         )
+        self.assertEqual(
+            repr(Address(state=str("NJ"), zip=str("456"))),
+            "Address(state='NJ', zip='456')",
+        )
+
+    def test_eq(self):
+        self.assertEqual(
+            Address(street=str("other street"), state=str("NJ"), zip=str("456")),
+            Address(street=str("other street"), state=str("NJ"), zip=str("456")),
+        )
+        self.assertNotEqual(
+            Address(street=str("other street"), state=str("NJ"), zip=str("456")),
+            Address(street=str("another street"), state=str("NJ"), zip=str("456")),
+        )
+        self.assertNotEqual(
+            Address(street=str("other street"), state=str("NJ"), zip=str("456")),
+            None,
+        )
