@@ -21,6 +21,21 @@ class OwnerQuery(Query):
     pass
 
 
+class Address(db.BaseComposite):
+    street = db.Column(db.String(300))
+    state = db.Column(db.String(300))
+    zip = db.Column(db.String(15))
+
+
+class Business(db.Model):
+
+    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String())
+
+    location = db.CompositeField(Address)
+    other_location = db.CompositeField(Address, prefix="foo")
+
+
 class Owner(db.Model):
     query_class = OwnerQuery
 
@@ -125,6 +140,7 @@ class AllKindsOfFields(db.Model):
 
 
 class Point(object):
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
