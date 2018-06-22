@@ -2,8 +2,39 @@ Changelog
 =========
 
 
-0.4.5 (2018-06-13)
+0.4.6 (2018-06-22)
 -----------------------------
+- Added CompositeField and all related goodies (#23) [Miroslav
+  Shubernetskiy]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0.4.5 (2018-06-14)
+------------------
 - Merge pull request #22 from shosca/config_refactor. [Serkan Hosca]
 - Pass along kwargs with custom sqla class. [Serkan Hosca]
 
