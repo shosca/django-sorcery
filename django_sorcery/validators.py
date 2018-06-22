@@ -6,6 +6,20 @@ from django.utils.translation import gettext_lazy as _
 
 
 class ValidateTogetherModelFields(object):
+    """
+    Validator for checking that multiple model fields are always saved together
+
+    For example::
+
+        class MyModel(db.Model):
+            foo = db.Column(db.Integer())
+            bar = db.Column(db.Integer())
+
+            validators = [
+                ValidateTogetherModelFields(["foo", "bar"]),
+            ]
+    """
+
     message = _("All %(fields)s are required.")
     code = "required"
 

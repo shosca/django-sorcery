@@ -10,6 +10,12 @@ from .mixins import CleanMixin
 
 
 class CompositeField(CompositeProperty):
+    """
+    Composite field which understands composite objects with builtin columns.
+
+    See :py:class:`.BaseComposite` for examples.
+    """
+
     def __init__(self, class_, **kwargs):
         self.prefix = kwargs.pop("prefix", None)
         self.random_prefix = class_.__name__ + str(id(self))
@@ -32,6 +38,20 @@ class CompositeField(CompositeProperty):
 
 
 class BaseComposite(CleanMixin):
+    """
+    Base class for creating composite classes which :py:class:`.CompositeField` will understand
+
+    For example::
+
+        class MyComposite(object):
+            foo = db.Column(db.Integer())
+            bar = db.Column(db.Integer())
+
+        class MyModel(db.Model):
+            test = db.CompositeField(MyComposite)
+            # both test_foo and test_bar columns will be added to model
+            # their instrumented properties will be _test_foo and _test_bar
+    """
     def __init__(self, *args, **kwargs):
         for k, v in zip(self._columns, args):
             setattr(self, k, v)

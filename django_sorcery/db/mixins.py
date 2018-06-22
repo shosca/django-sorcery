@@ -7,6 +7,31 @@ from ..exceptions import NestedValidationError
 
 
 class CleanMixin(object):
+    """
+    Mixin for adding django-style ``full_clean`` validation to any object.
+
+    Base model in :py:class:`..sqlalchemy.SQLAlchemy` already uses this mixin applied.
+
+    For example::
+
+        class Address(db.Model):
+            city = db.Column(db.String(20))
+            state = db.Column(db.String(2))
+            date = db.Column(db.Date())
+
+            validators = [
+                ValidateTogetherModelFields(["city", "state"]),
+            ]
+
+            def clean_date(self):
+                if self.date > datetime.date.today():
+                    raise ValidationError("Cant pick future date")
+
+            def clean(self):
+                if self.date.year < 1776 and self.state == "NY":
+                    raise ValidationError("NY state did not exist before 1776")
+    """
+
     def clean(self):
         """
         Hook for adding custom model validations before model is flushed.

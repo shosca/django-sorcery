@@ -75,6 +75,9 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
     registry_class = sa.util.ThreadLocalRegistry
     model_class = Base
 
+    BaseComposite = BaseComposite
+    CompositeField = CompositeField
+
     def __init__(self, alias=None, **kwargs):
         self.alias = alias or DEFAULT_DB_ALIAS
         self.url, self.kwargs = self._make_url(alias)
@@ -91,7 +94,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
 
         self.middleware = self.make_middleware()
         self.Model = self._make_declarative(self.model_class)
-        self.BaseComposite = BaseComposite
 
         for module in sa, sa.sql, sa.orm:
             for key in module.__all__:
@@ -141,12 +143,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
             if key.startswith(prefix):
                 opts[key] = kwargs.pop(key)
         return opts
-
-    def CompositeField(self, remote_cls, *args, **kwargs):
-        """
-        Shorthand for creating composites on a model
-        """
-        return CompositeField(remote_cls, *args, **kwargs)
 
     def OneToMany(self, remote_cls, **kwargs):
         """

@@ -5,6 +5,20 @@ from django.core.exceptions import ValidationError
 
 
 class NestedValidationError(ValidationError):
+    """
+    Django Validation error except which allows nested errors
+
+    Useful for validating composite objects.
+
+    For example::
+
+        raise NestedValidationError({
+            "field": ["error"],
+            "composite": {
+                "field": ["error"],
+            }
+        })
+    """
     def __init__(self, message, code=None, params=None):
         if not isinstance(message, dict):
             return super(NestedValidationError, self).__init__(message, code, params)
