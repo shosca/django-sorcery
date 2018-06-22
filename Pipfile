@@ -17,6 +17,7 @@ sphinx_rtd_theme = "*"
 mock = {version = "*", markers="python_version <= '2.7'"}
 beautifulsoup4 = "*"
 attrs = "*"
+tox = "*"
 
 [packages]
 "e1839a8" = {path = ".", editable = true}
