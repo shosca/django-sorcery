@@ -8,6 +8,7 @@ from ..models import Address, Business, db
 
 
 class TestComposite(TestCase):
+
     def test_autogenerate_columns(self):
 
         self.assertIsInstance(Business.location.property, CompositeField)
@@ -23,9 +24,10 @@ class TestComposite(TestCase):
     def test_can_persist(self):
 
         instance = Business()
-        instance.location = Address("street", "NY", "123")
+        instance.location = Address("NY", "street", "123")
         instance.other_location = Address(street="other street", state="NJ", zip="456")
         db.add(instance)
+        db.flush()
         db.expire_all()
 
         instance = Business.objects.first()

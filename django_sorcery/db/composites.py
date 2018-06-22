@@ -22,7 +22,7 @@ class CompositeField(CompositeProperty):
         if not self.prefix:
             self.prefix = self.random_prefix
 
-        columns = {k: v.copy() for k, v in vars(class_).items() if isinstance(v, sa.Column)}
+        columns = {k: v.copy() for k, v in sorted(vars(class_).items()) if isinstance(v, sa.Column)}
         for k, c in columns.items():
             c.name = self.prefix + "_" + (c.name or k)
             c.key = "_" + c.name
@@ -61,7 +61,7 @@ class BaseComposite(CleanMixin):
 
     @classproperty
     def _columns(cls):
-        return {k: v for k, v in vars(cls).items() if isinstance(v, sa.Column)}
+        return {k: v for k, v in sorted(vars(cls).items()) if isinstance(v, sa.Column)}
 
     def __composite_values__(self):
         return tuple(getattr(self, i) for i in sorted(self._columns))
