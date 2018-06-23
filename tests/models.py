@@ -13,7 +13,7 @@ from django_sorcery.validators import ValidateTogetherModelFields
 db = databases.get("test")
 
 
-COLORS = ["", "red", "green", "blue", "silver"]
+COLORS = ["", "red", "green", "blue", "silver", "pink"]
 
 
 class VehicleType(Enum):
@@ -80,6 +80,17 @@ class Vehicle(db.Model):
     @property
     def lower_name(self):
         return self.name.lower()
+
+    @db.validates("name")
+    def validate_name(self, key, value):
+        if value == "Bad Vehicle":
+            raise ValidationError("Name cannot be `Bad Value`")
+
+        return value
+
+    def clean_paint(self):
+        if self.paint == "pink":
+            raise ValidationError("Can't have a pink car")
 
 
 class Part(db.Model):
@@ -224,6 +235,14 @@ class ModelFour(db.Model):
     name = db.Column(db.String())
 
     _model_twos = db.OneToMany(ModelTwo, backref=db.backref("_model_four"))
+
+
+class ModelFullCleanFail(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String())
+
+    def clean(self):
+        raise ValidationError("bad model")
 
 
 class ClassicModel(object):

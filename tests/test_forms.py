@@ -3,12 +3,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from bs4 import BeautifulSoup
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 
 from django_sorcery.forms import ALL_FIELDS, ModelForm, modelform_factory
 
 from .base import TestCase
-from .models import Option, Owner, Vehicle, VehicleType, db
+from .models import ClassicModel, ModelFullCleanFail, Option, Owner, Vehicle, VehicleType, db
 
 
 class TestModelForm(TestCase):
@@ -120,6 +120,7 @@ class TestModelForm(TestCase):
                     '    <option value="green">green</option>',
                     '    <option value="blue">blue</option>',
                     '    <option value="silver">silver</option>',
+                    '    <option value="pink">pink</option>',
                     "  </select>",
                     "</p>",
                     "<p>",
@@ -214,6 +215,7 @@ class TestModelForm(TestCase):
                     '    <option value="green">green</option>',
                     '    <option value="blue">blue</option>',
                     '    <option value="silver">silver</option>',
+                    '    <option value="pink">pink</option>',
                     "  </select>",
                     "</p>",
                     "<p>",
@@ -321,6 +323,28 @@ class TestModelForm(TestCase):
 
         self.assertEqual(instance.first_name, "other")
 
+    def test_modelform_validation_with_model_clean(self):
+        class VehicleForm(ModelForm):
+            class Meta:
+                model = Vehicle
+                session = db
+                fields = ("paint", "name")
+
+        form = VehicleForm(data={"name": "Bad Vehicle"})
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {"__all__": ["Name cannot be `Bad Value`"]})
+
+    def test_modelform_validation_with_field_clean(self):
+        class VehicleForm(ModelForm):
+            class Meta:
+                model = Vehicle
+                session = db
+                fields = ("paint", "name")
+
+        form = VehicleForm(data={"name": "Vehicle", "paint": "pink"})
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {"paint": ["Can't have a pink car"]})
+
     def test_modelform_save_with_errors(self):
         class VehicleForm(ModelForm):
             class Meta:
@@ -335,6 +359,28 @@ class TestModelForm(TestCase):
             form.save()
 
         self.assertEqual(ctx.exception.args, ("The Vehicle could not be saved because the data didn't validate.",))
+
+    def test_modelform_model_full_clean_validate(self):
+        class BadModelForm(ModelForm):
+            class Meta:
+                model = ModelFullCleanFail
+                session = db
+                fields = ("name",)
+
+        form = BadModelForm(data={"name": "bad"})
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {"__all__": ["bad model"]})
+
+    def test_modelform_clean_with_classic_model(self):
+        class ClassicModelForm(ModelForm):
+            class Meta:
+                model = ClassicModel
+                session = db
+                fields = ("name",)
+
+        form = ClassicModelForm(data={"name": "classic"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.instance.name, "classic")
 
     def test_modelform_factory_with_formfield_callback(self):
 
@@ -356,3 +402,42 @@ class TestModelForm(TestCase):
             ctx.exception.args,
             ("Calling modelform_factory without defining 'fields' or 'exclude' explicitly is prohibited.",),
         )
+
+    def test_update_errors(self):
+        class OwnerForm(ModelForm):
+            class Meta:
+                model = Owner
+                session = db
+                fields = ("first_name", "last_name")
+                error_messages = {"__all__": {"required": "Last name is required"}}
+
+        form = OwnerForm(data={"first_name": "name"})
+        self.assertTrue(form.is_valid())
+
+        form = OwnerForm(data={"first_name": "name"})
+        form._update_errors("error")
+        self.assertDictEqual(form.errors, {"__all__": ["error"]})
+
+        form = OwnerForm(data={"first_name": "name"})
+        form._update_errors({"first_name": "name error"})
+        self.assertDictEqual(form.errors, {"first_name": ["name error"]})
+
+        form = OwnerForm(data={"first_name": "name"})
+        error = ValidationError({"first_name": "name error"})
+        form._update_errors(error)
+        self.assertDictEqual(form.errors, {"first_name": ["name error"]})
+
+        form = OwnerForm(data={"first_name": "name"})
+        error = ValidationError({"dummy": ValidationError("error")})
+        with self.assertRaises(ValueError):
+            form._update_errors(error)
+
+        form = OwnerForm(data={"first_name": "name"})
+        error = ValidationError({"first_name": [ValidationError("first_name", code="required")]})
+        form._update_errors(error)
+        self.assertDictEqual(form.errors, {"first_name": ["This field is required."]})
+
+        form = OwnerForm(data={"last_name": "name"})
+        error = ValidationError(ValidationError("Last name is required."))
+        form._update_errors(error)
+        self.assertDictEqual(form.errors, {"__all__": ["Last name is required."]})
