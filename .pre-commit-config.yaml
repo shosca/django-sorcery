@@ -1,6 +1,7 @@
 ---
+repos:
 - repo: git://github.com/pre-commit/pre-commit-hooks
-  sha: 'master'
+  rev: v1.3.0
   hooks:
   - id: check-added-large-files
   - id: check-byte-order-marker
@@ -16,13 +17,13 @@
   - id: trailing-whitespace
 
 - repo: https://github.com/miki725/importanize
-  sha: master
+  rev: '0.7'
   hooks:
   - id: importanize
     python_version: python3.6
 
 - repo: https://github.com/ambv/black
-  rev: stable
+  rev: 18.6b4
   hooks:
   - id: black
     args: [--line-length=120, --safe]
