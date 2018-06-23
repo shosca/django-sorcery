@@ -17,6 +17,10 @@ DIALECT_MAP = {
 
 
 def get_settings(alias):
+    """
+    Returns database settings from either ``SQLALCHEMY_CONNECTIONS`` setting or ``DATABASES`` setting.
+    """
+
     if hasattr(settings, "SQLALCHEMY_CONNECTIONS") and alias in settings.SQLALCHEMY_CONNECTIONS:
         return settings.SQLALCHEMY_CONNECTIONS[alias]
 
@@ -25,7 +29,7 @@ def get_settings(alias):
 
 def make_url(alias_or_url):
     """
-    Generates a URL either from environment, DATABASES or SQLALCHEMY_CONNECTIONS settings
+    Generates a URL either from a url string, environment variable, SQLALCHEMY_CONNECTIONS or DATABASES settings
     ---------------------------------------------------------------------
     alias_or_url: str
         name of the alias or url as string
@@ -51,6 +55,37 @@ def make_url_from_settings(alias):
     -------------------------------------------
     alias: str
         name of the alias
+
+    Overall settings are very similar with django database settings with a few extra keys.
+
+    ``USER`` - database user
+
+    ``PASSWORD`` - database user password
+
+    ``HOST`` - database host
+
+    ``NAME`` - database name
+
+    ``PORT`` - database name
+
+    ``DIALECT`` - dialect to be used in url, if not provided, will use the ``DIALECT_MAP`` to figure out a dialect to
+    be used in sqlalchemy url
+
+    ``DRIVER`` - If provided, will be used as the driver in sqlalchemy url
+
+    ``SQLALCHEMY`` - If provided, a custom :py:class:`..sqlalchemy.SQLAlchemy` class to be used
+
+    ``QUERY`` - querystring arguments for sqlalchemy url
+
+    ``OPTIONS`` - Optional arguments to be used to initialize the :py:class:`..sqlalchemy.SQLAlchemy` instance
+
+        * ``session_class`` - a custom session class to be used
+        * ``registry_class`` - a custom registy class to be used for scoping
+        * ``model_class`` - a custom base model class to be used for declarative base models.
+        * ``engine_options`` - arguments for sqlalchemy ``create_engine``
+        * ``session_options`` - arguments for sqlalchemy ``sessionmaker``
+
+    Other options are ignored.
     """
 
     data = get_settings(alias)

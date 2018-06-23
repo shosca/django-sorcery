@@ -73,6 +73,7 @@ def apply_limit_choices_to_form_field(formfield):
 
 
 class ModelChoiceField(djangofields.ChoiceField):
+    """A ChoiceField whose choices are a sqlalchemy model relationship."""
 
     default_error_messages = {
         "invalid_choice": "Select a valid choice. That choice is not one of the available choices."
@@ -166,6 +167,7 @@ class ModelChoiceField(djangofields.ChoiceField):
 
 
 class ModelMultipleChoiceField(ModelChoiceField):
+    """A ChoiceField whose choices are a sqlalchemy model list relationship."""
 
     widget = djangofields.SelectMultiple
     hidden_widget = djangofields.MultipleHiddenInput

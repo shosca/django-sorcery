@@ -7,6 +7,10 @@ from . import signals
 
 
 class SignallingSession(orm.Session):
+    """
+    A custom sqlalchemy session implementation that provides signals
+    """
+
     def __init__(self, *args, **kwargs):
         super(SignallingSession, self).__init__(*args, **kwargs)
 
@@ -28,6 +32,10 @@ class SignallingSession(orm.Session):
         return super(SignallingSession, self).query(*args, **kwargs)
 
     def commit(self):
+        """
+        Flushes pending changes and commits the current transaction. If the transaction is the main transaction,
+        triggers before and after commit signals.
+        """
         is_main = self.transaction and (self.transaction._parent is None or not self.transaction.nested)
 
         if is_main:

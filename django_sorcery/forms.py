@@ -137,6 +137,9 @@ class BaseModelForm(BaseForm):
         self.add_error(None, errors)
 
     def is_valid(self, rollback=True):
+        """
+        Return True if the form has no errors, or False otherwise. Will also rollback the session transaction.
+        """
         is_valid = super(BaseModelForm, self).is_valid()
 
         if not is_valid and rollback:
@@ -145,6 +148,9 @@ class BaseModelForm(BaseForm):
         return is_valid
 
     def save(self, flush=True, **kwargs):
+        """
+        Makes form's self.instance model persistent and flushes the session.
+        """
         opts = self._meta
 
         if self.errors:
@@ -161,19 +167,24 @@ class BaseModelForm(BaseForm):
         return self.instance
 
     def _post_clean(self):
+        """
+        Hook for performing additional cleaning after form cleaning is complete. Used for model validation in model
+        forms.
+        """
         try:
             self.instance = self.save_instance()
         except ValidationError as e:
             self._update_errors(e)
 
         try:
-            self.instance.full_clean()
+            getattr(self.instance, "full_clean", bool)()
         except ValidationError as e:
             self._update_errors(e)
-        except AttributeError:
-            pass
 
     def save_instance(self, instance=None, cleaned_data=None):
+        """
+        Updates form's instance with cleaned data.
+        """
         instance = instance or self.instance
         cleaned_data = cleaned_data or self.cleaned_data
 
@@ -184,6 +195,9 @@ class BaseModelForm(BaseForm):
         return instance
 
     def update_attribute(self, instance, name, field, value):
+        """
+        Provides hooks for updating form instance's attribute for a field with value.
+        """
         field_setter = getattr(self, "set_" + name, None)
         if field_setter:
             field_setter(instance, name, field, value)
@@ -196,6 +210,9 @@ class ModelForm(six.with_metaclass(ModelFormMetaclass, BaseModelForm)):
 
 
 def modelform_factory(model, form=ModelForm, formfield_callback=None, **kwargs):
+    """
+    Return a ModelForm containing form fields for the given model.
+    """
     defaults = [
         "fields",
         "exclude",
