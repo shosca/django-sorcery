@@ -26,13 +26,6 @@
             ],
             "version": "==2.0.6"
         },
-        "djangorestframework": {
-            "hashes": [
-                "sha256:b6714c3e4b0f8d524f193c91ecf5f5450092c2145439ac2769711f7eba89a9d9",
-                "sha256:c375e4f95a3a64fccac412e36fb42ba36881e52313ec021ef410b40f67cddca4"
-            ],
-            "version": "==3.8.2"
-        },
         "e1839a8": {
             "editable": true,
             "path": "."
@@ -362,6 +355,12 @@
                 "sha256:fee43f17a9c4087e7ed1605bd6df994c6173c1e977d7ade7b651292fab2bd010"
             ],
             "version": "==2.2.0"
+        },
+        "pyrepl": {
+            "hashes": [
+                "sha256:3bcbbf1e47d2b80819b805aceea16dc90832ba4800035d595fa3c4bf48fcd4d7"
+            ],
+            "version": "==0.8.4"
         },
         "pytest": {
             "hashes": [
