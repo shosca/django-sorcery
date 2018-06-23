@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.4.7 (2018-06-22)
+0.4.8 (2018-06-23)
 -----------------------------
+- Add docs (#26) [Serkan Hosca]
+- Wire up form to do model clean (#25) [Serkan Hosca]
+
+
+0.4.7 (2018-06-23)
+------------------
 - Drop drf dependency (#24) [Serkan Hosca]
 
 
