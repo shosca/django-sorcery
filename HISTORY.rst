@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.4.6 (2018-06-22)
+0.4.7 (2018-06-22)
 -----------------------------
+- Drop drf dependency (#24) [Serkan Hosca]
+
+
+0.4.6 (2018-06-22)
+------------------
 - Added CompositeField and all related goodies (#23) [Miroslav
   Shubernetskiy]
 
