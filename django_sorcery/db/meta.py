@@ -57,6 +57,10 @@ class composite_info(six.with_metaclass(model_info_meta)):
 
 
 class column_info(object):
+    """
+    A helper class that makes sqlalchemy property and column inspection easier
+    """
+
     __slots__ = ("property", "column")
 
     def __init__(self, prop, column):

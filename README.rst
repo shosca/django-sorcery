@@ -1,12 +1,11 @@
-Django Sorcery
-==============
+#############################################################
+Django Sorcery - Django Framework integration with SQLAlchemy
+#############################################################
 
 |Build Status| |Read The Docs| |PyPI version| |Coveralls Status|
 
 * Free software: MIT license
 * GitHub: https://github.com/shosca/django-sorcery
-
-**Django Framework integration with SQLAlchemy**
 
 SQLAlchemy is an excellent orm. And Django is a great framework, until you decide not to use Django ORM. This library
 provides utilities, helpers and configurations to ease the pain of using SQLAlchemy with Django. It aims to provide
@@ -431,7 +430,7 @@ PATCH  /polls/1/                update          question-detail
 DELETE /polls/1/                destroy         question-detail
 GET    /polls/1/edit/           edit            question-edit
 GET    /polls/1/delete/         confirm_destoy  question-delete
-POST   /polls/1/delete/         destoy          question-delete
+POST   /polls/1/delete/         destroy         question-delete
 ====== ======================== =============== ===============
 
 Now, lets add an inline formset to be able to add choices to questions, adjust ``polls/views.py``:

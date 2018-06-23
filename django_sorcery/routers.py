@@ -75,6 +75,27 @@ class BaseRouter(object):
 
 
 class SimpleRouter(BaseRouter):
+    """
+    Generates url patterns that map requests to a viewset's action functions.
+
+    It will map the following operations to following actions on the viewset:
+
+    ====== ======================== =============== =================
+    Method Path                     Action          Route Name
+    ====== ======================== =============== =================
+    GET    /<resource>/             list            <resource>-list
+    POST   /<resource>/             create          <resource>-list
+    GET    /<resource>/new/         new             <resource>-new
+    GET    /<resource>/<pk>/        retrieve        <resource>-detail
+    POST   /<resource>/<pk>/        update          <resource>-detail
+    PUT    /<resource>/<pk>/        update          <resource>-detail
+    PATCH  /<resource>/<pk>/        update          <resource>-detail
+    DELETE /<resource>/<pk>/        destroy         <resource>-detail
+    GET    /<resource>/<pk>/edit/   edit            <resource>-edit
+    GET    /<resource>/<pk>/delete/ confirm_destoy  <resource>-delete
+    POST   /<resource>/<pk>/delete/ destroy         <resource>-delete
+    ====== ======================== =============== =================
+    """
 
     routes = [
         # List route.
