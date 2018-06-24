@@ -160,10 +160,16 @@ def serialize(instance, *rels):
         return [serialize(i, *rels) for i in instance]
 
     state = sa.inspect(instance)
+    rels = set(rels)
 
     data = {c.key: getattr(instance, c.key) for c in state.mapper.column_attrs}
 
-    rels = set(rels)
+    for composite in state.mapper.composites:
+        attr = getattr(state.mapper.class_, composite.key)
+        data[composite.key] = vars(getattr(instance, composite.key))
+        # since we're copying, remove props from the composite
+        for prop in composite.props:
+            data.pop(prop.key, None)
 
     for relation in state.mapper.relationships:
         attr = getattr(state.mapper.class_, relation.key)
@@ -225,6 +231,14 @@ def clone(instance, *rels, **kwargs):
             continue
 
         kwargs[prop.key] = getattr(instance, prop.key)
+
+    for composite in mapper.composites:
+        value = getattr(instance, composite.key, None)
+        if value:
+            kwargs[composite.key] = composite.composite_class(*value.__composite_values__())
+            # since we're copying, remove props from the composite
+            for prop in composite.props:
+                kwargs.pop(prop.key, None)
 
     for relation in mapper.relationships:
         if relation.key in kwargs:
