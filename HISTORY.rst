@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.4.8 (2018-06-23)
+0.4.9 (2018-06-26)
 -----------------------------
+- Fix init kwargs (#28) [Serkan Hosca]
+- Add composite cloning and serialization (#27) [Serkan Hosca]
+
+
+0.4.8 (2018-06-23)
+------------------
 - Add docs (#26) [Serkan Hosca]
 - Wire up form to do model clean (#25) [Serkan Hosca]
 
