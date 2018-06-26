@@ -82,12 +82,12 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
         self.alias = alias or DEFAULT_DB_ALIAS
         self.url, self.kwargs = self._make_url(alias)
         self.kwargs.update(kwargs)
-        self.session_class = kwargs.pop("session_class", None) or self.session_class
-        self.query_class = kwargs.pop("query_class", None) or self.query_class
-        self.registry_class = kwargs.pop("registry_class", None) or self.registry_class
-        self.model_class = kwargs.pop("model_class", None) or self.model_class
-        self.engine_options = kwargs.pop("engine_options", {})
-        self.session_options = kwargs.pop("session_options", {})
+        self.session_class = self.kwargs.get("session_class", None) or self.session_class
+        self.query_class = self.kwargs.get("query_class", None) or self.query_class
+        self.registry_class = self.kwargs.get("registry_class", None) or self.registry_class
+        self.model_class = self.kwargs.get("model_class", None) or self.model_class
+        self.engine_options = self.kwargs.get("engine_options", {})
+        self.session_options = self.kwargs.get("session_options", {})
 
         self.session_options.setdefault("query_cls", self.query_class)
         self.session_options.setdefault("class_", self.session_class)
