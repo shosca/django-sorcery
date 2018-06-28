@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.4.9 (2018-06-26)
+0.4.10 (2018-06-28)
 -----------------------------
+- Add Unique validator (#29) [Serkan Hosca]
+
+
+0.4.9 (2018-06-26)
+------------------
 - Fix init kwargs (#28) [Serkan Hosca]
 - Add composite cloning and serialization (#27) [Serkan Hosca]
 
