@@ -7,7 +7,7 @@ from django.core.validators import RegexValidator
 
 from django_sorcery.db import databases
 from django_sorcery.db.query import Query
-from django_sorcery.validators import ValidateTogetherModelFields
+from django_sorcery.validators import ValidateTogetherModelFields, ValidateUnique
 
 
 db = databases.get("test")
@@ -243,6 +243,15 @@ class ModelFullCleanFail(db.Model):
 
     def clean(self):
         raise ValidationError("bad model")
+
+
+class ValidateUniqueModel(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String())
+    foo = db.Column(db.String())
+    bar = db.Column(db.String())
+
+    validators = [ValidateUnique(db, name), ValidateUnique(db, foo, bar)]
 
 
 class ClassicModel(object):
