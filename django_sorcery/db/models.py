@@ -10,6 +10,8 @@ import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
 from sqlalchemy.orm.base import NO_VALUE
 
+from django.utils.text import camel_case_to_spaces
+
 from . import signals
 from .meta import model_info
 from .mixins import CleanMixin
@@ -273,7 +275,7 @@ class Base(CleanMixin):
         """
         Autogenerate a table name
         """
-        return cls.__name__.lower()
+        return "_".join(camel_case_to_spaces(cls.__name__).split())
 
     def as_dict(self):
         """
