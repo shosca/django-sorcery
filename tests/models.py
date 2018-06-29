@@ -218,8 +218,8 @@ class ModelOne(db.Model):
 
 model_three_ones = db.Table(
     "model_three_ones",
-    db.Column("model_one_pk", db.Integer(), db.ForeignKey("modelone.pk"), primary_key=True),
-    db.Column("model_two_pk", db.Integer(), db.ForeignKey("modelthree.pk"), primary_key=True),
+    db.Column("model_one_pk", db.Integer(), db.ForeignKey("model_one.pk"), primary_key=True),
+    db.Column("model_two_pk", db.Integer(), db.ForeignKey("model_three.pk"), primary_key=True),
 )
 
 
