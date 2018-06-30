@@ -41,7 +41,7 @@ setup(
     license="MIT",
     long_description=read("README.rst"),
     name="django-sorcery",
-    packages=find_packages(exclude=["tests"]),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     url="https://github.com/shosca/django-sorcery",
     version=about["__version__"],
     keywords="sqlalchemy django framework forms",
