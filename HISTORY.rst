@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.4.10 (2018-06-28)
+0.4.11 (2018-06-30)
 -----------------------------
+- Snakify table names (#30) [Serkan Hosca]
+
+
+0.4.10 (2018-06-28)
+-------------------
 - Add Unique validator (#29) [Serkan Hosca]
 
 
