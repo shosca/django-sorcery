@@ -68,9 +68,11 @@ class ValidateUnique(object):
     def __call__(self, m):
         info = model_info(m.__class__)
         state = sa.inspect(m)
+        mapper = state.mapper
         clauses = []
         for attr in self.attrs:
-            clauses.append(attr == getattr(m, attr.key))
+            prop = mapper.get_property_by_column(attr)
+            clauses.append(attr == getattr(m, prop.key))
 
         if state.persistent:
             # need to exlude the current model since it's already in db
