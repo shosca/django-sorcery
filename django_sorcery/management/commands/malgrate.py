@@ -18,12 +18,12 @@ class Command(BaseCommand):
             help="Nominates a database to synchronize. By default will synchronize all.",
         )
         parser.add_argument(
-            "--create-all", action="store_true", default=False, help="Run create_all() for given databases."
+            "--createall", action="store_true", default=False, help="Run create_all() for given databases."
         )
 
     def handle(self, *args, **options):
         for key, db in filter(lambda i: i[0] in (options["databases"] or databases), databases.items()):
-            if options["create_all"]:
+            if options["createall"]:
                 db.create_all()
                 self.stdout.write(self.style.SUCCESS('Successfully ran create_all() for "%s"' % key))
             else:
