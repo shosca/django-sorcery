@@ -6,14 +6,15 @@ import six
 
 import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import declarative_base
 
 from django.db import DEFAULT_DB_ALIAS
 
-from ..utils import make_args, setdefaultattr, suppress
+from ..utils import make_args
 from .composites import BaseComposite, CompositeField
 from .models import Base
 from .query import Query, QueryProperty
+from .relations import RelationsMixin
 from .session import SignallingSession
 from .signals import all_signals, engine_created
 from .url import make_url
@@ -64,7 +65,7 @@ class _sqla_meta(type):
         return typ
 
 
-class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
+class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
     """
     This class itself is a scoped session and provides very thin and useful abstractions and conventions for using
     sqlalchemy with django.
@@ -136,168 +137,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, object)):
 
         else:
             return self.registry()
-
-    def _get_kwargs_for_relation(self, kwargs, prefix="fk_"):
-        opts = {}
-        for key in list(kwargs.keys()):
-            if key.startswith(prefix):
-                opts[key] = kwargs.pop(key)
-        return opts
-
-    def OneToMany(self, remote_cls, **kwargs):
-        """
-        Use an event to build one-to-many relationship on a model and auto generates foreign key relationship from the
-        remote table::
-
-            class ModelOne(db.Model):
-                pk = db.Column(.., primary_key=True)
-                m2 = db.OneToMany("ModelTwo", ...)
-
-            class ModelTwo(db.Model):
-                pk = db.Column(.., primary_key=True)
-                ...
-
-            will create ModelTwo.m1_pk automatically for the relationship
-        """
-
-        @declared_attr
-        def o2m(cls):
-            """
-            one to many relationship attribute for declarative
-            """
-            rels = setdefaultattr(cls, "_relationships", set())
-            kwargs.setdefault("info", {}).update(self._get_kwargs_for_relation(kwargs))
-            kwargs["uselist"] = True
-            backref = kwargs.get("backref")
-            backref_kwargs = None
-            if backref:
-                if isinstance(backref, tuple):
-                    with suppress(Exception):
-                        backref, backref_kwargs = backref
-
-                backref_kwargs = backref_kwargs or {}
-
-                backref_kwargs["uselist"] = False
-                kwargs["backref"] = (backref, backref_kwargs)
-
-            rel = self.relationship(remote_cls, **kwargs)
-            rel.direction = sa.orm.interfaces.ONETOMANY
-            rels.add(rel)
-            return rel
-
-        return o2m
-
-    def ManyToOne(self, remote_cls, **kwargs):
-        """
-        Use an event to build many-to-one relationship on a model and auto generates foreign key relationship on the
-        remote table::
-
-            class ModelOne(db.Model):
-                pk = db.Column(.., primary_key=True)
-                m2 = db.ManyToOne("ModelTwo", ...)
-
-            class ModelTwo(db.Model):
-                pk = db.Column(.., primary_key=True)
-                ...
-
-        will create ModelOne.m2_pk automatically for the relationship
-        """
-
-        @declared_attr
-        def m2o(cls):
-            """
-            many to one relationship attribute for declarative
-            """
-            rels = setdefaultattr(cls, "_relationships", set())
-            kwargs.setdefault("info", {}).update(self._get_kwargs_for_relation(kwargs))
-            kwargs["uselist"] = False
-            backref = kwargs.get("backref")
-            if backref:
-                backref_kwargs = None
-                if isinstance(backref, tuple):
-                    with suppress(Exception):
-                        backref, backref_kwargs = backref
-
-                backref_kwargs = backref_kwargs or {}
-
-                backref_kwargs["uselist"] = True
-                kwargs["backref"] = self.backref(backref, **backref_kwargs)
-
-            rel = self.relationship(remote_cls, **kwargs)
-            rel.direction = sa.orm.interfaces.MANYTOONE
-            rels.add(rel)
-            return rel
-
-        return m2o
-
-    def ManyToMany(self, remote_cls, table_name=None, **kwargs):
-        """
-        Use an event to build many-to-many relationship on a model and auto generates an association table or if a
-        model is provided as secondary argument::
-
-            class ModelOne(db.Model):
-                pk = db.Column(.., primary_key=True)
-                m2s = db.ManyToMany("ModelTwo", backref="m1s", table_name='m1m2s', ...)
-
-            class ModelTwo(db.Model):
-                pk = db.Column(.., primary_key=True)
-                ...
-
-        or with back_populates::
-
-            class ModelOne(db.Model):
-                pk = db.Column(.., primary_key=True)
-                m2s = db.ManyToMany("ModelTwo", back_populates="m1s", table_name='m1m2s', ...)
-
-            class ModelTwo(db.Model):
-                pk = db.Column(.., primary_key=True)
-                m1s = db.ManyToMany("ModelOne", back_populates="m2s", table_name='m1m2s', ...)
-
-        will create ModelOne.m2s and ModelTwo.m1s relationship thru a provided secondary argument. If no secondary argument
-        is provided, table_name is required as it will be used for the autogenerated association table.
-
-        In the case of back_populates you have to provide the same table_name argument on both many-to-many
-        declarations
-        """
-
-        @declared_attr
-        def m2m(cls):
-            """
-            many to many relationship attribute for declarative
-            """
-            if "secondary" not in kwargs and table_name is None:
-                raise sa.exc.ArgumentError(
-                    "You need to provide secondary or table_name for the relation for the association table "
-                    "that will be generated"
-                )
-
-            rels = setdefaultattr(cls, "_relationships", set())
-            info = kwargs.setdefault("info", {})
-            info.update(self._get_kwargs_for_relation(kwargs))
-            info.update(self._get_kwargs_for_relation(kwargs, "table_"))
-            if table_name:
-                info["table_name"] = table_name
-
-            kwargs["uselist"] = True
-
-            backref = kwargs.get("backref")
-            backref_kwargs = None
-            if backref:
-                if isinstance(backref, tuple):
-                    with suppress(Exception):
-                        backref, backref_kwargs = backref
-
-                backref_kwargs = backref_kwargs or {}
-
-                backref_kwargs["uselist"] = True
-                kwargs["backref"] = self.backref(backref, **backref_kwargs)
-
-            rel = self.relationship(remote_cls, **kwargs)
-            rel.direction = sa.orm.interfaces.MANYTOMANY
-            rels.add(rel)
-            return rel
-
-        return m2m
 
     def Table(self, name, *args, **kwargs):
         assert name is not None, "Table requires `name` argument"
