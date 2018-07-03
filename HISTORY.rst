@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.4.12 (2018-06-30)
+0.4.13 (2018-07-03)
 -----------------------------
+- Fix unique column validator (#32) [Serkan Hosca]
+- Refactored all relations to separate module. also moving declare_first
+  as signal (#31) [Miroslav Shubernetskiy]
+
+
+0.4.12 (2018-06-30)
+-------------------
 - Fix packaging. [Serkan Hosca]
 
 
