@@ -251,7 +251,7 @@ class ValidateUniqueModel(db.Model):
     foo = db.Column(db.String())
     bar = db.Column(db.String())
 
-    validators = [ValidateUnique(db, name), ValidateUnique(db, foo, bar)]
+    validators = [ValidateUnique(db, "name"), ValidateUnique(db, "foo", "bar")]
 
 
 class ClassicModel(object):

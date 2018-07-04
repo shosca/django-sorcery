@@ -293,6 +293,13 @@ class Base(CleanMixin):
         """
         signals.declare_first.send(cls)
 
+    @classmethod
+    def __declare_last__(cls):
+        """
+        Declarative hook called within `after_configure` mapper event, can be called multiple times.
+        """
+        signals.declare_last.send(cls)
+
     def _get_properties_for_validation(self):
         """
         Return all model columns which can be validated
