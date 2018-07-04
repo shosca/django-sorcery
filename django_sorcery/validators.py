@@ -51,8 +51,8 @@ class ValidateUnique(object):
             name = db.Column(db.Integer())
 
             validators = [
-                ValidateUnique(db, name),      # checks for name uniqueness
-                ValidateUnique(db, foo, bar),  # checks for foo and bar combination uniqueness
+                ValidateUnique(db, "name"),      # checks for name uniqueness
+                ValidateUnique(db, "foo", "bar"),  # checks for foo and bar combination uniqueness
             ]
     """
 
@@ -66,14 +66,10 @@ class ValidateUnique(object):
         self.attrs = args
 
     def __call__(self, m):
+        clauses = [getattr(m.__class__, attr) == getattr(m, attr) for attr in self.attrs]
+
         info = model_info(m.__class__)
         state = sa.inspect(m)
-        mapper = state.mapper
-        clauses = []
-        for attr in self.attrs:
-            prop = mapper.get_property_by_column(attr)
-            clauses.append(attr == getattr(m, prop.key))
-
         if state.persistent:
             # need to exlude the current model since it's already in db
             pks = info.mapper.primary_key_from_instance(m)
@@ -84,6 +80,4 @@ class ValidateUnique(object):
         exists = self.session.query(sa.literal(True)).filter(query.exists()).scalar()
 
         if exists:
-            raise ValidationError(
-                self.message, code=self.code, params={"fields": ", ".join(sorted([attr.key for attr in self.attrs]))}
-            )
+            raise ValidationError(self.message, code=self.code, params={"fields": ", ".join(sorted(self.attrs))})

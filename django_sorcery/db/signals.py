@@ -85,3 +85,4 @@ before_middleware_request = all_signals.signal("before_middleware_request")
 after_middleware_response = all_signals.signal("after_middleware_response")
 
 declare_first = all_signals.signal("declare_first")
+declare_last = all_signals.signal("declare_last")
