@@ -118,6 +118,10 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
 
         return self._registry
 
+    @property
+    def inspector(self):
+        return self.inspect(self.engine)
+
     def session(self, **kwargs):
         """
         Return the current session, creating it if necessary using session_factory for the current scope
@@ -284,3 +288,9 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         Create the schema in db
         """
         self.metadata.create_all(bind=self.engine)
+
+    def drop_all(self):
+        """
+        Drop the schema in db
+        """
+        self.metadata.drop_all(bind=self.engine)

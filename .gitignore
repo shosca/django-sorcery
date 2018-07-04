@@ -50,3 +50,4 @@ docs/_build
 .pytest_cache
 db.sqlite3
 .mypy_cache
+*.sqlite3
