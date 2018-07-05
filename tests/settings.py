@@ -25,7 +25,7 @@ SQLALCHEMY_CONNECTIONS = {
     "minimal_backpop": {"DIALECT": "sqlite"},
 }
 
-INSTALLED_APPS = ["tests.apps.TestConfig", "django.contrib.staticfiles"]
+INSTALLED_APPS = ["tests.apps.TestConfig", "django_sorcery", "django.contrib.staticfiles"]
 
 ROOT_URLCONF = "tests.urls"
 

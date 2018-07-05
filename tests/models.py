@@ -265,4 +265,5 @@ db.mapper(ClassicModel, classic_model_table)
 
 
 db.configure_mappers()
+db.drop_all()
 db.create_all()
