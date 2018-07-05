@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.4.13 (2018-07-03)
+0.5.0 (2018-07-05)
 -----------------------------
+- Add namespaced command (#35) [Serkan Hosca]
+- Fix unique validator and add declare last signal (#34) [Serkan Hosca]
+
+
+0.4.13 (2018-07-03)
+-------------------
 - Fix unique column validator (#32) [Serkan Hosca]
 - Refactored all relations to separate module. also moving declare_first
   as signal (#31) [Miroslav Shubernetskiy]
