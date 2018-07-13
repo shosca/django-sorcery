@@ -17,34 +17,8 @@ from .query import Query, QueryProperty
 from .relations import RelationsMixin
 from .session import SignallingSession
 from .signals import all_signals, engine_created
+from .transaction import TransactionContext
 from .url import make_url
-
-
-class TransactionContext(object):
-    """
-    Transaction context manager for maintaining a transaction or savepoint
-    """
-
-    def __init__(self, db, savepoint=True):
-        self.db = db
-        self.savepoint = savepoint
-        self.transaction = None
-
-    def __call__(self, func, *args, **kwargs):
-        @functools.wraps(func)
-        def wrapped(*args, **kwargs):
-            with self.db.begin(subtransactions=True, nested=self.savepoint):
-                return func(*args, **kwargs)
-
-        return wrapped
-
-    def __enter__(self):
-        self.transaction = self.db.begin(subtransactions=True, nested=self.savepoint)
-        self.transaction.__enter__()
-
-    def __exit__(self, exception_type, value, traceback):
-        self.transaction.__exit__(exception_type, value, traceback)
-        self.transaction = None
 
 
 class _sqla_meta(type):
@@ -257,7 +231,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         """
         Create a savepoint or transaction scope
         """
-        return TransactionContext(self, savepoint)
+        return TransactionContext(self, savepoint=savepoint)
 
     def make_middleware(self):
         """

@@ -6,6 +6,7 @@ from django.utils.module_loading import import_string
 
 from ..utils import suppress
 from .sqlalchemy import SQLAlchemy
+from .transaction import TransactionContext
 from .url import get_settings
 
 
@@ -74,3 +75,6 @@ class dbdict(dict):
         """
         for db in self.values():
             db.remove()
+
+    def atomic(self, savepoint=True):
+        return TransactionContext(*self.values(), savepoint=True)
