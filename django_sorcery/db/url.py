@@ -15,6 +15,8 @@ DIALECT_MAP = {
     "sqlserver_ado": "mssql",
 }
 
+ENGINE_OPTIONS_NORMALIZATION = {"echo": lambda x: x in ["True", True]}
+
 
 def get_settings(alias):
     """
@@ -44,7 +46,13 @@ def make_url(alias_or_url):
 
     url = sa.engine.url.make_url(os.environ.get(alias.upper() + "_URL", None))
     if url:
-        return url, {}
+        engine_options = {
+            k.replace("engine_options_", ""): ENGINE_OPTIONS_NORMALIZATION.get(
+                k.replace("engine_options_", ""), lambda x: x
+            )(url.query.pop(k))
+            for k in list(url.query)
+        }
+        return url, {"engine_options": engine_options}
 
     return make_url_from_settings(alias)
 
