@@ -2,8 +2,19 @@ Changelog
 =========
 
 
-0.5.0 (2018-07-05)
+0.5.1 (2018-07-16)
 -----------------------------
+- Allowing to specify via env var some engine options (#37) [Miroslav
+  Shubernetskiy]
+
+
+
+
+
+
+
+0.5.0 (2018-07-05)
+------------------
 - Add namespaced command (#35) [Serkan Hosca]
 - Fix unique validator and add declare last signal (#34) [Serkan Hosca]
 
