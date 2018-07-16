@@ -30,14 +30,14 @@ from django_sorcery.db.url import make_url
 class TestMakeUrl(TestCase):
     def setUp(self):
         super(TestMakeUrl, self).setUp()
-        os.environ["FROM_ENV_URL"] = "postgresql://usr:hunter2@awesomedomain/db"
+        os.environ["FROM_ENV_URL"] = "postgresql://usr:hunter2@awesomedomain/db?engine_echo=True"
 
     def tearDown(self):
         super(TestMakeUrl, self).tearDown()
         os.environ.pop("FROM_ENV_URL", None)
 
     def test_handles_url(self):
-        url, _ = make_url("postgresql://usr:hunter2@awesomedomain/db")
+        url, options = make_url("postgresql://usr:hunter2@awesomedomain/db?engine_echo=True")
         self.assertEqual(url.database, "db")
         self.assertEqual(url.drivername, "postgresql")
         self.assertEqual(url.host, "awesomedomain")
@@ -45,13 +45,14 @@ class TestMakeUrl(TestCase):
         self.assertEqual(url.port, None)
         self.assertEqual(url.query, {})
         self.assertEqual(url.username, "usr")
+        self.assertDictEqual(options, {"engine_options": {"echo": True}})
 
     def test_requires_dialect(self):
         with self.assertRaises(KeyError):
             make_url("bad")
 
     def test_can_override_from_env(self):
-        url, _ = make_url("from_env")
+        url, options = make_url("from_env")
         self.assertEqual(url.database, "db")
         self.assertEqual(url.drivername, "postgresql")
         self.assertEqual(url.host, "awesomedomain")
@@ -59,6 +60,7 @@ class TestMakeUrl(TestCase):
         self.assertEqual(url.port, None)
         self.assertEqual(url.query, {})
         self.assertEqual(url.username, "usr")
+        self.assertDictEqual(options, {"engine_options": {"echo": True}})
 
     def test_can_generate_minimal(self):
         url, _ = make_url("minimal")

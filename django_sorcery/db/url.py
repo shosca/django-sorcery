@@ -29,6 +29,17 @@ def get_settings(alias):
     return settings.DATABASES[alias]
 
 
+def _options_from_url(url):
+    return {
+        "engine_options": {
+            k.replace("engine_", ""): ENGINE_OPTIONS_NORMALIZATION.get(k.replace("engine_", ""), lambda x: x)(
+                url.query.pop(k)
+            )
+            for k in list(url.query)
+        }
+    }
+
+
 def make_url(alias_or_url):
     """
     Generates a URL either from a url string, environment variable, SQLALCHEMY_CONNECTIONS or DATABASES settings
@@ -37,22 +48,19 @@ def make_url(alias_or_url):
         name of the alias or url as string
     """
     try:
-        return sa.engine.url.make_url(alias_or_url), {}
+        url = sa.engine.url.make_url(alias_or_url)
 
     except sa.exc.ArgumentError:
         pass
+
+    else:
+        return url, _options_from_url(url)
 
     alias = alias_or_url
 
     url = sa.engine.url.make_url(os.environ.get(alias.upper() + "_URL", None))
     if url:
-        engine_options = {
-            k.replace("engine_options_", ""): ENGINE_OPTIONS_NORMALIZATION.get(
-                k.replace("engine_options_", ""), lambda x: x
-            )(url.query.pop(k))
-            for k in list(url.query)
-        }
-        return url, {"engine_options": engine_options}
+        return url, _options_from_url(url)
 
     return make_url_from_settings(alias)
 
