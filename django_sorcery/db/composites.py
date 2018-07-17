@@ -102,3 +102,8 @@ class BaseComposite(CleanMixin):
         if not isinstance(other, self.__class__):
             return False
         return self.__composite_values__() == other.__composite_values__()
+
+    def __bool__(self):
+        return any(vars(self).values())
+
+    __nonzero__ = __bool__
