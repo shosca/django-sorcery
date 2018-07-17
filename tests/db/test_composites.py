@@ -51,3 +51,7 @@ class TestComposite(TestCase):
             Address(street=str("another street"), state=str("NJ"), zip=str("456")),
         )
         self.assertFalse(Address(street=str("other street"), state=str("NJ"), zip=str("456")).__eq__(None))
+
+    def test_bool(self):
+        self.assertTrue(Address(street=str("street")))
+        self.assertFalse(Address())
