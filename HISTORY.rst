@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.5.1 (2018-07-16)
+0.5.2 (2018-07-17)
 -----------------------------
+- Added sane CompositeBase.__bool__ which checks all attributes (#38)
+  [Miroslav Shubernetskiy]
+
+
+0.5.1 (2018-07-16)
+------------------
 - Allowing to specify via env var some engine options (#37) [Miroslav
   Shubernetskiy]
 
