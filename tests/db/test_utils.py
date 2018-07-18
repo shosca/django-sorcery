@@ -4,10 +4,12 @@ import unittest
 
 from django.conf import settings
 
+from django_sorcery.db import databases
 from django_sorcery.db.sqlalchemy import SQLAlchemy
 from django_sorcery.db.utils import dbdict
 
 from ..base import mock
+from ..models_multidb import Bar, Foo, default_db, other_db
 
 
 class TestDbDict(unittest.TestCase):
@@ -61,3 +63,24 @@ class TestDbDict(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             databases["one"] = {}
+
+
+class TestMultiDbAtomic(unittest.TestCase):
+    def test_multidb(self):
+
+        with databases.atomic():
+            default_db.add(Foo(name="1234"))
+            other_db.add(Bar(name="1234"))
+
+        self.assertEqual(Foo.objects.count(), 1)
+        self.assertEqual(Bar.objects.count(), 1)
+        databases.rollback()
+
+        with self.assertRaises(Exception) as ctx, databases.atomic():
+            default_db.add(Foo())
+            other_db.add(Bar())
+
+        self.assertIn("IntegrityError", ctx.exception.args[0])
+        self.assertEqual(Foo.objects.count(), 0)
+        self.assertEqual(Bar.objects.count(), 0)
+        databases.rollback()
