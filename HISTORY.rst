@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.5.2 (2018-07-17)
+0.5.3 (2018-07-18)
 -----------------------------
+- Multi db transaction (#36) [Serkan Hosca]
+
+
+0.5.2 (2018-07-17)
+------------------
 - Added sane CompositeBase.__bool__ which checks all attributes (#38)
   [Miroslav Shubernetskiy]
 
