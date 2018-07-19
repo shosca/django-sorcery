@@ -2,8 +2,23 @@ Changelog
 =========
 
 
-0.5.3 (2018-07-18)
+0.5.4 (2018-07-19)
 -----------------------------
+- Adding profiler with middleware and pytest plugin (#39) [Miroslav
+  Shubernetskiy]
+
+
+
+
+
+
+
+
+
+
+
+0.5.3 (2018-07-18)
+------------------
 - Multi db transaction (#36) [Serkan Hosca]
 
 
