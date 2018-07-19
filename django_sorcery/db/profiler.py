@@ -55,15 +55,18 @@ class SQLAlchemyProfiler(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
 
+    def __del__(self):
+        self.stop()
+
     def start(self):
         self.clear()
         for ev, target, handler in self._events:
             try:
                 if not sa.event.contains(target, ev, handler):
                     sa.event.listen(target, ev, handler)
-            except sa.exc.InvalidRequestError:
+            except Exception:  # pragma: nocover
                 # Gets raised when pool doesnt support the event, so ignore it
-                pass
+                pass  # pragma: nocover
 
     def stop(self):
         self.clear()
@@ -71,9 +74,9 @@ class SQLAlchemyProfiler(object):
             try:
                 if sa.event.contains(target, ev, handler):
                     sa.event.remove(target, ev, handler)
-            except sa.exc.InvalidRequestError:
+            except Exception:  # pragma: nocover
                 # Gets raised when pool doesnt support the event, so ignore it
-                pass
+                pass  # pragma: nocover
 
     def clear(self):
         self.local.__dict__.clear()
@@ -141,9 +144,9 @@ class SQLAlchemyProfilingMiddleware(object):
             stats = self.profiler.stats
             if stats["duration"] or settings.DEBUG:
                 self.log("SQLAlchemy profiler", **{"sa_{}".format(k): v for k, v in stats.items()})
-        except Exception:
+        except Exception:  # pragma: nocover
             # The show must go on...
-            pass
+            pass  # pragma: nocover
         else:
             if settings.DEBUG:
                 for k, v in stats.items():
