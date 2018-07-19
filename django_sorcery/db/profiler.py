@@ -56,7 +56,9 @@ class SQLAlchemyProfiler(object):
         self.stop()
 
     def __del__(self):
-        self.stop()
+        # stop all listeners when profiler gets garbage collected
+        # py2 does not collect coverage on this
+        self.stop()  # pragma: nocover
 
     def start(self):
         self.clear()
