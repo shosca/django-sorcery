@@ -6,8 +6,9 @@ from django.core.exceptions import ValidationError
 from django_sorcery import fields
 from django_sorcery.forms import modelform_factory
 
+from tests.testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
+
 from .base import TestCase
-from .models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 
 class TestEnumField(TestCase):

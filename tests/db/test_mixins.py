@@ -3,8 +3,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ValidationError
 
+from tests.testapp.models import Address, Business
+
 from ..base import TestCase
-from ..models import Address, Business
 
 
 class TestCleanMixin(TestCase):

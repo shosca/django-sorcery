@@ -9,8 +9,9 @@ from django_sorcery.db.meta import model_info
 from django_sorcery.field_mapping import ModelFieldMapper
 from django_sorcery.forms import SQLAModelFormOptions
 
+from tests.testapp.models import AllKindsOfFields, Owner, Vehicle, db
+
 from .base import TestCase
-from .models import AllKindsOfFields, Owner, Vehicle, db
 
 
 class TestFieldMapping(TestCase):

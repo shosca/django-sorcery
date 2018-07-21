@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from ..appviews import OwnerViewSet
+from tests.testapp.views import OwnerViewSet
+
 from ..base import TestCase
 
 

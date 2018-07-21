@@ -86,3 +86,8 @@ after_middleware_response = all_signals.signal("after_middleware_response")
 
 declare_first = all_signals.signal("declare_first")
 declare_last = all_signals.signal("declare_last")
+
+alembic_config_created = all_signals.signal("alembic_config_created")
+alembic_include_object = all_signals.signal("alembic_include_object")
+alembic_include_symbol = all_signals.signal("alembic_include_symbol")
+alembic_process_revision_directives = all_signals.signal("alembic_process_revision_directives")

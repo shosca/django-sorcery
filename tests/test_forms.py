@@ -5,8 +5,9 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 
 from django_sorcery.forms import ALL_FIELDS, ModelForm, modelform_factory
 
+from tests.testapp.models import ClassicModel, ModelFullCleanFail, Option, Owner, Vehicle, VehicleType, db
+
 from .base import TestCase
-from .models import ClassicModel, ModelFullCleanFail, Option, Owner, Vehicle, VehicleType, db
 
 
 class TestModelForm(TestCase):

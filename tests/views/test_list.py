@@ -9,8 +9,9 @@ from django.utils.html import escape
 
 from django_sorcery.views.list import MultipleObjectMixin, MultipleObjectTemplateResponseMixin
 
+from tests.testapp.models import Owner, db
+
 from ..base import TestCase
-from ..models import Owner, db
 
 
 class TestListView(TestCase):
