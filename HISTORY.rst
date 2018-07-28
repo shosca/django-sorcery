@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.5.4 (2018-07-19)
+0.5.5 (2018-07-27)
 -----------------------------
+- Fix scoped session proxying (#41) [Serkan Hosca]
+
+
+0.5.4 (2018-07-19)
+------------------
 - Adding profiler with middleware and pytest plugin (#39) [Miroslav
   Shubernetskiy]
 
