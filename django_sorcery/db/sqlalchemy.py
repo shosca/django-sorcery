@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 import functools
+import inspect
 
 import six
 
@@ -26,12 +27,13 @@ class _sqla_meta(type):
         typ = super(_sqla_meta, cls).__new__(cls, name, bases, attrs)
 
         # figure out all props to be proxied
-        props = set([i for i in dir(sa.orm.Session()) if not i.startswith("__")])
+        dummy = sa.orm.Session()
+        props = {i for i in dir(dummy) if not i.startswith("__")}
         props.update(sa.orm.Session.public_methods)
 
         for i in props:
             if not hasattr(typ, name):
-                if hasattr(sa.orm.Session, i) and callable(getattr(sa.orm.Session, i)):
+                if hasattr(dummy, i) and inspect.isroutine(getattr(dummy, i)):
                     setattr(typ, i, sa.orm.scoping.instrument(i))
                 else:
                     setattr(typ, i, sa.orm.scoping.makeprop(i))
