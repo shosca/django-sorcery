@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from bs4 import BeautifulSoup
-
 from django.core.exceptions import ImproperlyConfigured
 
 from django_sorcery.forms import ALL_FIELDS
@@ -13,16 +11,15 @@ from ..models import Owner, db
 
 
 class TestModelFormSet(TestCase):
-    def setUp(cls):
-        super(TestModelFormSet, cls).setUp()
-        db.add_all(
-            [
-                Owner(first_name="Test 1", last_name="Owner 1"),
-                Owner(first_name="Test 2", last_name="Owner 2"),
-                Owner(first_name="Test 3", last_name="Owner 3"),
-                Owner(first_name="Test 4", last_name="Owner 4"),
-            ]
-        )
+    def setUp(self):
+        super(TestModelFormSet, self).setUp()
+        self.owners = [
+            Owner(first_name="Test 1", last_name="Owner 1"),
+            Owner(first_name="Test 2", last_name="Owner 2"),
+            Owner(first_name="Test 3", last_name="Owner 3"),
+            Owner(first_name="Test 4", last_name="Owner 4"),
+        ]
+        db.add_all(self.owners)
         db.flush()
 
     def test_factory(self):
@@ -43,8 +40,8 @@ class TestModelFormSet(TestCase):
         for form in formset.forms:
             form.order_fields(sorted(form.fields.keys()))
 
-        soup = BeautifulSoup(formset.as_p(), "html.parser")
-        expected_soup = BeautifulSoup(
+        soup = self.get_soup(formset.as_p())
+        expected_soup = self.get_soup(
             "".join(
                 [
                     '<input type="hidden" name="form-TOTAL_FORMS" value="5" id="id_form-TOTAL_FORMS" />',
@@ -58,7 +55,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-0-last_name">Last name:</label>',
                     '  <input type="text" name="form-0-last_name" id="id_form-0-last_name" value="Owner 1" />',
-                    '  <input type="text" name="form-0-id" id="id_form-0-id" type="hidden" value="1" />',
+                    '  <input type="text" name="form-0-id" id="id_form-0-id" type="hidden" value="{}" />'.format(
+                        self.owners[0].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-1-first_name">First name:</label>',
@@ -67,7 +66,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-1-last_name">Last name:</label>',
                     '  <input type="text" name="form-1-last_name" id="id_form-1-last_name" value="Owner 2" />',
-                    '  <input type="text" name="form-1-id" id="id_form-1-id" type="hidden" value="2" />',
+                    '  <input type="text" name="form-1-id" id="id_form-1-id" type="hidden" value="{}" />'.format(
+                        self.owners[1].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-2-first_name">First name:</label>',
@@ -76,7 +77,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-2-last_name">Last name:</label>',
                     '  <input type="text" name="form-2-last_name" id="id_form-2-last_name" value="Owner 3" />',
-                    '  <input type="text" name="form-2-id" id="id_form-2-id" type="hidden" value="3" />',
+                    '  <input type="text" name="form-2-id" id="id_form-2-id" type="hidden" value="{}" />'.format(
+                        self.owners[2].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-3-first_name">First name:</label>',
@@ -85,7 +88,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-3-last_name">Last name:</label>',
                     '  <input type="text" name="form-3-last_name" id="id_form-3-last_name" value="Owner 4" />',
-                    '  <input type="text" name="form-3-id" id="id_form-3-id" type="hidden" value="4" />',
+                    '  <input type="text" name="form-3-id" id="id_form-3-id" type="hidden" value="{}" />'.format(
+                        self.owners[3].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-4-first_name">First name:</label>',
@@ -96,10 +101,8 @@ class TestModelFormSet(TestCase):
                     '  <input type="text" name="form-4-last_name" id="id_form-4-last_name" />',
                     "</p>",
                 ]
-            ),
-            "html.parser",
+            )
         )
-        self.maxDiff = None
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
     def test_edit(self):
@@ -111,21 +114,21 @@ class TestModelFormSet(TestCase):
             "form-INITIAL_FORMS": "4",
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "1",
-            "form-0-first_name": "Edited first name 1",
-            "form-0-last_name": "Edited last name 1",
-            "form-1-id": "2",
-            "form-1-first_name": "Edited first name 2",
-            "form-1-last_name": "Edited last name 2",
-            "form-2-id": "3",
-            "form-2-first_name": "Edited first name 3",
-            "form-2-last_name": "Edited last name 3",
-            "form-3-id": "4",
-            "form-3-first_name": "Edited first name 4",
-            "form-3-last_name": "Edited last name 4",
+            "form-0-id": self.owners[0].id,
+            "form-0-first_name": "Edited first name {}".format(self.owners[0].id),
+            "form-0-last_name": "Edited last name {}".format(self.owners[0].id),
+            "form-1-id": self.owners[1].id,
+            "form-1-first_name": "Edited first name {}".format(self.owners[1].id),
+            "form-1-last_name": "Edited last name {}".format(self.owners[1].id),
+            "form-2-id": self.owners[2].id,
+            "form-2-first_name": "Edited first name {}".format(self.owners[2].id),
+            "form-2-last_name": "Edited last name {}".format(self.owners[2].id),
+            "form-3-id": self.owners[3].id,
+            "form-3-first_name": "Edited first name {}".format(self.owners[3].id),
+            "form-3-last_name": "Edited last name {}".format(self.owners[3].id),
             "form-4-id": "",
-            "form-4-first_name": "Edited first name 5",
-            "form-4-last_name": "Edited last name 5",
+            "form-4-first_name": "New first name",
+            "form-4-last_name": "New last name",
         }
 
         formset = formset_class(queryset=query, data=data)
@@ -134,8 +137,12 @@ class TestModelFormSet(TestCase):
         db.expire_all()
 
         for owner in instances:
-            self.assertEqual(owner.first_name, "Edited first name {}".format(owner.id))
-            self.assertEqual(owner.last_name, "Edited last name {}".format(owner.id))
+            if owner.first_name.startswith("Edited"):
+                self.assertEqual(owner.first_name, "Edited first name {}".format(owner.id))
+                self.assertEqual(owner.last_name, "Edited last name {}".format(owner.id))
+            else:
+                self.assertEqual(owner.first_name, "New first name")
+                self.assertEqual(owner.last_name, "New last name")
 
     def test_edit_new_delete_ignore(self):
         formset_class = modelformset_factory(Owner, fields=("first_name", "last_name"), session=db, can_delete=True)
@@ -167,8 +174,8 @@ class TestModelFormSet(TestCase):
         for form in formset.forms:
             form.order_fields(sorted(form.fields.keys()))
 
-        soup = BeautifulSoup(formset.as_p(), "html.parser")
-        expected_soup = BeautifulSoup(
+        soup = self.get_soup(formset.as_p())
+        expected_soup = self.get_soup(
             "".join(
                 [
                     '<input type="hidden" name="form-TOTAL_FORMS" value="5" id="id_form-TOTAL_FORMS" />',
@@ -186,7 +193,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-0-last_name">Last name:</label>',
                     '  <input type="text" name="form-0-last_name" id="id_form-0-last_name" value="Owner 1" />',
-                    '  <input type="text" name="form-0-id" id="id_form-0-id" type="hidden" value="1" />',
+                    '  <input type="text" name="form-0-id" id="id_form-0-id" type="hidden" value="{}" />'.format(
+                        self.owners[0].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-1-DELETE">Delete:</label>',
@@ -199,7 +208,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-1-last_name">Last name:</label>',
                     '  <input type="text" name="form-1-last_name" id="id_form-1-last_name" value="Owner 2" />',
-                    '  <input type="text" name="form-1-id" id="id_form-1-id" type="hidden" value="2" />',
+                    '  <input type="text" name="form-1-id" id="id_form-1-id" type="hidden" value="{}" />'.format(
+                        self.owners[1].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-2-DELETE">Delete:</label>',
@@ -212,7 +223,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-2-last_name">Last name:</label>',
                     '  <input type="text" name="form-2-last_name" id="id_form-2-last_name" value="Owner 3" />',
-                    '  <input type="text" name="form-2-id" id="id_form-2-id" type="hidden" value="3" />',
+                    '  <input type="text" name="form-2-id" id="id_form-2-id" type="hidden" value="{}" />'.format(
+                        self.owners[2].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-3-DELETE">Delete:</label>',
@@ -225,7 +238,9 @@ class TestModelFormSet(TestCase):
                     "<p>",
                     '  <label for="id_form-3-last_name">Last name:</label>',
                     '  <input type="text" name="form-3-last_name" id="id_form-3-last_name" value="Owner 4" />',
-                    '  <input type="text" name="form-3-id" id="id_form-3-id" type="hidden" value="4" />',
+                    '  <input type="text" name="form-3-id" id="id_form-3-id" type="hidden" value="{}" />'.format(
+                        self.owners[3].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_form-4-DELETE">Delete:</label>',
@@ -240,10 +255,8 @@ class TestModelFormSet(TestCase):
                     '  <input type="text" name="form-4-last_name" id="id_form-4-last_name" />',
                     "</p>",
                 ]
-            ),
-            "html.parser",
+            )
         )
-        self.maxDiff = None
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
     def test_delete(self):
@@ -255,18 +268,18 @@ class TestModelFormSet(TestCase):
             "form-INITIAL_FORMS": "4",
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
-            "form-0-id": "1",
-            "form-0-first_name": "Edited first name 1",
-            "form-0-last_name": "Edited last name 1",
-            "form-1-id": "2",
-            "form-1-first_name": "Edited first name 2",
-            "form-1-last_name": "Edited last name 2",
-            "form-2-id": "3",
-            "form-2-first_name": "Edited first name 3",
-            "form-2-last_name": "Edited last name 3",
-            "form-3-id": "4",
-            "form-3-first_name": "Edited first name 4",
-            "form-3-last_name": "Edited last name 4",
+            "form-0-id": self.owners[0].id,
+            "form-0-first_name": "Edited first name {}".format(self.owners[0].id),
+            "form-0-last_name": "Edited last name {}".format(self.owners[0].id),
+            "form-1-id": self.owners[1].id,
+            "form-1-first_name": "Edited first name {}".format(self.owners[1].id),
+            "form-1-last_name": "Edited last name {}".format(self.owners[1].id),
+            "form-2-id": self.owners[2].id,
+            "form-2-first_name": "Edited first name {}".format(self.owners[2].id),
+            "form-2-last_name": "Edited last name {}".format(self.owners[2].id),
+            "form-3-id": self.owners[3].id,
+            "form-3-first_name": "Edited first name {}".format(self.owners[3].id),
+            "form-3-last_name": "Edited last name {}".format(self.owners[3].id),
             "form-3-DELETE": "on",
             "form-4-id": "",
             "form-4-first_name": "",

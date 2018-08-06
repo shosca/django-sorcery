@@ -211,21 +211,21 @@ class TestTypeMap(TestCase):
         field = self.fields["char"]
         self.assertIsInstance(field, djangofields.CharField)
 
-    def test_clob_field(self):
-        self.assertIn("clob", self.fields)
-        field = self.fields["clob"]
-        self.assertIsInstance(field, djangofields.CharField)
-        self.assertIsInstance(field.widget, djangoforms.Textarea)
+    # def test_clob_field(self):
+    # self.assertIn("clob", self.fields)
+    # field = self.fields["clob"]
+    # self.assertIsInstance(field, djangofields.CharField)
+    # self.assertIsInstance(field.widget, djangoforms.Textarea)
 
     def test_nchar_field(self):
         self.assertIn("nchar", self.fields)
         field = self.fields["nchar"]
         self.assertIsInstance(field, djangofields.CharField)
 
-    def test_nvarchar_field(self):
-        self.assertIn("nvarchar", self.fields)
-        field = self.fields["nvarchar"]
-        self.assertIsInstance(field, djangofields.CharField)
+    # def test_nvarchar_field(self):
+    # self.assertIn("nvarchar", self.fields)
+    # field = self.fields["nvarchar"]
+    # self.assertIsInstance(field, djangofields.CharField)
 
     def test_string_field(self):
         self.assertIn("string", self.fields)

@@ -14,15 +14,57 @@ PROJECT_ROOT = os.path.dirname(absjoin(__file__))
 STATIC_ROOT = absjoin(PROJECT_ROOT, "..", "static")
 
 DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": os.path.join(BASE_DIR, "db.sqlite3")},
-    "fromdbs": {"ENGINE": "django.db.backends.sqlite3", "NAME": os.path.join(BASE_DIR, "fromdbs.sqlite3")},
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "default_db",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
+    "fromdbs": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "fromdbs",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
 }
 
 SQLALCHEMY_CONNECTIONS = {
-    "default": {"DIALECT": "sqlite"},
-    "test": {"DIALECT": "sqlite"},
-    "minimal": {"DIALECT": "sqlite"},
-    "minimal_backpop": {"DIALECT": "sqlite"},
+    "default": {
+        "DIALECT": "postgresql",
+        "NAME": "default_db",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
+    "test": {
+        "DIALECT": "postgresql",
+        "NAME": "test",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
+    "minimal": {
+        "DIALECT": "postgresql",
+        "NAME": "minimal",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
+    "minimal_backpop": {
+        "DIALECT": "postgresql",
+        "NAME": "minimal_backpop",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
 }
 
 INSTALLED_APPS = ["tests.apps.TestConfig", "django_sorcery", "django.contrib.staticfiles"]

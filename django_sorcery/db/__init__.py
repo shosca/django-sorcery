@@ -28,13 +28,13 @@ In addition :py:class:`.SQLAlchemy` also exposes most of SQLALchemy's elements
 so a single import should suffice to define most tables::
 
     >>> class BarModel(db.Model):
-    ...     id = db.Column(db.BigInteger(), primary_key=True)
+    ...     id = db.Column(db.Integer(), primary_key=True)
 
     >>> class FooModel(db.Model):
-    ...     id = db.Column(db.BigInteger(), primary_key=True)
-    ...     id2 = db.Column(db.BigInteger(), primary_key=True)
+    ...     id = db.Column(db.Integer(), primary_key=True)
+    ...     id2 = db.Column(db.Integer(), primary_key=True)
     ...     name = db.Column(db.String(length=32))
-    ...     bar_id = db.Column(db.BigInteger(), db.ForeignKey(BarModel.id, name='FK_foo_bar', use_alter=True))
+    ...     bar_id = db.Column(db.Integer(), db.ForeignKey(BarModel.id, name='FK_foo_bar', use_alter=True))
     ...     bar = db.relationship(BarModel)
 
     >>> db.create_all()
@@ -68,7 +68,7 @@ Doing so will allow to use a couple of useful shortcuts:
     In addition this pattern can be used to implement Django's ORM style model managers::
 
         >>> class UserModel(db.Model):
-        ...     id = db.Column(db.BigInteger(), primary_key=True)
+        ...     id = db.Column(db.Integer(), primary_key=True)
         ...     username = db.Column(db.String())
         ...     is_active = db.Column(db.Boolean())
         ...

@@ -40,7 +40,6 @@ class TestNamespacedCommand(TestCase):
         cmd.run_from_argv(["./manage.py", "dummy", "-h"])
 
         self.stdout.seek(0)
-        self.maxDiff = None
         self.assertEqual(
             "\n".join([l.strip() for l in self.stdout.readlines()]),
             "\n".join(

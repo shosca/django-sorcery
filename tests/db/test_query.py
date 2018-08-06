@@ -73,7 +73,9 @@ class TestQueryProperty(TestCase):
 
         self.assertEqual(
             ctx.exception.args,
-            ("<QueryProperty db=<SQLAlchemy engine=sqlite://>, model='Vehicle'> object has no attribute 'dummy'",),
+            (
+                "<QueryProperty db=<SQLAlchemy engine=postgresql://postgres@localhost/test>, model='Vehicle'> object has no attribute 'dummy'",
+            ),
         )
 
     def test_no_model(self):
