@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from bs4 import BeautifulSoup
-
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 
 from django_sorcery.forms import ALL_FIELDS, ModelForm, modelform_factory
@@ -12,17 +10,18 @@ from .models import ClassicModel, ModelFullCleanFail, Option, Owner, Vehicle, Ve
 
 
 class TestModelForm(TestCase):
-    def setUp(cls):
-        super(TestModelForm, cls).setUp()
-        db.add(Owner(id=1, first_name="Test", last_name="Owner"))
-        db.add_all(
-            [
-                Option(id=1, name="Option 1"),
-                Option(id=2, name="Option 2"),
-                Option(id=3, name="Option 3"),
-                Option(id=4, name="Option 4"),
-            ]
-        )
+    def setUp(self):
+        super(TestModelForm, self).setUp()
+        self.owner = Owner(first_name="Test", last_name="Owner")
+        db.add(self.owner)
+
+        self.options = [
+            Option(id=1, name="Option 1"),
+            Option(id=2, name="Option 2"),
+            Option(id=3, name="Option 3"),
+            Option(id=4, name="Option 4"),
+        ]
+        db.add_all(self.options)
         db.flush()
 
     def test_modelform_factory_fields(self):
@@ -33,7 +32,7 @@ class TestModelForm(TestCase):
         )
 
     def test_modelform_factory_instance_validate(self):
-        vehicle = Vehicle(owner=Owner.query.get(1))
+        vehicle = Vehicle(owner=self.owner)
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
         form = form_class(instance=vehicle, data={"name": "testing"})
         self.assertFalse(form.is_valid())
@@ -41,7 +40,7 @@ class TestModelForm(TestCase):
 
     def test_modelform_factory_instance_save(self):
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
-        data = {"name": "testing", "type": "car", "owner": 1}
+        data = {"name": "testing", "type": "car", "owner": self.owner.id}
         form = form_class(data=data)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
@@ -70,8 +69,8 @@ class TestModelForm(TestCase):
 
         form.order_fields(sorted(form.fields.keys()))
 
-        soup = BeautifulSoup(form.as_p(), "html.parser")
-        expected_soup = BeautifulSoup(
+        soup = self.get_soup(form.as_p())
+        expected_soup = self.get_soup(
             "".join(
                 [
                     "<p>",
@@ -109,7 +108,7 @@ class TestModelForm(TestCase):
                     '  <label for="id_owner">Owner:</label>',
                     '  <select id="id_owner" name="owner" required>',
                     "    <option selected value>---------</option>",
-                    "    <option value=\"1\">Owner(id=1, first_name='Test', last_name='Owner')</option>",
+                    '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
                     "  </select>",
                     "</p>",
                     "<p>",
@@ -141,22 +140,27 @@ class TestModelForm(TestCase):
                     "  </select>",
                     "</p>",
                 ]
-            ),
-            "html.parser",
+            )
         )
-
         self.assertEqual(soup.prettify(), expected_soup.prettify())
 
     def test_modelform_factory_instance_render(self):
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
-        vehicle = Vehicle(owner=Owner.query.get(1), type=VehicleType.car)
+        vehicle = Vehicle(owner=self.owner, type=VehicleType.car)
         form = form_class(instance=vehicle, data={})
 
         self.assertTrue(form.is_bound)
         self.assertEqual(form.errors, {"owner": ["This field is required."], "type": ["This field is required."]})
         self.assertEqual(
             form.initial,
-            {"paint": None, "created_at": None, "type": VehicleType.car, "name": None, "is_used": None, "owner": 1},
+            {
+                "paint": None,
+                "created_at": None,
+                "type": VehicleType.car,
+                "name": None,
+                "is_used": None,
+                "owner": self.owner.id,
+            },
         )
         self.assertEqual(
             form.cleaned_data,
@@ -165,8 +169,8 @@ class TestModelForm(TestCase):
 
         form.order_fields(sorted(form.fields.keys()))
 
-        soup = BeautifulSoup(form.as_p(), "html.parser")
-        expected_soup = BeautifulSoup(
+        soup = self.get_soup(form.as_p())
+        expected_soup = self.get_soup(
             "".join(
                 [
                     "<p>",
@@ -204,7 +208,7 @@ class TestModelForm(TestCase):
                     '  <label for="id_owner">Owner:</label>',
                     '  <select id="id_owner" name="owner" required>',
                     "    <option selected value>---------</option>",
-                    "    <option value=\"1\">Owner(id=1, first_name='Test', last_name='Owner')</option>",
+                    '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
                     "  </select>",
                     "</p>",
                     "<p>",
@@ -236,11 +240,9 @@ class TestModelForm(TestCase):
                     "  </select>",
                     "</p>",
                 ]
-            ),
-            "html.parser",
+            )
         )
 
-        self.maxDiff = None
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
     def test_form_field_callback_in_base_meta(self):

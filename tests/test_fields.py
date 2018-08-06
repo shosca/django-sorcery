@@ -88,16 +88,18 @@ class TestModelChoiceField(TestCase):
 
     def test_get_object(self):
 
+        owner = Owner.objects.first()
+
         field = fields.ModelChoiceField(Owner, db)
 
         self.assertIsNone(field.get_object(None))
 
-        owner = field.get_object(1)
+        owner = field.get_object(owner.id)
         self.assertIsNotNone(owner)
         self.assertIsInstance(owner, Owner)
 
         with self.assertRaises(ValidationError) as ctx:
-            field.get_object(100)
+            field.get_object(0)
 
         self.assertEqual(
             ctx.exception.args,
@@ -105,25 +107,25 @@ class TestModelChoiceField(TestCase):
         )
 
     def test_to_python(self):
-
+        owner = Owner.objects.first()
         field = fields.ModelChoiceField(Owner, db)
-        owner = field.to_python(1)
+        owner = field.to_python(owner.id)
         self.assertIsNotNone(owner)
         self.assertIsInstance(owner, Owner)
 
     def test_label_from_instance(self):
+        owner = Owner.objects.first()
+
         field = fields.ModelChoiceField(Owner, db)
 
-        self.assertEqual(
-            field.label_from_instance(Owner.query.get(1)),
-            "Owner(id=1, first_name='first_name 0', last_name='last_name 0')",
-        )
+        self.assertEqual(field.label_from_instance(Owner.query.get(owner.id)), repr(owner))
 
     def test_prepare_instance_value(self):
         field = fields.ModelChoiceField(Owner, db)
+        owner = Owner.objects.first()
 
-        pks = field.prepare_instance_value(Owner.query.get(1))
-        self.assertEqual(pks, 1)
+        pks = field.prepare_instance_value(Owner.query.get(owner.id))
+        self.assertEqual(pks, owner.id)
 
     def test_prepare_instance_value_composite(self):
         field = fields.ModelChoiceField(CompositePkModel, db)
@@ -162,14 +164,16 @@ class TestModelMultipleChoiceField(TestCase):
 
     def test_to_python(self):
         field = fields.ModelMultipleChoiceField(Owner, db)
+        owner1, owner2, owner3 = Owner.objects[:3]
 
         self.assertEqual(field.to_python(None), [])
 
-        self.assertEqual(field.to_python([1, 2, 3]), [Owner.query.get(1), Owner.query.get(2), Owner.query.get(3)])
+        self.assertEqual(field.to_python([owner1.id, owner2.id, owner3.id]), [owner1, owner2, owner3])
 
     def test_prepare_value(self):
         field = fields.ModelMultipleChoiceField(Owner, db)
+        owner1, owner2, owner3 = Owner.objects[:3]
 
         self.assertIsNone(field.prepare_value(None))
 
-        self.assertEqual(field.prepare_value([Owner.query.get(1), Owner.query.get(2), Owner.query.get(3)]), [1, 2, 3])
+        self.assertEqual(field.prepare_value([owner1, owner2, owner3]), [owner1.id, owner2.id, owner3.id])

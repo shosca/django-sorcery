@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from bs4 import BeautifulSoup
-
 from django_sorcery.db.meta import model_info
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import inlineformset_factory
@@ -12,9 +10,10 @@ from ..models import Owner, Vehicle, VehicleType, db
 
 
 class TestInlineFormSet(TestCase):
-    def setUp(cls):
-        super(TestInlineFormSet, cls).setUp()
-        db.add(Owner(first_name="Test 1", last_name="Owner 1"))
+    def setUp(self):
+        super(TestInlineFormSet, self).setUp()
+        self.owner = Owner(first_name="Test 1", last_name="Owner 1")
+        db.add(self.owner)
         db.flush()
 
     def test_factory(self):
@@ -48,8 +47,8 @@ class TestInlineFormSet(TestCase):
         formset_class = inlineformset_factory(relation=Owner.vehicles, fields=("type",), session=db)
         formset = formset_class()
 
-        soup = BeautifulSoup(formset.as_p(), "html.parser")
-        expected_soup = BeautifulSoup(
+        soup = self.get_soup(formset.as_p())
+        expected_soup = self.get_soup(
             "".join(
                 [
                     '<input type="hidden" name="vehicles-TOTAL_FORMS" value="3" id="id_vehicles-TOTAL_FORMS" />',
@@ -90,14 +89,11 @@ class TestInlineFormSet(TestCase):
                     '  <input id="id_vehicles-2-DELETE" name="vehicles-2-DELETE" type="checkbox" />',
                     "</p>",
                 ]
-            ),
-            "html.parser",
+            )
         )
-        self.maxDiff = None
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
     def test_inline_form_create(self):
-        instance = Owner()
         formset_class = inlineformset_factory(relation=Owner.vehicles, fields=("type",), session=db)
         data = {
             "vehicles-TOTAL_FORMS": "3",
@@ -108,28 +104,27 @@ class TestInlineFormSet(TestCase):
             "vehicles-1-type": "bus",
             "vehicles-2-type": "car",
         }
-        formset = formset_class(instance=instance, data=data)
+        formset = formset_class(instance=self.owner, data=data)
         values = formset.save()
 
-        self.assertEqual(values[0].owner, instance)
+        self.assertEqual(values[0].owner, self.owner)
         self.assertEqual(values[0].type, VehicleType.car)
 
-        self.assertEqual(values[1].owner, instance)
+        self.assertEqual(values[1].owner, self.owner)
         self.assertEqual(values[1].type, VehicleType.bus)
 
-        self.assertEqual(values[2].owner, instance)
+        self.assertEqual(values[2].owner, self.owner)
         self.assertEqual(values[2].type, VehicleType.car)
 
     def test_inline_form_update_render(self):
-        instance = Owner(vehicles=[Vehicle(type=VehicleType.car), Vehicle(type=VehicleType.bus)])
-        db.add(instance)
+        self.owner.vehicles = [Vehicle(type=VehicleType.car), Vehicle(type=VehicleType.bus)]
         db.flush()
 
         formset_class = inlineformset_factory(relation=Owner.vehicles, fields=("type",), session=db)
-        formset = formset_class(instance=instance)
+        formset = formset_class(instance=self.owner)
 
-        soup = BeautifulSoup(formset.as_p(), "html.parser")
-        expected_soup = BeautifulSoup(
+        soup = self.get_soup(formset.as_p())
+        expected_soup = self.get_soup(
             "".join(
                 [
                     '<input type="hidden" name="vehicles-TOTAL_FORMS" value="5" id="id_vehicles-TOTAL_FORMS" />',
@@ -146,7 +141,9 @@ class TestInlineFormSet(TestCase):
                     "<p>",
                     '  <label for="id_vehicles-0-DELETE">Delete:</label>',
                     '  <input id="id_vehicles-0-DELETE" name="vehicles-0-DELETE" type="checkbox" />',
-                    '  <input id="id_vehicles-0-id" name="vehicles-0-id" type="hidden" value="1" />',
+                    '  <input id="id_vehicles-0-id" name="vehicles-0-id" type="hidden" value="{}" />'.format(
+                        self.owner.vehicles[0].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_vehicles-1-type">Type:</label>',
@@ -158,7 +155,9 @@ class TestInlineFormSet(TestCase):
                     "<p>",
                     '  <label for="id_vehicles-1-DELETE">Delete:</label>',
                     '  <input id="id_vehicles-1-DELETE" name="vehicles-1-DELETE" type="checkbox" />',
-                    '  <input id="id_vehicles-1-id" name="vehicles-1-id" type="hidden" value="2" />',
+                    '  <input id="id_vehicles-1-id" name="vehicles-1-id" type="hidden" value="{}" />'.format(
+                        self.owner.vehicles[1].id
+                    ),
                     "</p>",
                     "<p>",
                     '  <label for="id_vehicles-2-type">Type:</label>',
@@ -194,8 +193,6 @@ class TestInlineFormSet(TestCase):
                     '  <input id="id_vehicles-4-DELETE" name="vehicles-4-DELETE" type="checkbox" />',
                     "</p>",
                 ]
-            ),
-            "html.parser",
+            )
         )
-        self.maxDiff = None
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())

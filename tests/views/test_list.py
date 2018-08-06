@@ -84,7 +84,6 @@ class TestListView(TestCase):
 
         response = self.client.get("{}?page=last".format(url))
 
-        self.maxDiff = None
         self.assertEqual(
             response.content.decode().strip(),
             "owner" + escape("".join([repr(owner) for owner in Owner.query.order_by(Owner.id)[40:]])),

@@ -41,7 +41,7 @@ class TestSQLAlchemy(TestCase):
         self.assertEqual(db.bind.url, db.url)
 
     def test_repr(self):
-        self.assertEqual(repr(db), "<SQLAlchemy engine=sqlite://>")
+        self.assertEqual(repr(db), "<SQLAlchemy engine=postgresql://postgres@localhost/test>")
 
     def test_queryproperty(self):
         qp = db.queryproperty(ModelOne)

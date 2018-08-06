@@ -4,8 +4,14 @@ python:
   - "2.7"
   - "3.6"
 
+services:
+  - postgresql
+
+before_script:
+  - make resetdb
+
 install:
-  - pip install pipenv coveralls sqlalchemy_utils
+  - pip install pipenv
   - pipenv install -d --system --skip-lock
 
 script:

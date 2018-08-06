@@ -15,7 +15,7 @@ def test_profiler(sqlalchemy_profiler):  # noqa
 
         assert sqlalchemy_profiler.stats["select"] == 0
         assert sqlalchemy_profiler.stats["insert"] == 0
-        assert sqlalchemy_profiler.stats["duration"] > 0
+        assert sqlalchemy_profiler.stats["duration"] >= 0
 
     with sqlalchemy_profiler:
         b = Business(name="Google")

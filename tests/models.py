@@ -70,7 +70,7 @@ class Owner(db.Model):
 class Vehicle(db.Model):
     id = db.Column(db.Integer(), autoincrement=True, primary_key=True, doc="The primary key")
     name = db.Column(db.String(), doc="The name of the vehicle")
-    type = db.Column(db.Enum(VehicleType), nullable=False)
+    type = db.Column(db.Enum(VehicleType, name="ck_vehicle_type"), nullable=False)
     created_at = db.Column(db.DateTime())
     paint = db.Column(db.Enum(*COLORS, name="ck_colors"))
     is_used = db.Column(db.Boolean)
@@ -133,8 +133,8 @@ class AllKindsOfFields(db.Model):
     # flags
     boolean_notnull = db.Column(db.Boolean(), nullable=False)
     boolean = db.Column(db.Boolean())
-    enum = db.Column(db.Enum(DummyEnum))
-    enum_choice = db.Column(db.Enum(*Choices))
+    enum = db.Column(db.Enum(DummyEnum, name="dummy_enum"))
+    enum_choice = db.Column(db.Enum(*Choices, name="some_choices"))
 
     # numbers
     bigint = db.Column(db.BIGINT())
@@ -150,9 +150,9 @@ class AllKindsOfFields(db.Model):
 
     # strings
     char = db.Column(db.CHAR())
-    clob = db.Column(db.CLOB())
+    # clob = db.Column(db.CLOB())
     nchar = db.Column(db.NCHAR())
-    nvarchar = db.Column(db.NVARCHAR())
+    # nvarchar = db.Column(db.NVARCHAR())
     string = db.Column(db.String())
     text = db.Column(db.Text())
     unicode = db.Column(db.Unicode())
@@ -168,9 +168,9 @@ class AllKindsOfFields(db.Model):
 
     # blobs
     binary = db.Column(db.Binary())
-    blob = db.Column(db.BLOB())
+    # blob = db.Column(db.BLOB())
     largebinary = db.Column(db.LargeBinary())
-    varbinary = db.Column(db.VARBINARY())
+    # varbinary = db.Column(db.VARBINARY())
 
 
 class Point(object):

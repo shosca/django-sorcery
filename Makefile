@@ -32,6 +32,18 @@ clean-pyc:  ## remove Python file artifacts
 clean-test:  ## remove test and coverage artifacts
 	rm -rf .tox/ .coverage htmlcov/
 
+resetdb:
+	-psql -c "drop database default_db;" -h localhost -U postgres
+	-psql -c "create database default_db;" -h localhost -U postgres
+	-psql -c "drop database fromdbs;" -h localhost -U postgres
+	-psql -c "create database fromdbs;" -h localhost -U postgres
+	-psql -c "drop database test;" -h localhost -U postgres
+	-psql -c "create database test;" -h localhost -U postgres
+	-psql -c "drop database minimal;" -h localhost -U postgres
+	-psql -c "create database minimal;" -h localhost -U postgres
+	-psql -c "drop database minimal_backpop;" -h localhost -U postgres
+	-psql -c "create database minimal_backpop;" -h localhost -U postgres
+
 lint:  ## run pre-commit hooks on all files
 	pipenv run pre-commit run --files $$(git ls-files)
 

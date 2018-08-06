@@ -23,18 +23,19 @@ class TestShortcuts(TestCase):
         db.flush()
 
     def test_get_object_or_404(self):
+        owner = Owner.objects.first()
 
-        obj = shortcuts.get_object_or_404(Owner, id=1)
+        obj = shortcuts.get_object_or_404(Owner, id=owner.id)
         self.assertIsNotNone(obj)
 
         with self.assertRaises(Http404):
-            shortcuts.get_object_or_404(Owner, id=999)
+            shortcuts.get_object_or_404(Owner, id=0)
 
-        obj = shortcuts.get_object_or_404(Owner.query, id=1)
+        obj = shortcuts.get_object_or_404(Owner.query, id=owner.id)
         self.assertIsNotNone(obj)
 
         with self.assertRaises(Http404):
-            shortcuts.get_object_or_404(Owner.query, id=999)
+            shortcuts.get_object_or_404(Owner.query, id=0)
 
     def test_get_list_or_404(self):
 
