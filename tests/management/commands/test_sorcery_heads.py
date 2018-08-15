@@ -73,7 +73,7 @@ class TestHeads(MigrationMixin, TestCase):
     def test(self):
         out = six.StringIO()
         cmd = Command(stdout=out)
-        cmd.run_from_argv(["./manage.py sorcery", "heads"])
+        cmd.run_from_argv(["./manage.py sorcery", "heads", "--no-color"])
 
         out.seek(0)
         self.assertEqual(
@@ -88,7 +88,7 @@ class TestHeads(MigrationMixin, TestCase):
     def test_verbose(self):
         out = six.StringIO()
         cmd = Command(stdout=out)
-        cmd.run_from_argv(["./manage.py sorcery", "heads", "-v", "2"])
+        cmd.run_from_argv(["./manage.py sorcery", "heads", "-v", "2", "--no-color"])
 
         out.seek(0)
         self.assertEqual(

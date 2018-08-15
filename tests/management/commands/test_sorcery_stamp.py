@@ -49,14 +49,14 @@ class TestStamp(MigrationMixin, TestCase):
     def tearDown(self):
         super(TestStamp, self).tearDown()
 
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
         self.delete_migration("{}_.py".format("000000000000"))
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
 
     def test(self):
         out = six.StringIO()
         cmd = Command(stdout=out)
-        cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests.testapp"])
+        cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests.testapp", "--no-color"])
 
         revs = db.execute("select * from alembic_version_tests_testapp").fetchall()
         self.assertEqual(revs, [("000000000000",)])
@@ -66,4 +66,4 @@ class TestStamp(MigrationMixin, TestCase):
         cmd = Command(stdout=out)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests.testapp", "-r", ":000000000000"])
+            cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests.testapp", "-r", ":000000000000", "--no-color"])

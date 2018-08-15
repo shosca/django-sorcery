@@ -74,24 +74,24 @@ class TestCurrent(MigrationMixin, TestCase):
         self.write_migration(M1, "{}_.py".format("000000000000"))
         self.write_migration(M2, "{}_.py".format("000000000001"))
 
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
 
-        Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp"])
+        Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp", "--no-color"])
 
     def tearDown(self):
         super(TestCurrent, self).tearDown()
 
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
 
         for rev in ["000000000000", "000000000001"]:
             self.delete_migration("{}_.py".format(rev))
 
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
 
     def test(self):
         out = six.StringIO()
         cmd = Command(stdout=out)
-        cmd.run_from_argv(["./manage.py sorcery", "current"])
+        cmd.run_from_argv(["./manage.py sorcery", "current", "--no-color"])
 
         out.seek(0)
         self.assertEqual(
@@ -106,7 +106,7 @@ class TestCurrent(MigrationMixin, TestCase):
     def test_verbose(self):
         out = six.StringIO()
         cmd = Command(stdout=out)
-        cmd.run_from_argv(["./manage.py sorcery", "current", "-v", "2"])
+        cmd.run_from_argv(["./manage.py sorcery", "current", "-v", "2", "--no-color"])
 
         out.seek(0)
         self.assertEqual(

@@ -22,13 +22,13 @@ db = databases.get("test")
 class TestMakeMigrations(MigrationMixin, TestCase):
     def setUp(self):
         super(TestMakeMigrations, self).setUp()
-        Upgrade().run_from_argv(["./manage.py sorcery", "upgrade"])
+        Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "--no-color"])
 
     def tearDown(self):
         super(TestMakeMigrations, self).tearDown()
         self.delete_migration("{}_.py".format(rev))
         self.delete_migration("{}_zero.py".format(rev))
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
 
     def test_without_app(self):
         out = six.StringIO()
@@ -36,7 +36,7 @@ class TestMakeMigrations(MigrationMixin, TestCase):
         cmd = Command(stdout=out)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "makemigrations"])
+            cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "--no-color"])
 
     def test_with_bad_app(self):
         out = six.StringIO()
@@ -44,14 +44,14 @@ class TestMakeMigrations(MigrationMixin, TestCase):
         cmd = Command(stdout=out)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "dumdum"])
+            cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "dumdum", "--no-color"])
 
     def test(self):
         out = six.StringIO()
 
         cmd = Command(stdout=out)
 
-        cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev])
+        cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "--no-color"])
 
         self.assertTrue(os.path.isfile(os.path.join(MIGRATION_DIR, "{}_.py".format(rev))))
 
@@ -60,6 +60,8 @@ class TestMakeMigrations(MigrationMixin, TestCase):
 
         cmd = Command(stdout=out)
 
-        cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "-n", "zero"])
+        cmd.run_from_argv(
+            ["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "-n", "zero", "--no-color"]
+        )
 
         self.assertTrue(os.path.isfile(os.path.join(MIGRATION_DIR, "{}_zero.py".format(rev))))

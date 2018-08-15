@@ -49,7 +49,7 @@ class TestHistory(MigrationMixin, TestCase):
 
         cmd = Command(stdout=out)
 
-        cmd.run_from_argv(["./manage.py sorcery", "history"])
+        cmd.run_from_argv(["./manage.py sorcery", "history", "--no-color"])
 
         out.seek(0)
         self.assertEqual(
@@ -67,14 +67,14 @@ class TestHistory(MigrationMixin, TestCase):
         cmd = Command(stdout=out)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "history", "-r", "base:head"])
+            cmd.run_from_argv(["./manage.py sorcery", "history", "-r", "base:head", "--no-color"])
 
     def test_with_range(self):
         out = six.StringIO()
 
         cmd = Command(stdout=out)
 
-        cmd.run_from_argv(["./manage.py sorcery", "history", "tests.testapp", "-r", "base:head"])
+        cmd.run_from_argv(["./manage.py sorcery", "history", "tests.testapp", "-r", "base:head", "--no-color"])
 
         out.seek(0)
         self.assertEqual(
@@ -89,7 +89,7 @@ class TestHistory(MigrationMixin, TestCase):
         cmd = Command(stdout=out, stderr=err)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "history", "tests.testapp", "-r", "base-head"])
+            cmd.run_from_argv(["./manage.py sorcery", "history", "tests.testapp", "-r", "base-head", "--no-color"])
 
         err.seek(0)
         self.assertEqual(err.readlines(), ["History range requires [start]:[end], [start]:, or :[end]\n"])
