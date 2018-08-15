@@ -27,11 +27,7 @@ class AlembicCommand(BaseCommand):
     def sorcery_apps(self):
         configs = OrderedDict()
         for db in databases.values():
-            table_class_map = {
-                model.__table__: model
-                for model in db.Model._decl_class_registry.values()
-                if hasattr(model, "__table__")
-            }
+            table_class_map = {model.__table__: model for model in db.models_registry if hasattr(model, "__table__")}
             for table in db.metadata.sorted_tables:
                 model = table_class_map.get(table)
                 if model:
