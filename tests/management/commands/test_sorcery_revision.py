@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade
-from django_sorcery.management.commands.sorcery_makemigrations import Command
+from django_sorcery.management.commands.sorcery_revision import Command
 from django_sorcery.management.commands.sorcery_upgrade import Upgrade
 
 from .base import MIGRATION_DIR, MigrationMixin
@@ -19,13 +19,13 @@ rev = "000000000000"
 db = databases.get("test")
 
 
-class TestMakeMigrations(MigrationMixin, TestCase):
+class TestRevision(MigrationMixin, TestCase):
     def setUp(self):
-        super(TestMakeMigrations, self).setUp()
+        super(TestRevision, self).setUp()
         Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "--no-color"])
 
     def tearDown(self):
-        super(TestMakeMigrations, self).tearDown()
+        super(TestRevision, self).tearDown()
         self.delete_migration("{}_.py".format(rev))
         self.delete_migration("{}_zero.py".format(rev))
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])

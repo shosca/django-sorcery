@@ -9,7 +9,7 @@ from django_sorcery.db import signals
 from ..alembic import AlembicCommand
 
 
-class MakeMigrations(AlembicCommand):
+class Revision(AlembicCommand):
     help = "Create a migration revision"
 
     def add_arguments(self, parser):
@@ -67,12 +67,23 @@ class MakeMigrations(AlembicCommand):
     ):
         appconfig = self.lookup_app(app_label)
 
-        version_tables = {appconf.config.get_main_option("version_table") for appconf in self.sorcery_apps.values()}
+        version_tables = {
+            ".".join(
+                filter(
+                    None,
+                    [
+                        appconf.config.get_main_option("version_table_schema"),
+                        appconf.config.get_main_option("version_table"),
+                    ],
+                )
+            )
+            for appconf in self.sorcery_apps.values()
+        }
 
         @signals.alembic_include_object.connect
         def include_object(obj=None, name=None, type_=None, reflected=None, compare_to=None):
             if type_ == "table":
-                return obj in appconfig.tables and name not in version_tables
+                return obj in appconfig.tables and obj.fullname not in version_tables
 
             else:
                 return obj.table in appconfig.tables
@@ -106,4 +117,4 @@ class MakeMigrations(AlembicCommand):
         return []
 
 
-Command = MakeMigrations
+Command = Revision

@@ -8,7 +8,7 @@ from .sorcery_downgrade import Downgrade
 from .sorcery_dropall import DropAll
 from .sorcery_heads import ShowHeads
 from .sorcery_history import History
-from .sorcery_makemigrations import MakeMigrations
+from .sorcery_revision import Revision
 from .sorcery_stamp import Stamp
 from .sorcery_upgrade import Upgrade
 
@@ -19,7 +19,7 @@ class Command(NamespacedCommand):
     createall = CreateAll
     dropall = DropAll
     history = History
-    makemigrations = MakeMigrations
+    revision = Revision
     heads = ShowHeads
     upgrade = Upgrade
     downgrade = Downgrade

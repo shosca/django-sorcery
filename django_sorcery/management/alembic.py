@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import os
 from collections import OrderedDict, namedtuple
+from importlib import import_module
 
 import alembic
 import alembic.config
@@ -12,6 +13,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.functional import cached_property
 
 import django_sorcery.db.alembic
+from django_sorcery.compat import suppress
 from django_sorcery.db import databases, signals
 from django_sorcery.db.alembic import include_object, process_revision_directives
 
@@ -19,7 +21,9 @@ from django_sorcery.db.alembic import include_object, process_revision_directive
 SORCERY_ALEMBIC_CONFIG_FOLDER = os.path.dirname(django_sorcery.db.alembic.__file__)
 
 
-AlembicAppConfig = namedtuple("AlembicAppConfig", ["name", "config", "script", "db", "app", "version_path", "tables"])
+AlembicAppConfig = namedtuple(
+    "AlembicAppConfig", ["name", "config", "script", "db", "app", "version_path", "version_package", "tables"]
+)
 
 
 class AlembicCommand(BaseCommand):
@@ -34,18 +38,23 @@ class AlembicCommand(BaseCommand):
                     app = apps.get_containing_app_config(model.__module__)
                     if app:
                         config = self.get_app_config(app, db)
-                        configs.setdefault(
-                            app.label,
-                            AlembicAppConfig(
-                                name=app.label,
-                                config=config,
-                                db=db,
-                                script=self.get_config_script(config),
-                                version_path=self.get_app_version_path(app),
-                                app=app,
-                                tables=[],
-                            ),
-                        ).tables.append(table)
+                        appconfig = AlembicAppConfig(
+                            name=app.label,
+                            config=config,
+                            db=db,
+                            script=self.get_config_script(config),
+                            version_path=self.get_app_version_path(app),
+                            version_package=self.get_app_version_package(app),
+                            app=app,
+                            tables=[],
+                        )
+                        if os.path.exists(appconfig.version_path):
+                            configs.setdefault(app.label, appconfig).tables.append(table)
+                            # hook which allows apps to customize metadata if necessary
+                            # when running migrations
+                            # for example in __init__ version table can be overwritten
+                            with suppress(ImportError):
+                                import_module(appconfig.version_package)
         return configs
 
     def get_app_config(self, app, db):
@@ -87,6 +96,9 @@ class AlembicCommand(BaseCommand):
 
     def get_app_version_path(self, app):
         return os.path.join(app.path, "migrations")
+
+    def get_app_version_package(self, app):
+        return ".".join([app.name, "migrations"])
 
     def get_common_config(self, context):
         config = context.config
