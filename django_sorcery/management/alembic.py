@@ -37,18 +37,19 @@ class AlembicCommand(BaseCommand):
                 if model:
                     app = apps.get_containing_app_config(model.__module__)
                     if app:
-                        config = self.get_app_config(app, db)
-                        appconfig = AlembicAppConfig(
-                            name=app.label,
-                            config=config,
-                            db=db,
-                            script=self.get_config_script(config),
-                            version_path=self.get_app_version_path(app),
-                            version_package=self.get_app_version_package(app),
-                            app=app,
-                            tables=[],
-                        )
-                        if os.path.exists(appconfig.version_path):
+                        path = self.get_app_version_path(app)
+                        if os.path.exists(path):
+                            config = self.get_app_config(app, db)
+                            appconfig = AlembicAppConfig(
+                                name=app.label,
+                                config=config,
+                                db=db,
+                                script=self.get_config_script(config),
+                                version_path=path,
+                                version_package=self.get_app_version_package(app),
+                                app=app,
+                                tables=[],
+                            )
                             configs.setdefault(app.label, appconfig).tables.append(table)
                             # hook which allows apps to customize metadata if necessary
                             # when running migrations
