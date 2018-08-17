@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-import sys
+
+from django.core.management import CommandError
 
 from ..alembic import AlembicCommand
 
@@ -25,12 +26,10 @@ class History(AlembicCommand):
 
         if rev_range is not None:
             if app_label is None:
-                self.stderr.write("Revision requires an app label")
-                sys.exit(2)
+                raise CommandError("Revision requires an app label")
 
             if ":" not in rev_range:
-                self.stderr.write("History range requires [start]:[end], [start]:, or :[end]")
-                sys.exit(2)
+                raise CommandError("History range requires [start]:[end], [start]:, or :[end]")
             base, head = rev_range.strip().split(":")
         else:
             base = head = None

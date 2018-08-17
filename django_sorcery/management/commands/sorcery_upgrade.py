@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-import sys
 from functools import partial
 
 import alembic
+
+from django.core.management import CommandError
 
 from ..alembic import AlembicCommand
 
@@ -36,8 +37,7 @@ class Upgrade(AlembicCommand):
             starting_rev, revision = revision.split(":", 2)
 
         if revision != "heads" and app_label is None:
-            self.stderr.write("Revision requires an app_label to be provided")
-            sys.exit(2)
+            raise CommandError("Revision requires an app_label to be provided")
 
         for appconfig in appconfigs:
             self.stdout.write(

@@ -7,3 +7,4 @@ from django.apps import AppConfig
 class TestAppConfig(AppConfig):
     name = "tests.testapp"
     label = "tests.testapp"
+    version_table_schema = "public"

@@ -92,4 +92,16 @@ class TestHistory(MigrationMixin, TestCase):
             cmd.run_from_argv(["./manage.py sorcery", "history", "tests.testapp", "-r", "base-head", "--no-color"])
 
         err.seek(0)
-        self.assertEqual(err.readlines(), ["History range requires [start]:[end], [start]:, or :[end]\n"])
+        self.assertEqual(err.readlines(), ["CommandError: History range requires [start]:[end], [start]:, or :[end]\n"])
+
+    def test_not_alembic_app(self):
+        out = six.StringIO()
+        err = six.StringIO()
+
+        cmd = Command(stdout=out, stderr=err)
+
+        with self.assertRaises(SystemExit):
+            cmd.run_from_argv(["./manage.py sorcery", "history", "foo", "--no-color"])
+
+        err.seek(0)
+        self.assertEqual(err.readlines(), ["CommandError: App 'foo' could not be found. Is it in INSTALLED_APPS?\n"])

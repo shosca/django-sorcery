@@ -74,18 +74,18 @@ class TestUpgrade(MigrationMixin, TestCase):
                 "Running migrations for tests.testapp on database test\n",
                 "BEGIN;\n",
                 "\n",
-                "CREATE TABLE alembic_version_tests_testapp (\n",
+                "CREATE TABLE public.alembic_version_tests_testapp (\n",
                 "    version_num VARCHAR(32) NOT NULL, \n",
                 "    CONSTRAINT alembic_version_tests_testapp_pkc PRIMARY KEY (version_num)\n",
                 ");\n",
                 "\n",
                 "-- Running upgrade  -> 000000000001\n",
                 "\n",
-                "INSERT INTO alembic_version_tests_testapp (version_num) VALUES ('000000000001');\n",
+                "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000001');\n",
                 "\n",
                 "-- Running upgrade  -> 000000000000\n",
                 "\n",
-                "INSERT INTO alembic_version_tests_testapp (version_num) VALUES ('000000000000');\n",
+                "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000000');\n",
                 "\n",
                 "COMMIT;\n",
                 "\n",
@@ -111,5 +111,17 @@ class TestUpgrade(MigrationMixin, TestCase):
         cmd = Command(stdout=out)
 
         cmd.run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp", "-r", ":000000000000", "--no-color"])
-        revs = db.execute("select * from alembic_version_tests_testapp").fetchall()
+        revs = db.execute("select * from public.alembic_version_tests_testapp").fetchall()
         self.assertEqual(revs, [("000000000000",)])
+
+    def test_catching_alembic_error(self):
+        out = six.StringIO()
+        err = six.StringIO()
+
+        cmd = Command(stdout=out, stderr=err)
+
+        with self.assertRaises(SystemExit):
+            cmd.run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp", "-r", "revision", "--no-color"])
+
+        err.seek(0)
+        self.assertEqual(err.readlines(), ["CommandError: Can't locate revision identified by 'revision'\n"])

@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 import os
-import sys
 from collections import OrderedDict, namedtuple
 
 import alembic
 import alembic.config
+import six
 
 from django.apps import apps
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils.functional import cached_property
 
 import django_sorcery.db.alembic
 from django_sorcery.db import databases, signals
-from django_sorcery.db.alembic import include_object, include_symbol, process_revision_directives
+from django_sorcery.db.alembic import include_object, process_revision_directives
 
 
 SORCERY_ALEMBIC_CONFIG_FOLDER = os.path.dirname(django_sorcery.db.alembic.__file__)
 
 
-AlembicAppConfig = namedtuple("AlembicAppConfig", ["name", "config", "script", "db", "app", "version_path"])
+AlembicAppConfig = namedtuple("AlembicAppConfig", ["name", "config", "script", "db", "app", "version_path", "tables"])
 
 
 class AlembicCommand(BaseCommand):
@@ -32,25 +32,47 @@ class AlembicCommand(BaseCommand):
                 model = table_class_map.get(table)
                 if model:
                     app = apps.get_containing_app_config(model.__module__)
-                    if app and app.label not in configs:
+                    if app:
                         config = self.get_app_config(app, db)
-                        configs[app.label] = AlembicAppConfig(
-                            name=app.label,
-                            config=config,
-                            db=db,
-                            script=self.get_config_script(config),
-                            version_path=self.get_app_version_path(app),
-                            app=app,
-                        )
+                        configs.setdefault(
+                            app.label,
+                            AlembicAppConfig(
+                                name=app.label,
+                                config=config,
+                                db=db,
+                                script=self.get_config_script(config),
+                                version_path=self.get_app_version_path(app),
+                                app=app,
+                                tables=[],
+                            ),
+                        ).tables.append(table)
         return configs
 
     def get_app_config(self, app, db):
+        # TODO: read these from django db settings
+        version_table = (
+            getattr(app, "version_table", None)
+            or db.kwargs.get("version_table")
+            or "alembic_version_%s" % app.label.lower().replace(".", "_")
+        )
+
+        max_length = db.engine.dialect.max_identifier_length
+        if max_length and len(version_table) >= max_length:
+            raise CommandError(
+                "'{name}' is {length} characters long which is an invalid identifier "
+                "in {dialect!r} as its max idenfier length is {max_length}".format(
+                    name=version_table, dialect=db.engine.dialect.name, length=len(version_table), max_length=max_length
+                )
+            )
+
+        version_table_schema = getattr(app, "version_table_schema", None) or db.kwargs.get("version_table_schema")
+
         config = alembic.config.Config(output_buffer=self.stdout, stdout=self.stdout)
         config.set_main_option("script_location", SORCERY_ALEMBIC_CONFIG_FOLDER)
         config.set_main_option("version_locations", self.get_app_version_path(app))
-        config.set_main_option(
-            "version_table", db.kwargs.get("version_table", "alembic_version_%s" % app.label.lower().replace(".", "_"))
-        )
+        config.set_main_option("version_table", version_table)
+        if version_table_schema:
+            config.set_main_option("version_table_schema", version_table_schema)
         signals.alembic_config_created.send(config)
         return config
 
@@ -59,8 +81,7 @@ class AlembicCommand(BaseCommand):
 
     def lookup_app(self, app_label):
         if app_label not in self.sorcery_apps:
-            self.stderr.write("App '%s' could not be found. Is it in INSTALLED_APPS?" % app_label)
-            sys.exit(2)
+            raise CommandError("App '%s' could not be found. Is it in INSTALLED_APPS?" % app_label)
 
         return self.sorcery_apps[app_label]
 
@@ -71,18 +92,19 @@ class AlembicCommand(BaseCommand):
         config = context.config
         return dict(
             include_object=include_object,
-            include_symbol=include_symbol,
             process_revision_directives=process_revision_directives,
-            # TODO: read these from django db settings
-            version_table=config.get_main_option("version_table") or "alembic_version",
+            version_table=config.get_main_option("version_table"),
             version_table_schema=config.get_main_option("version_table_schema"),
         )
 
     def run_env(self, context, appconfig):
-        if context.is_offline_mode():
-            self.run_migrations_offline(context, appconfig)
-        else:
-            self.run_migrations_online(context, appconfig)
+        try:
+            if context.is_offline_mode():
+                self.run_migrations_offline(context, appconfig)
+            else:
+                self.run_migrations_online(context, appconfig)
+        except alembic.util.exc.CommandError as e:
+            raise CommandError(six.text_type(e))
 
     def run_migrations_online(self, context, appconfig):
         with appconfig.db.engine.connect() as connection:

@@ -86,13 +86,13 @@ class TestDowngrade(MigrationMixin, TestCase):
         cmd = Downgrade(stdout=out)
         cmd.run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
 
-        revs = db.execute("select * from alembic_version_tests_testapp").fetchall()
+        revs = db.execute("select * from public.alembic_version_tests_testapp").fetchall()
         self.assertEqual(revs, [])
 
         Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "--no-color"])
 
         cmd.run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "-r", "000000000000", "--no-color"])
-        revs = db.execute("select * from alembic_version_tests_testapp").fetchall()
+        revs = db.execute("select * from public.alembic_version_tests_testapp").fetchall()
         self.assertEqual(revs, [("000000000000",)])
 
     def test_sql(self):
@@ -114,7 +114,7 @@ class TestDowngrade(MigrationMixin, TestCase):
                 "Running migrations for tests.testapp on database test\n",
                 "BEGIN;\n",
                 "\n",
-                "DROP TABLE alembic_version_tests_testapp;\n",
+                "DROP TABLE public.alembic_version_tests_testapp;\n",
                 "\n",
                 "COMMIT;\n",
                 "\n",

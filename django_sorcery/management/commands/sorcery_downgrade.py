@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-import sys
 from functools import partial
 
 import alembic
+
+from django.core.management import CommandError
 
 from ..alembic import AlembicCommand
 
@@ -32,12 +33,10 @@ class Downgrade(AlembicCommand):
         appconfigs = [self.lookup_app(app_label)] if app_label is not None else self.sorcery_apps.values()
 
         if ":" in revision:
-            self.stderr.write("Range revision is not allowed")
-            sys.exit(2)
+            raise CommandError("Range revision is not allowed")
 
         if revision != "base" and app_label is None:
-            self.stderr.write("Revision requires an app_label to be provided")
-            sys.exit(2)
+            raise CommandError("Revision requires an app_label to be provided")
 
         for appconfig in reversed(appconfigs):
             self.stdout.write(

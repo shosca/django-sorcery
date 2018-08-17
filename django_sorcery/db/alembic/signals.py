@@ -4,14 +4,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django_sorcery.db import signals
 
 
-def include_symbol(tablename, schema):
-    results = signals.alembic_include_symbol.send(tablename, schema=schema)
-    if len(results) > 0:
-        return all([res[1] for res in results])
-
-    return True
-
-
 def include_object(obj, name, type_, reflected, compare_to):
     results = signals.alembic_include_object.send(
         obj, name=name, type_=type_, reflected=reflected, compare_to=compare_to

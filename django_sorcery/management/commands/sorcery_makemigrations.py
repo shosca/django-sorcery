@@ -17,14 +17,53 @@ class MakeMigrations(AlembicCommand):
             "args", metavar="app_label", nargs=1, help="Specify the app label to create migrations for."
         )
         parser.add_argument(
-            "-n", "--name", action="store", dest="name", default=None, help="Use this name for migration file."
+            "-m", "--message", action="store", required=True, help="Message string to use with 'revision'"
         )
         parser.add_argument(
-            "-r", "--revision", action="store", dest="rev_id", default=None, help="Revision id for migration file."
+            "-r", "--rev-id", action="store", help="Specify a hardcoded revision id instead of generating one"
+        )
+        parser.add_argument(
+            "--head", action="store", help="Specify head revision or <branchname>@head to base new revision on."
+        )
+        parser.add_argument(
+            "--branch-label", action="store", help="Specify a branch label to apply to the new revision."
+        )
+        parser.add_argument(
+            "--depends-on",
+            action="store",
+            help="Specify one or more revision identifiers which this revision should depend on.",
+        )
+        parser.add_argument(
+            "--splice",
+            action="store_true",
+            default=None,
+            help="Allow a non-head revision as the 'head' to splice onto.",
+        )
+        parser.add_argument(
+            "--autogenerate",
+            action="store_true",
+            dest="autogenerate",
+            help="Populate revision script with candidate migration operations, based on comparison of database to model.",
+        )
+        parser.add_argument(
+            "--no-autogenerate",
+            action="store_false",
+            dest="autogenerate",
+            default=True,
+            help="Generate blank candidate migration. This will not compare database to models.",
         )
 
     def handle(
-        self, app_label, name=None, head=None, splice=None, branch_label=None, depends_on=None, rev_id=None, **kwargs
+        self,
+        app_label,
+        message=None,
+        head=None,
+        splice=None,
+        branch_label=None,
+        depends_on=None,
+        rev_id=None,
+        autogenerate=None,
+        **kwargs
     ):
         appconfig = self.lookup_app(app_label)
 
@@ -32,18 +71,19 @@ class MakeMigrations(AlembicCommand):
 
         @signals.alembic_include_object.connect
         def include_object(obj=None, name=None, type_=None, reflected=None, compare_to=None):
-            if type_ == "table" and name in version_tables:
-                return False
+            if type_ == "table":
+                return obj in appconfig.tables and name not in version_tables
 
-            return True
+            else:
+                return obj.table in appconfig.tables
 
         command_args = dict(
-            autogenerate=True,
+            autogenerate=autogenerate,
             branch_label=branch_label,
             depends_on=depends_on,
             head=head,
             rev_id=rev_id,
-            message=name,
+            message=message,
             splice=splice,
             sql=False,
             version_path=appconfig.version_path,

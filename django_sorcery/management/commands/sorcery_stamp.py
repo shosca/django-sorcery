@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-import sys
 from functools import partial
 
 import alembic
+
+from django.core.management import CommandError
 
 from ..alembic import AlembicCommand
 
@@ -25,8 +26,7 @@ class Stamp(AlembicCommand):
         appconfig = self.lookup_app(app_label)
 
         if ":" in revision:
-            self.stderr.write("Range revision is not allowed")
-            sys.exit(2)
+            raise CommandError("Range revision is not allowed")
 
         self.stdout.write(
             self.style.SUCCESS("Stamping revision for %s on database %s" % (appconfig.name, appconfig.db.alias))

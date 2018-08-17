@@ -46,22 +46,38 @@ class TestMakeMigrations(MigrationMixin, TestCase):
         with self.assertRaises(SystemExit):
             cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "dumdum", "--no-color"])
 
-    def test(self):
-        out = six.StringIO()
-
-        cmd = Command(stdout=out)
-
-        cmd.run_from_argv(["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "--no-color"])
-
-        self.assertTrue(os.path.isfile(os.path.join(MIGRATION_DIR, "{}_.py".format(rev))))
-
     def test_with_name(self):
         out = six.StringIO()
 
         cmd = Command(stdout=out)
 
         cmd.run_from_argv(
-            ["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "-n", "zero", "--no-color"]
+            ["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "-m", "zero", "--no-color"]
         )
 
         self.assertTrue(os.path.isfile(os.path.join(MIGRATION_DIR, "{}_zero.py".format(rev))))
+
+    def test_longer_version_table_identifier(self):
+        out = six.StringIO()
+        err = six.StringIO()
+
+        cmd = Command(stdout=out, stderr=err)
+
+        original_length = db.engine.dialect.max_identifier_length
+        db.engine.dialect.max_identifier_length = 5
+
+        with self.assertRaises(SystemExit):
+            cmd.run_from_argv(
+                ["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "-m", "zero", "--no-color"]
+            )
+
+        db.engine.dialect.max_identifier_length = original_length
+
+        err.seek(0)
+        self.assertEqual(
+            err.readlines(),
+            [
+                "CommandError: 'alembic_version_tests_testapp' is 29 characters long which "
+                "is an invalid identifier in 'postgresql' as its max idenfier length is 5\n"
+            ],
+        )
