@@ -2,7 +2,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import os
 from collections import OrderedDict, namedtuple
-from importlib import import_module
 
 import alembic
 import alembic.config
@@ -13,7 +12,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.functional import cached_property
 
 import django_sorcery.db.alembic
-from django_sorcery.compat import suppress
 from django_sorcery.db import databases, signals
 from django_sorcery.db.alembic import include_object, process_revision_directives
 
@@ -21,9 +19,7 @@ from django_sorcery.db.alembic import include_object, process_revision_directive
 SORCERY_ALEMBIC_CONFIG_FOLDER = os.path.dirname(django_sorcery.db.alembic.__file__)
 
 
-AlembicAppConfig = namedtuple(
-    "AlembicAppConfig", ["name", "config", "script", "db", "app", "version_path", "version_package", "tables"]
-)
+AlembicAppConfig = namedtuple("AlembicAppConfig", ["name", "config", "script", "db", "app", "version_path", "tables"])
 
 
 class AlembicCommand(BaseCommand):
@@ -46,16 +42,13 @@ class AlembicCommand(BaseCommand):
                                 db=db,
                                 script=self.get_config_script(config),
                                 version_path=path,
-                                version_package=self.get_app_version_package(app),
                                 app=app,
                                 tables=[],
                             )
                             configs.setdefault(app.label, appconfig).tables.append(table)
-                            # hook which allows apps to customize metadata if necessary
-                            # when running migrations
-                            # for example in __init__ version table can be overwritten
-                            with suppress(ImportError):
-                                import_module(appconfig.version_package)
+        for app in configs.values():
+            signals.alembic_app_created.send(app.app)
+            signals.alembic_config_created.send(app.config)
         return configs
 
     def get_app_config(self, app, db):
@@ -83,7 +76,6 @@ class AlembicCommand(BaseCommand):
         config.set_main_option("version_table", version_table)
         if version_table_schema:
             config.set_main_option("version_table_schema", version_table_schema)
-        signals.alembic_config_created.send(config)
         return config
 
     def get_config_script(self, config):
@@ -97,9 +89,6 @@ class AlembicCommand(BaseCommand):
 
     def get_app_version_path(self, app):
         return os.path.join(app.path, "migrations")
-
-    def get_app_version_package(self, app):
-        return ".".join([app.name, "migrations"])
 
     def get_common_config(self, context):
         config = context.config
