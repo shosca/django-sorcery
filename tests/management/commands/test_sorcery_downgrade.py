@@ -104,14 +104,12 @@ class TestDowngrade(MigrationMixin, TestCase):
         self.assertEqual(
             out.readlines(),
             [
-                "Running migrations for tests.otherapp on database test\n",
                 "BEGIN;\n",
                 "\n",
                 "DROP TABLE alembic_version_tests_otherapp;\n",
                 "\n",
                 "COMMIT;\n",
                 "\n",
-                "Running migrations for tests.testapp on database test\n",
                 "BEGIN;\n",
                 "\n",
                 "DROP TABLE public.alembic_version_tests_testapp;\n",
