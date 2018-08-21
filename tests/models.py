@@ -21,6 +21,11 @@ class VehicleType(Enum):
     car = "Car"
 
 
+class States(Enum):
+    NY = "NY"
+    NJ = "NJ"
+
+
 class OwnerQuery(Query):
     pass
 
@@ -32,7 +37,7 @@ def street_validator(value):
 
 class Address(db.BaseComposite):
     street = db.Column(db.String(300), info={"validators": [street_validator]})
-    state = db.Column(db.String(300))
+    state = db.Column(db.Enum(States))
     zip = db.Column(db.String(15), info={"validators": [RegexValidator(r"^\d+$")]})
 
     validators = [ValidateTogetherModelFields(["street", "state", "zip"])]
