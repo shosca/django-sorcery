@@ -50,6 +50,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
     session_class = SignallingSession
     query_class = Query
     registry_class = sa.util.ThreadLocalRegistry
+    metadata_class = sa.MetaData
     model_class = Base
 
     BaseComposite = BaseComposite
@@ -62,6 +63,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         self.session_class = self.kwargs.get("session_class", None) or self.session_class
         self.query_class = self.kwargs.get("query_class", None) or self.query_class
         self.registry_class = self.kwargs.get("registry_class", None) or self.registry_class
+        self.metadata_class = self.kwargs.get("metadata_class", None) or self.metadata_class
         self.model_class = self.kwargs.get("model_class", None) or self.model_class
         self.engine_options = self.kwargs.get("engine_options", {})
         self.session_options = self.kwargs.get("session_options", {})
@@ -70,6 +72,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         self.session_options.setdefault("class_", self.session_class)
 
         self.middleware = self.make_middleware()
+        self.metadata = self.metadata_class(**self.kwargs.get("metadata_kwargs", {}))
         self.Model = self._make_declarative(self.model_class)
 
         for module in sa, sa.sql, sa.orm:
@@ -182,7 +185,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         model: class
             The base class for the declarative_base to be inherited from
         """
-        base = declarative_base(cls=model)
+        base = declarative_base(cls=model, metadata=self.metadata)
 
         # allow to customize things in custom base model
         if not hasattr(base, "query_class"):
@@ -200,13 +203,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         Current engine
         """
         return self.bind
-
-    @property
-    def metadata(self):
-        """
-        Current metadata
-        """
-        return self.Model.metadata
 
     @property
     def session_factory(self):

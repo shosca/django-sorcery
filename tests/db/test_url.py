@@ -11,6 +11,7 @@ from django_sorcery.db.url import make_url
     SQLALCHEMY_CONNECTIONS={
         "bad": {},
         "minimal": {"DIALECT": "sqlite"},
+        "from_env_preserve": {"DIALECT": "sqlite", "OPTIONS": {"foo": "bar"}},
         "default": {
             "DIALECT": "postgresql",
             "DRIVER": "psycopg2",
@@ -31,10 +32,12 @@ class TestMakeUrl(TestCase):
     def setUp(self):
         super(TestMakeUrl, self).setUp()
         os.environ["FROM_ENV_URL"] = "postgresql://usr:hunter2@awesomedomain/db?engine_echo=True"
+        os.environ["FROM_ENV_PRESERVE_URL"] = "postgresql://usr:hunter2@awesomedomain/db?engine_echo=True"
 
     def tearDown(self):
         super(TestMakeUrl, self).tearDown()
         os.environ.pop("FROM_ENV_URL", None)
+        os.environ.pop("FROM_ENV_PRESERVE_URL", None)
 
     def test_handles_url(self):
         url, options = make_url("postgresql://usr:hunter2@awesomedomain/db?engine_echo=True")
@@ -61,6 +64,17 @@ class TestMakeUrl(TestCase):
         self.assertEqual(url.query, {})
         self.assertEqual(url.username, "usr")
         self.assertDictEqual(options, {"engine_options": {"echo": True}})
+
+    def test_can_override_from_env_preserve(self):
+        url, options = make_url("from_env_preserve")
+        self.assertEqual(url.database, "db")
+        self.assertEqual(url.drivername, "postgresql")
+        self.assertEqual(url.host, "awesomedomain")
+        self.assertEqual(url.password, "hunter2")
+        self.assertEqual(url.port, None)
+        self.assertEqual(url.query, {})
+        self.assertEqual(url.username, "usr")
+        self.assertDictEqual(options, {"engine_options": {"echo": True}, "foo": "bar"})
 
     def test_can_generate_minimal(self):
         url, _ = make_url("minimal")
