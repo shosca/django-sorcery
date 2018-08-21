@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django_sorcery.db.composites import CompositeField
 
 from ..base import TestCase
-from ..models import Address, Business, db
+from ..models import Address, Business, States, db
 
 
 class TestComposite(TestCase):
@@ -17,22 +17,24 @@ class TestComposite(TestCase):
         other_location_props = [p.key for p in Business.other_location.property.props]
 
         self.assertListEqual(["_location_state", "_location_street", "_location_zip"], location_props)
-
         self.assertListEqual(["_foo_state", "_foo_street", "_foo_zip"], other_location_props)
+
+        self.assertEqual(Business._location_state.prop.columns[0].type.name, "states")
+        self.assertEqual(Business._foo_state.prop.columns[0].type.name, "foo_states")
 
     def test_can_persist(self):
 
         instance = Business()
-        instance.location = Address("NY", "street", "123")
-        instance.other_location = Address(street="other street", state="NJ", zip="456")
+        instance.location = Address(States.NY, "street", "123")
+        instance.other_location = Address(street="other street", state=States.NJ, zip="456")
         db.add(instance)
         db.flush()
         db.expire_all()
 
         instance = Business.objects.first()
 
-        self.assertEqual(sorted(instance.location.__composite_values__()), sorted(("street", "NY", "123")))
-        self.assertEqual(sorted(instance.other_location.__composite_values__()), sorted(("other street", "NJ", "456")))
+        self.assertEqual(set(instance.location.__composite_values__()), {"street", States.NY, "123"})
+        self.assertEqual(set(instance.other_location.__composite_values__()), {"other street", States.NJ, "456"})
 
     def test_repr(self):
         self.assertEqual(
