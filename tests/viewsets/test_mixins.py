@@ -7,8 +7,9 @@ from django.urls import reverse
 
 from django_sorcery import forms, viewsets
 
+from tests.testapp.models import Owner, db
+
 from ..base import TestCase
-from ..models import Owner, db
 
 
 class TestListModelMixin(TestCase):

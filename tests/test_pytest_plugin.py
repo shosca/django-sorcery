@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django_sorcery.pytest_plugin import sqlalchemy_profiler  # noqa
 
-from .models import Business, Owner, db
+from tests.testapp.models import Business, Owner, db
 
 
 def test_profiler(sqlalchemy_profiler):  # noqa

@@ -7,9 +7,10 @@ from django.urls import reverse
 from django_sorcery import forms
 from django_sorcery.views import edit
 
-from ..appviews import OwnerCreateViewWithForm
+from tests.testapp.models import Owner, db
+from tests.testapp.views import OwnerCreateViewWithForm
+
 from ..base import TestCase
-from ..models import Owner, db
 
 
 class TestCreateView(TestCase):

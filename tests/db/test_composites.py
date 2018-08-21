@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django_sorcery.db.composites import CompositeField
 
 from ..base import TestCase
-from ..models import Address, Business, States, db
+from ..testapp.models import Address, Business, States, db
 
 
 class TestComposite(TestCase):

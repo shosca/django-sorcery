@@ -4,8 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django_sorcery.db import models
 from django_sorcery.utils import make_args
 
-from ..base import TestCase
-from ..models import (
+from tests.testapp.models import (
     Address,
     Business,
     CompositePkModel,
@@ -18,6 +17,8 @@ from ..models import (
     VehicleType,
     db,
 )
+
+from ..base import TestCase
 
 
 class TestModels(TestCase):

@@ -3,8 +3,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django_sorcery.db import signals  # noqa
 
+from tests.testapp.models import CompositePkModel, Owner, OwnerQuery, db
+
 from ..base import TestCase
-from ..models import CompositePkModel, Owner, OwnerQuery, db
 
 
 class TestSession(TestCase):

@@ -6,8 +6,9 @@ import sqlalchemy as sa
 from django_sorcery.db.query import Operation
 from django_sorcery.utils import suppress
 
+from tests.testapp.models import ModelOne, Owner, db
+
 from ..base import TestCase
-from ..models import ModelOne, Owner, db
 
 
 class TestSQLAlchemy(TestCase):
@@ -93,7 +94,7 @@ class TestSQLAlchemy(TestCase):
 class TestSQLAlchemyRelationships(TestCase):
     def setUp(self):
         super(TestSQLAlchemyRelationships, self).setUp()
-        from ..models_order import db, Asset, Customer, Order, Contact
+        from tests.minimalapp.models import db, Asset, Customer, Order, Contact
 
         self.db = db
         self.asset = Asset

@@ -256,6 +256,18 @@ def clone(instance, *rels, **kwargs):
     return cloned
 
 
+class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
+    """
+    Base metaclass for models which registers models to DB model registry
+    when models are created.
+    """
+
+    def __new__(typ, name, bases, attrs):
+        klass = super(BaseMeta, typ).__new__(typ, name, bases, attrs)
+        typ.db.models_registry.append(klass)
+        return klass
+
+
 class Base(CleanMixin):
     """
     Base model class for SQLAlchemy.

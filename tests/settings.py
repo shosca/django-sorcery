@@ -67,7 +67,13 @@ SQLALCHEMY_CONNECTIONS = {
     },
 }
 
-INSTALLED_APPS = ["tests.apps.TestConfig", "django_sorcery", "django.contrib.staticfiles"]
+INSTALLED_APPS = [
+    "tests.minimalapp.apps.MinimalAppConfig",
+    "tests.testapp.apps.TestAppConfig",
+    "tests.otherapp.apps.OtherAppConfig",
+    "django_sorcery",
+    "django.contrib.staticfiles",
+]
 
 ROOT_URLCONF = "tests.urls"
 

@@ -13,7 +13,7 @@ from django.db import DEFAULT_DB_ALIAS
 
 from ..utils import make_args
 from .composites import BaseComposite, CompositeField
-from .models import Base
+from .models import Base, BaseMeta
 from .query import Query, QueryProperty
 from .relations import RelationsMixin
 from .session import SignallingSession
@@ -72,6 +72,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         self.session_options.setdefault("class_", self.session_class)
 
         self.middleware = self.make_middleware()
+        self.models_registry = []
         self.metadata = self.metadata_class(**self.kwargs.get("metadata_kwargs", {}))
         self.Model = self._make_declarative(self.model_class)
 
@@ -185,7 +186,9 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         model: class
             The base class for the declarative_base to be inherited from
         """
-        base = declarative_base(cls=model, metadata=self.metadata)
+        base = declarative_base(
+            cls=model, metadata=self.metadata, metaclass=type(str("BaseMeta"), (BaseMeta,), {"db": self})
+        )
 
         # allow to customize things in custom base model
         if not hasattr(base, "query_class"):
