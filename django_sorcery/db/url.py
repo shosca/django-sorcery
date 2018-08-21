@@ -29,15 +29,19 @@ def get_settings(alias):
     return settings.DATABASES[alias]
 
 
-def _options_from_url(url):
-    return {
-        "engine_options": {
-            k.replace("engine_", ""): ENGINE_OPTIONS_NORMALIZATION.get(k.replace("engine_", ""), lambda x: x)(
-                url.query.pop(k)
-            )
-            for k in list(url.query)
+def _options_from_url(url, base_options):
+    options = base_options.copy()
+    options.update(
+        {
+            "engine_options": {
+                k.replace("engine_", ""): ENGINE_OPTIONS_NORMALIZATION.get(k.replace("engine_", ""), lambda x: x)(
+                    url.query.pop(k)
+                )
+                for k in list(url.query)
+            }
         }
-    }
+    )
+    return options
 
 
 def make_url(alias_or_url):
@@ -47,6 +51,12 @@ def make_url(alias_or_url):
     alias_or_url: str
         name of the alias or url as string
     """
+    settings_url, settings_kwargs = None, {}
+    try:
+        settings_url, settings_kwargs = make_url_from_settings(alias_or_url)
+    except KeyError:
+        pass
+
     try:
         url = sa.engine.url.make_url(alias_or_url)
 
@@ -54,13 +64,13 @@ def make_url(alias_or_url):
         pass
 
     else:
-        return url, _options_from_url(url)
+        return url, _options_from_url(url, settings_kwargs)
 
     alias = alias_or_url
 
     url = sa.engine.url.make_url(os.environ.get(alias.upper() + "_URL", None))
     if url:
-        return url, _options_from_url(url)
+        return url, _options_from_url(url, settings_kwargs)
 
     return make_url_from_settings(alias)
 
@@ -98,6 +108,8 @@ def make_url_from_settings(alias):
         * ``session_class`` - a custom session class to be used
         * ``registry_class`` - a custom registy class to be used for scoping
         * ``model_class`` - a custom base model class to be used for declarative base models.
+        * ``metadata_class`` - a custom metadata class used in delclarative models.
+        * ``metadata_options`` - custom options to use in metadata creation such as specifying naming conventions.
         * ``engine_options`` - arguments for sqlalchemy ``create_engine``
         * ``session_options`` - arguments for sqlalchemy ``sessionmaker``
 
