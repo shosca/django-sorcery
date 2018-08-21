@@ -40,9 +40,12 @@ class Upgrade(AlembicCommand):
             raise CommandError("Revision requires an app_label to be provided")
 
         for appconfig in appconfigs:
-            self.stdout.write(
-                self.style.SUCCESS("Running migrations for %s on database %s" % (appconfig.name, appconfig.db.alias))
-            )
+            if not sql:
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        "Running migrations for %s on database %s" % (appconfig.name, appconfig.db.alias)
+                    )
+                )
             with alembic.context.EnvironmentContext(
                 appconfig.config,
                 appconfig.script,
