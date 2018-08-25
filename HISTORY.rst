@@ -2,8 +2,35 @@ Changelog
 =========
 
 
-0.5.5 (2018-07-27)
+0.6.0 (2018-08-25)
 -----------------------------
+- Merge pull request #40 from shosca/alembic. [Serkan Hosca]
+- Fixing import issue after rebase. [Miroslav Shubernetskiy]
+- Fixing test_sql not expecting "Running migrations..." messages.
+  [Miroslav Shubernetskiy]
+- Not printing "Running migrations..." message when --sql is used.
+  [Miroslav Shubernetskiy]
+- Removing import hook. instead adding alembic_app_created signal.
+  [Miroslav Shubernetskiy]
+- Checking if migrations are present before configuring alembic.
+  [Miroslav Shubernetskiy]
+- Renaming makemigrations to revision and importing migrations.__init__
+  [Miroslav Shubernetskiy]
+- Matching parameters to alembic and minor improvements. [Miroslav
+  Shubernetskiy]
+- Added --no-color to all ./manage.py sorcery command in tests.
+  [Miroslav Shubernetskiy]
+- Added SQLAlchemy.models_registry. [Miroslav Shubernetskiy]
+- Add alembic support. [Serkan Hosca]
+- Added prefix to composite columns constraint names. [Miroslav
+  Shubernetskiy]
+- Added way to customize metadata options via config. (#43) [Miroslav
+  Shubernetskiy]
+- Run tests on pg (#42) [Serkan Hosca]
+
+
+0.5.5 (2018-07-28)
+------------------
 - Fix scoped session proxying (#41) [Serkan Hosca]
 
 
