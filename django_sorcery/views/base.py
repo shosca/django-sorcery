@@ -56,8 +56,8 @@ class SQLAlchemyMixin(ContextMixin):
             if query is None and self.session:
                 query = self.session.query(model)
 
-        if query and self.query_options:
-            query = query.options(*self.query_options)
+        if query:
+            query = query.options(*self.get_query_options())
 
         if not query:
 
@@ -73,6 +73,9 @@ class SQLAlchemyMixin(ContextMixin):
             self.session = self.get_queryset().session
 
         return self.session
+
+    def get_query_options(self):
+        return self.query_options or []
 
     def get_model_template_name(self):
         """
