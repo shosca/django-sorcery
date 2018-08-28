@@ -2,8 +2,16 @@ Changelog
 =========
 
 
-0.6.0 (2018-08-25)
+0.6.1 (2018-08-28)
 -----------------------------
+- Merge pull request #46 from shosca/query-options. [Serkan Hosca]
+- Add get query options. [Serkan Hosca]
+- Merge pull request #45 from shosca/profiler-middleware. [Serkan Hosca]
+- Start/stop in profiler middleware. [Serkan Hosca]
+
+
+0.6.0 (2018-08-25)
+------------------
 - Merge pull request #40 from shosca/alembic. [Serkan Hosca]
 - Fixing import issue after rebase. [Miroslav Shubernetskiy]
 - Fixing test_sql not expecting "Running migrations..." messages.
