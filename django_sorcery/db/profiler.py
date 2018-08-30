@@ -132,13 +132,17 @@ class SQLAlchemyProfilingMiddleware(object):
         self.get_response = get_response
         self.profiler = SQLAlchemyProfiler()
 
+    def start(self):
+        self.profiler.start()
+        self.start = lambda: None
+
     def __call__(self, request):
         self.process_request(request)
         response = self.get_response(request)
         return self.process_response(request, response)
 
     def process_request(self, request):
-        self.profiler.start()
+        self.start()
         self.profiler.clear()
 
     def process_response(self, request, response):
@@ -153,7 +157,6 @@ class SQLAlchemyProfilingMiddleware(object):
             if settings.DEBUG:
                 for k, v in stats.items():
                     response["X-SA-{}".format("".join(i.title() for i in k.split("_")))] = v
-        self.profiler.stop()
         self.profiler.clear()
         return response
 
