@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.6.1 (2018-08-28)
+0.6.2 (2018-08-30)
 -----------------------------
+- Merge pull request #47 from shosca/signals. [Serkan Hosca]
+- Fix profile middleware bug by lazily attaching signals. [Miroslav
+  Shubernetskiy]
+
+
+0.6.1 (2018-08-28)
+------------------
 - Merge pull request #46 from shosca/query-options. [Serkan Hosca]
 - Add get query options. [Serkan Hosca]
 - Merge pull request #45 from shosca/profiler-middleware. [Serkan Hosca]
