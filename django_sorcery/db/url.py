@@ -38,6 +38,7 @@ def _options_from_url(url, base_options):
                     url.query.pop(k)
                 )
                 for k in list(url.query)
+                if k.startswith("engine_")
             }
         }
     )
