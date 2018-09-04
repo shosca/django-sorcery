@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.6.2 (2018-08-30)
+0.6.3 (2018-09-04)
 -----------------------------
+- Merge pull request #48 from shosca/url. [Serkan Hosca]
+- Only popping custom engine parameters from url. [Miroslav
+  Shubernetskiy]
+
+
+0.6.2 (2018-08-31)
+------------------
 - Merge pull request #47 from shosca/signals. [Serkan Hosca]
 - Fix profile middleware bug by lazily attaching signals. [Miroslav
   Shubernetskiy]
