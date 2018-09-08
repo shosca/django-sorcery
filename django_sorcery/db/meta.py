@@ -55,6 +55,10 @@ class composite_info(six.with_metaclass(model_info_meta)):
 
         return self._field_names
 
+    @property
+    def related_model(self):
+        return self.prop.composite_class
+
 
 class column_info(object):
     """

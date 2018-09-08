@@ -5,7 +5,7 @@ import sqlalchemy as sa
 
 from django_sorcery.db import meta  # noqa
 
-from tests.testapp.models import COLORS, AllKindsOfFields, Owner, Vehicle, VehicleType, Vertex
+from tests.testapp.models import COLORS, AllKindsOfFields, Owner, Point, Vehicle, VehicleType, Vertex
 
 from ..base import TestCase
 
@@ -43,6 +43,7 @@ class TestCompositeMeta(TestCase):
         self.assertEqual(start.properties["x"].property, Vertex.x1.property)
 
         self.assertEqual(set(start.field_names), {"x", "y"})
+        self.assertEqual(start.related_model, Point)
 
 
 class TestRelationshipMeta(TestCase):

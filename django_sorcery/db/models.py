@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from itertools import chain
 
 import six
@@ -8,13 +8,16 @@ import six
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
-from sqlalchemy.orm.base import NO_VALUE
+from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
 from django.utils.text import camel_case_to_spaces
 
 from . import signals
 from .meta import model_info
 from .mixins import CleanMixin
+
+
+Key = namedtuple("Key", ["model", "pk"])
 
 
 def get_primary_keys(model, kwargs):
@@ -28,13 +31,10 @@ def get_primary_keys(model, kwargs):
         pk = kwargs.get(attr)
         pks.append(pk)
 
-    if len(pks) < 2:
-        return next(iter(pks), None)
-
     if any(pk is None for pk in pks):
         return None
 
-    return tuple(pks)
+    return Key(model, tuple(pks))
 
 
 def get_primary_keys_from_instance(instance):
@@ -167,8 +167,8 @@ def serialize(instance, *rels):
     data = {c.key: getattr(instance, c.key) for c in state.mapper.column_attrs}
 
     for composite in state.mapper.composites:
-        attr = getattr(state.mapper.class_, composite.key)
-        data[composite.key] = vars(getattr(instance, composite.key))
+        comp = getattr(instance, composite.key)
+        data[composite.key] = vars(comp) if comp else None
         # since we're copying, remove props from the composite
         for prop in composite.props:
             data.pop(prop.key, None)
@@ -181,6 +181,58 @@ def serialize(instance, *rels):
             data[relation.key] = serialize(sub_instance, *sub_rels)
 
     return data
+
+
+def deserialize(model, data, identity_map=None):
+    """
+    Return a model instance from data
+    ------------------------------
+    model:
+        a model class
+    data: dict
+        values
+    """
+    if data is None:
+        return None
+
+    info = model_info(model)
+    identity_map = identity_map or {}
+
+    kwargs = {}
+    for prop in info.primary_keys:
+        if prop in data:
+            kwargs[prop] = data.get(prop)
+
+    pk = get_primary_keys(model, kwargs)
+    if pk is not None and pk in identity_map:
+        return identity_map[pk]
+
+    for prop in info.properties:
+        if prop in data:
+            kwargs[prop] = data.get(prop)
+
+    for prop, composite in info.composites.items():
+        if prop in data:
+            composite_data = data.get(prop)
+            composite_class = composite.related_model
+            composite_args = [composite_data.get(i) for i in composite.properties]
+            kwargs[prop] = composite_class(*composite_args)
+
+    for prop, rel in info.relationships.items():
+        if prop in data:
+            if rel.direction == MANYTOONE or not rel.uselist:
+                kwargs[prop] = deserialize(rel.related_model, data.get(prop), identity_map=identity_map)
+            else:
+                kwargs[prop] = [
+                    deserialize(rel.related_model, r, identity_map=identity_map) for r in data.get(prop, [])
+                ]
+
+    instance = model(**kwargs)
+
+    if pk is not None:
+        identity_map[pk] = instance
+
+    return instance
 
 
 def clone(instance, *rels, **kwargs):

@@ -50,7 +50,7 @@ class TestModels(TestCase):
 
     def test_primary_keys_composite(self):
         pks = models.get_primary_keys(CompositePkModel, {"id": 4321, "pk": 1234})
-        self.assertEqual(pks, (4321, 1234))
+        self.assertEqual(pks, models.Key(CompositePkModel, (4321, 1234)))
 
     def test_primary_keys_composite_missing(self):
         pks = models.get_primary_keys(CompositePkModel, {"pk": 1234})
@@ -209,6 +209,85 @@ class TestModels(TestCase):
             models.serialize(vehicle, Vehicle.owner, Vehicle.options, Vehicle.parts),
         )
 
+    def test_deserialize(self):
+
+        data = {
+            "_owner_id": None,
+            "created_at": None,
+            "id": 1,
+            "is_used": True,
+            "paint": "red",
+            "type": VehicleType.car,
+            "name": "vehicle",
+            "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
+            "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
+            "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
+        }
+
+        vehicle = models.deserialize(Vehicle, data)
+
+        self.assertDictEqual(
+            {
+                "_owner_id": None,
+                "created_at": None,
+                "id": 1,
+                "is_used": True,
+                "paint": "red",
+                "type": VehicleType.car,
+                "name": "vehicle",
+                "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
+                "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
+                "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
+            },
+            models.serialize(vehicle, Vehicle.owner, Vehicle.options, Vehicle.parts),
+        )
+
+    def test_deserialize_none(self):
+        self.assertIsNone(models.deserialize(Vehicle, None))
+
+    def test_deserialize_with_map(self):
+        data = {
+            "_owner_id": None,
+            "created_at": None,
+            "id": 1,
+            "is_used": True,
+            "paint": "red",
+            "type": VehicleType.car,
+            "name": "vehicle",
+            "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
+            "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
+            "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
+        }
+        identity_map = {(Option, (3,)): Option(id=3, name="option 1"), (Option, (4,)): Option(id=4, name="option 2")}
+
+        vehicle = models.deserialize(Vehicle, data, identity_map=identity_map)
+
+        self.assertListEqual(
+            sorted([id(option) for option in vehicle.options]),
+            sorted([id(i) for i in identity_map.values() if isinstance(i, Option)]),
+        )
+
+    def test_deserialize_composites(self):
+
+        data = {
+            "id": None,
+            "name": "test",
+            "location": {"state": "state 1", "street": "street 1", "zip": "zip 1"},
+            "other_location": {"state": "state 2", "street": "street 2", "zip": "zip 2"},
+        }
+
+        business = models.deserialize(Business, data)
+
+        self.assertDictEqual(
+            {
+                "id": None,
+                "name": "test",
+                "location": {"state": "state 1", "street": "street 1", "zip": "zip 1"},
+                "other_location": {"state": "state 2", "street": "street 2", "zip": "zip 2"},
+            },
+            models.serialize(business),
+        )
+
 
 class TestClone(TestCase):
     def setUp(self):
@@ -295,12 +374,10 @@ class TestClone(TestCase):
         self.assertNotEqual(clone, self.vehicle)
         self.assertNotEqual(clone.as_dict(), self.vehicle.as_dict())
         self.assertNotEqual(clone.id, self.vehicle.id)
-        # self.assertEqual(models.model_to_dict(clone), models.model_to_dict(self.vehicle))
 
         self.assertNotEqual(clone.owner, self.vehicle.owner)
         self.assertNotEqual(clone.owner.as_dict(), self.vehicle.owner.as_dict())
         self.assertNotEqual(clone.owner.id, self.vehicle.owner.id)
-        # self.assertNotEqual(models.model_to_dict(clone.owner), models.model_to_dict(self.vehicle.owner))
         self.assertEqual(clone.owner.first_name, "test")
 
     def test_clone_list_relation(self):
@@ -318,6 +395,3 @@ class TestClone(TestCase):
             self.assertNotEqual(cloned, orig)
             self.assertNotEqual(cloned.as_dict(), orig.as_dict())
             self.assertNotEqual(cloned.id, orig.id)
-
-
-# self.assertEqual(models.model_to_dict(cloned), models.model_to_dict(orig))

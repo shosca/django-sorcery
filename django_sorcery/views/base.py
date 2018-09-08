@@ -216,7 +216,7 @@ class BaseSingleObjectMixin(SQLAlchemyMixin):
         obj = None
 
         if pk is not None:
-            obj = queryset.get(pk)
+            obj = queryset.get(pk.pk)
 
         if slug is not None and (pk is None and self.query_pkg_and_slug):
             slug_field = self.get_slug_field()
