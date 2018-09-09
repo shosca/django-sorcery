@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django import forms as djangoforms
+from django.core.exceptions import ImproperlyConfigured
 from django.forms import fields as djangofields
 
 from django_sorcery import fields
@@ -9,25 +10,34 @@ from django_sorcery.db.meta import model_info
 from django_sorcery.field_mapping import ModelFieldMapper
 from django_sorcery.forms import SQLAModelFormOptions
 
-from tests.testapp.models import AllKindsOfFields, Owner, Vehicle, db
+from tests.testapp.models import AllKindsOfFields, ClassicModel, Owner, Vehicle, db
 
 from .base import TestCase
 
 
 class TestFieldMapping(TestCase):
-    def test_get_default_kwargs(self):
-        class Meta:
-            model = Owner
-            session = db.session
-            widgets = {"test": "widget"}
-            labels = {"test": "label"}
-            help_texts = {"test": "help_text"}
-            error_messages = {"test": "error_message"}
-            field_classes = {"test": "field_class"}
-            localized_fields = ("test",)
+    def test_no_model(self):
 
-        opts = SQLAModelFormOptions(Meta)
-        mapper = ModelFieldMapper(opts)
+        with self.assertRaises(ImproperlyConfigured):
+            ModelFieldMapper()
+
+    def test_no_session(self):
+
+        with self.assertRaises(ImproperlyConfigured):
+            ModelFieldMapper(model=ClassicModel)
+
+    def test_get_default_kwargs(self):
+
+        mapper = ModelFieldMapper(
+            model=Owner,
+            session=db.session,
+            widgets={"test": "widget"},
+            labels={"test": "label"},
+            help_texts={"test": "help_text"},
+            error_messages={"test": "error_message"},
+            field_classes={"test": "field_class"},
+            localized_fields=("test",),
+        )
 
         self.assertDictEqual({}, mapper.get_default_kwargs("none"))
 
@@ -43,7 +53,7 @@ class TestFieldMapping(TestCase):
             mapper.get_default_kwargs("test"),
         )
 
-        mapper.opts.localized_fields = "__all__"
+        mapper.localized_fields = "__all__"
         self.assertDictEqual(
             {
                 "error_messages": "error_message",
@@ -57,35 +67,24 @@ class TestFieldMapping(TestCase):
         )
 
     def test_get_fields(self):
-        class Meta:
-            model = Owner
-            session = db
 
-        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+        mapper = ModelFieldMapper(model=Owner, session=db)
 
         fields = mapper.get_fields()
 
         self.assertListEqual(sorted(list(fields.keys())), ["first_name", "last_name", "vehicles"])
 
     def test_get_fields_with_include(self):
-        class Meta:
-            model = Owner
-            fields = ["first_name"]
-            session = db
 
-        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+        mapper = ModelFieldMapper(model=Owner, fields=["first_name"], session=db)
 
         fields = mapper.get_fields()
 
         self.assertListEqual(list(fields.keys()), ["first_name"])
 
     def test_get_fields_with_exclude(self):
-        class Meta:
-            model = Owner
-            exclude = ["first_name", "vehicles"]
-            session = db
 
-        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+        mapper = ModelFieldMapper(model=Owner, exclude=["first_name", "vehicles"], session=db)
 
         fields = mapper.get_fields()
 
@@ -100,11 +99,7 @@ class TestFieldMapping(TestCase):
             self.called_with.append(attr)
             return djangofields.CharField()
 
-        class Meta:
-            model = Owner
-            fields = ["first_name", "vehicles"]
-
-        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta), formfield_callback=callback)
+        mapper = ModelFieldMapper(model=Owner, fields=["first_name", "vehicles"], formfield_callback=callback)
 
         fields = mapper.get_fields()
 
@@ -112,11 +107,8 @@ class TestFieldMapping(TestCase):
         self.assertEqual(self.called_with, [info.properties["first_name"], info.relationships["vehicles"]])
 
     def test_get_fields_no_private(self):
-        class Meta:
-            model = Vehicle
-            session = db
 
-        mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+        mapper = ModelFieldMapper(model=Vehicle, session=db)
 
         fields = mapper.get_fields()
 
@@ -134,7 +126,7 @@ class TestTypeMap(TestCase):
             model = AllKindsOfFields
             session = db
 
-        self.mapper = ModelFieldMapper(SQLAModelFormOptions(Meta))
+        self.mapper = ModelFieldMapper(**vars(SQLAModelFormOptions(Meta)))
         self.fields = self.mapper.get_fields()
 
     def test_boolean_field_not_nullable(self):

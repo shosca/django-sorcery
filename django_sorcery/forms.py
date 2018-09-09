@@ -6,15 +6,13 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
-from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS, ImproperlyConfigured, ValidationError
 from django.forms.forms import BaseForm, DeclarativeFieldsMetaclass
 from django.forms.models import ModelFormOptions
 from django.forms.utils import ErrorList
-from django.utils.module_loading import import_string
 
 from .db.models import model_to_dict
-from .field_mapping import ALL_FIELDS, ModelFieldMapper, apply_limit_choices_to_form_field
+from .field_mapping import ALL_FIELDS, apply_limit_choices_to_form_field, get_field_mapper
 
 
 class SQLAModelFormOptions(ModelFormOptions):
@@ -58,13 +56,10 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
             if opts.fields == ALL_FIELDS:
                 opts.fields = None
 
-            mapper = (
-                import_string(settings.SQLALCHEMY_FORM_MAPPER)
-                if hasattr(settings, "SQLALCHEMY_FORM_MAPPER")
-                else ModelFieldMapper
-            )
-
-            mcs.base_fields = mapper(opts, formfield_callback, apply_limit_choices_to=False).get_fields()
+            mapper = get_field_mapper()
+            mcs.base_fields = mapper(
+                formfield_callback=formfield_callback, apply_limit_choices_to=False, **vars(opts)
+            ).get_fields()
 
         else:
             mcs.base_fields = mcs.declared_fields
