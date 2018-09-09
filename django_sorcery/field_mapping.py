@@ -13,10 +13,14 @@ import six
 import sqlalchemy as sa
 
 from django import forms as djangoforms
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.forms import fields as djangofields
+from django.utils.module_loading import import_string
 
 from .db import meta
 from .fields import EnumField, ModelChoiceField, ModelMultipleChoiceField, apply_limit_choices_to_form_field
+from .utils import suppress
 
 
 ALL_FIELDS = "__all__"
@@ -37,35 +41,67 @@ FIELD_LOOKUP.update({t: djangofields.CharField for t in six.string_types})
 FIELD_LOOKUP.update({t: djangofields.IntegerField for t in six.integer_types})
 
 
-class ModelFieldMapper(OrderedDict):
+def get_field_mapper():
+    return (
+        import_string(settings.SQLALCHEMY_FORM_MAPPER)
+        if hasattr(settings, "SQLALCHEMY_FORM_MAPPER")
+        else ModelFieldMapper
+    )
+
+
+class ModelFieldMapper(object):
     """
     Main field mapper between sqlalchemy models and django form fields, provides hooks to control field generation and
     can be extended and overridden by using the ``SQLALCHEMY_FORM_MAPPER`` setting.
     """
 
-    def __init__(self, opts, formfield_callback=None, apply_limit_choices_to=True):
-        self.opts = opts
-        self.formfield_callback = formfield_callback
-        self.apply_limit_choices_to = apply_limit_choices_to
+    def __init__(self, **kwargs):
+        attrs = [
+            "model",
+            "session",
+            "fields",
+            "exclude",
+            "widgets",
+            "localized_fields",
+            "labels",
+            "help_texts",
+            "error_messages",
+            "field_classes",
+            "formfield_callback",
+        ]
+        for attr in attrs:
+            setattr(self, attr, kwargs.get(attr))
+
+        self.apply_limit_choices_to = kwargs.get("apply_limit_choices_to", True)
+
+        if self.model is None:
+            raise ImproperlyConfigured("Creating a field mapper without model attribute prohibited")
+
+        if self.session is None:
+            with suppress(AttributeError):
+                self.session = self.model.query.session
+
+        if self.session is None:
+            raise ImproperlyConfigured("Creating a field mapper without session attribute prohibited")
 
     def get_default_kwargs(self, name, **kwargs):
         """
         Generate default kwargs from form options.
         """
-        if self.opts.widgets and name in self.opts.widgets:
-            kwargs["widget"] = self.opts.widgets[name]
-        if self.opts.localized_fields == ALL_FIELDS:
+        if self.widgets and name in self.widgets:
+            kwargs["widget"] = self.widgets[name]
+        if self.localized_fields == ALL_FIELDS:
             kwargs["localize"] = True
-        if self.opts.localized_fields and name in self.opts.localized_fields:
+        if self.localized_fields and name in self.localized_fields:
             kwargs["localize"] = True
-        if self.opts.labels and name in self.opts.labels:
-            kwargs["label"] = self.opts.labels[name]
-        if self.opts.help_texts and name in self.opts.help_texts:
-            kwargs["help_text"] = self.opts.help_texts[name]
-        if self.opts.error_messages and name in self.opts.error_messages:
-            kwargs["error_messages"] = self.opts.error_messages[name]
-        if self.opts.field_classes and name in self.opts.field_classes:
-            kwargs["form_class"] = self.opts.field_classes[name]
+        if self.labels and name in self.labels:
+            kwargs["label"] = self.labels[name]
+        if self.help_texts and name in self.help_texts:
+            kwargs["help_text"] = self.help_texts[name]
+        if self.error_messages and name in self.error_messages:
+            kwargs["error_messages"] = self.error_messages[name]
+        if self.field_classes and name in self.field_classes:
+            kwargs["form_class"] = self.field_classes[name]
         return kwargs
 
     def get_fields(self):
@@ -75,17 +111,17 @@ class ModelFieldMapper(OrderedDict):
 
         field_list = []
 
-        info = meta.model_info(self.opts.model)
+        info = meta.model_info(self.model)
 
         for name, attr in chain(info.properties.items(), info.relationships.items()):
 
             if name.startswith("_"):
                 continue
 
-            if self.opts.fields and name not in self.opts.fields:
+            if self.fields and name not in self.fields:
                 continue
 
-            if self.opts.exclude and name in self.opts.exclude:
+            if self.exclude and name in self.exclude:
                 continue
 
             kwargs = self.get_default_kwargs(name)
@@ -125,14 +161,14 @@ class ModelFieldMapper(OrderedDict):
         Build field for a sqlalchemy many-to-one relationship field.
         """
         kwargs["required"] = all([col.nullable for col in relation.foreign_keys])
-        return ModelChoiceField(relation.related_model, self.opts.session, **kwargs)
+        return ModelChoiceField(relation.related_model, self.session, **kwargs)
 
     def build_modelmultiplechoice_field(self, relation, **kwargs):
         """
         Build field for a sqlalchemy one-to-many or many-to-many relationship field.
         """
         kwargs["required"] = False
-        return ModelMultipleChoiceField(relation.related_model, self.opts.session, **kwargs)
+        return ModelMultipleChoiceField(relation.related_model, self.session, **kwargs)
 
     def build_standard_field(self, attr, **kwargs):
         """
