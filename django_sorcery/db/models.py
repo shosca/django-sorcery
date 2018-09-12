@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from itertools import chain
 
 import six
@@ -17,9 +17,6 @@ from .meta import model_info
 from .mixins import CleanMixin
 
 
-Key = namedtuple("Key", ["model", "pk"])
-
-
 def get_primary_keys(model, kwargs):
     """
     Returns the primary key from a dictionary to be used in a sqlalchemy query.get() call
@@ -34,7 +31,24 @@ def get_primary_keys(model, kwargs):
     if any(pk is None for pk in pks):
         return None
 
-    return Key(model, tuple(pks))
+    if len(pks) < 2:
+        return next(iter(pks), None)
+
+    return tuple(pks)
+
+
+def get_identity_key(model, kwargs):
+    """
+    Returns the identity key from a dictionary
+    """
+    pk = get_primary_keys(model, kwargs)
+    if pk is not None:
+        if not isinstance(pk, tuple):
+            pk = (pk,)
+
+        pk = (model, pk)
+
+    return pk
 
 
 def get_primary_keys_from_instance(instance):
@@ -183,7 +197,7 @@ def serialize(instance, *rels):
     return data
 
 
-def deserialize(model, data, identity_map=None):
+def deserialize(model, data):
     """
     Return a model instance from data
     ------------------------------
@@ -192,18 +206,47 @@ def deserialize(model, data, identity_map=None):
     data: dict
         values
     """
+    identity_map = {}
+    instance = _deserialize(model, data, identity_map)
+
+    for key, val in identity_map.items():
+        model, pks = key
+        info = model_info(model)
+        values = vars(val)
+        for prop, rel in info.relationships.items():
+            if rel.direction == MANYTOONE or not rel.uselist:
+                deserialized_instance = getattr(val, prop)
+                if deserialized_instance is not None:
+                    continue
+
+                fks = {}
+                for local, remote in rel.relationship.local_remote_pairs:
+                    local_attr = rel.relationship.parent.get_property_by_column(local)
+                    remote_attr = rel.relationship.mapper.get_property_by_column(remote)
+                    fks[remote_attr.key] = values[local_attr.key]
+
+                ident_key = get_identity_key(rel.related_model, fks)
+                if ident_key is not None and ident_key in identity_map:
+                    setattr(val, prop, identity_map[ident_key])
+
+    return instance
+
+
+def _deserialize(model, data, identity_map):
     if data is None:
         return None
 
+    if isinstance(data, (list, set)):
+        return [_deserialize(model, i, identity_map) for i in data]
+
     info = model_info(model)
-    identity_map = identity_map or {}
 
     kwargs = {}
     for prop in info.primary_keys:
         if prop in data:
             kwargs[prop] = data.get(prop)
 
-    pk = get_primary_keys(model, kwargs)
+    pk = get_identity_key(model, kwargs)
     if pk is not None and pk in identity_map:
         return identity_map[pk]
 
@@ -221,11 +264,9 @@ def deserialize(model, data, identity_map=None):
     for prop, rel in info.relationships.items():
         if prop in data:
             if rel.direction == MANYTOONE or not rel.uselist:
-                kwargs[prop] = deserialize(rel.related_model, data.get(prop), identity_map=identity_map)
+                kwargs[prop] = _deserialize(rel.related_model, data.get(prop), identity_map)
             else:
-                kwargs[prop] = [
-                    deserialize(rel.related_model, r, identity_map=identity_map) for r in data.get(prop, [])
-                ]
+                kwargs[prop] = [_deserialize(rel.related_model, r, identity_map) for r in data.get(prop, [])]
 
     instance = model(**kwargs)
 

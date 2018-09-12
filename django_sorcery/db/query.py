@@ -27,7 +27,7 @@ class Query(sa.orm.Query):
             pk = get_primary_keys(mapper, kwargs)
 
             if pk is not None:
-                return super(Query, self).get(pk.pk)
+                return super(Query, self).get(pk)
 
             return None
 

@@ -50,7 +50,7 @@ class TestModels(TestCase):
 
     def test_primary_keys_composite(self):
         pks = models.get_primary_keys(CompositePkModel, {"id": 4321, "pk": 1234})
-        self.assertEqual(pks, models.Key(CompositePkModel, (4321, 1234)))
+        self.assertEqual(pks, (4321, 1234))
 
     def test_primary_keys_composite_missing(self):
         pks = models.get_primary_keys(CompositePkModel, {"pk": 1234})
@@ -246,26 +246,36 @@ class TestModels(TestCase):
         self.assertIsNone(models.deserialize(Vehicle, None))
 
     def test_deserialize_with_map(self):
-        data = {
-            "_owner_id": None,
-            "created_at": None,
-            "id": 1,
-            "is_used": True,
-            "paint": "red",
-            "type": VehicleType.car,
-            "name": "vehicle",
-            "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
-            "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
-            "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
-        }
-        identity_map = {(Option, (3,)): Option(id=3, name="option 1"), (Option, (4,)): Option(id=4, name="option 2")}
+        data = [
+            {
+                "_owner_id": 2,
+                "created_at": None,
+                "id": 1,
+                "is_used": True,
+                "paint": "red",
+                "type": VehicleType.car,
+                "name": "vehicle",
+                "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
+                "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
+                "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
+            },
+            {
+                "_owner_id": 2,
+                "created_at": None,
+                "id": 7,
+                "is_used": True,
+                "paint": "red",
+                "type": VehicleType.car,
+                "name": "vehicle",
+                # missing owner to test back population of many to ones
+                "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
+                "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
+            },
+        ]
 
-        vehicle = models.deserialize(Vehicle, data, identity_map=identity_map)
+        vehicle1, vehicle2 = models.deserialize(Vehicle, data)
 
-        self.assertListEqual(
-            sorted([id(option) for option in vehicle.options]),
-            sorted([id(i) for i in identity_map.values() if isinstance(i, Option)]),
-        )
+        self.assertEqual(vehicle1.owner, vehicle2.owner)
 
     def test_deserialize_composites(self):
 

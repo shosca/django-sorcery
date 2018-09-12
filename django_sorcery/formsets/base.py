@@ -41,11 +41,15 @@ class BaseModelFormSet(BaseFormSet):
         return super(BaseModelFormSet, self).initial_form_count()
 
     def _existing_object(self, pk):
+        info = model_info(self.model)
+
+        if not isinstance(pk, tuple):
+            pk = (pk,)
+
         if not hasattr(self, "_object_dict"):
-            info = model_info(self.model)
             self._object_dict = {info.mapper.primary_key_from_instance(o): o for o in self.get_queryset()}
 
-        return self._object_dict.get(pk.pk) if pk else None
+        return self._object_dict.get(pk)
 
     def _construct_form(self, i, **kwargs):
         pk_required = i < self.initial_form_count()
