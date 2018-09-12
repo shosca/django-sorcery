@@ -123,12 +123,28 @@ class relation_info(object):
         return self.relationship.key
 
     @property
+    def parent_mapper(self):
+        return self.relationship.parent
+
+    @property
     def parent_model(self):
         return self.relationship.parent.class_
 
     @property
+    def parent_table(self):
+        return self.relationship.parent.tables[0]
+
+    @property
+    def related_mapper(self):
+        return self.relationship.mapper
+
+    @property
     def related_model(self):
         return self.relationship.mapper.class_
+
+    @property
+    def related_table(self):
+        return self.relationship.mapper.tables[0]
 
     @property
     def direction(self):
@@ -136,9 +152,47 @@ class relation_info(object):
 
     @property
     def foreign_keys(self):
-        return list(
-            set(chain(self.relationship._calculated_foreign_keys, self.relationship._user_defined_foreign_keys))
-        )
+        return [i[0] for i in self.local_remote_pairs]
+
+    @property
+    def local_remote_pairs(self):
+        return self.relationship.local_remote_pairs
+
+    @property
+    def local_remote_pairs_for_identity_key(self):
+        target_pk = list(self.relationship.target.primary_key.columns)
+        pairs = {v: k for k, v in self.local_remote_pairs}
+
+        try:
+            # ensure local_remote pairs are of same order as remote pk
+            return [(pairs[i], i) for i in target_pk]
+
+        except KeyError:
+            # if relation is missing one of related pk columns
+            # but actual constraint has it defined
+            # attempt to deduce what is the missing pk column
+            # by inspecting FK constraint on table object itself
+            # this only happens for pretty bad table structure
+            # where some columns need to be omitted from relation
+            # since same column is used in multiple relations
+            # for people reading this comment lesson should be
+            # DO NOT USE COMPOSITE PKs
+            parent_columns = set(pairs.values())
+            target_columns = set(target_pk)
+            matching_constraints = [
+                i
+                for i in [c for c in self.parent_table.constraints if isinstance(c, sa.ForeignKeyConstraint)]
+                if parent_columns & set(j.parent for j in i.elements) == parent_columns
+                and target_columns & set(j.column for j in i.elements) == target_columns
+            ]
+
+            if len(matching_constraints) == 1:
+                pairs = {i.column: i.parent for i in matching_constraints[0].elements}
+                return [(pairs[i], i) for i in target_pk]
+
+            else:
+                # if everything fails, return default pairs
+                return self.local_remote_pairs
 
     @property
     def uselist(self):
