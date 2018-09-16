@@ -28,7 +28,7 @@ class CompositeField(CompositeProperty):
             c.key = "_" + c.name
 
             # if column type has name to add constraints we need to account for that
-            if hasattr(c.type, "name"):
+            if hasattr(c.type, "name") and c.type.name:
                 c.type.name = self.prefix + "_" + c.type.name
 
         super(CompositeField, self).__init__(class_, *list(columns.values()), **kwargs)
@@ -39,7 +39,7 @@ class CompositeField(CompositeProperty):
                 c.name = self.key + c.name.replace(self.random_prefix, "")
                 c.key = "_" + self.key + c.key.replace(self.random_prefix, "")[1:]
 
-                if hasattr(c.type, "name"):
+                if hasattr(c.type, "name") and c.type.name:
                     c.type.name = c.type.name.replace(self.random_prefix, "")[1:]
 
         return super(CompositeField, self).instrument_class(mapper)

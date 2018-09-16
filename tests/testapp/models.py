@@ -36,9 +36,9 @@ def street_validator(value):
 
 
 class Address(db.BaseComposite):
-    street = db.Column(db.String(300), info={"validators": [street_validator]})
-    state = db.Column(db.Enum(States))
-    zip = db.Column(db.String(15), info={"validators": [RegexValidator(r"^\d+$")]})
+    street = db.CharField(length=300, validators=[street_validator])
+    state = db.EnumField(choices=States, constraint_name="states")
+    zip = db.CharField(length=15, validators=[RegexValidator(r"^\d+$")])
 
     validators = [ValidateTogetherModelFields(["street", "state", "zip"])]
 
@@ -53,8 +53,8 @@ class Address(db.BaseComposite):
 
 class Business(db.Model):
 
-    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
+    id = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
 
     location = db.CompositeField(Address)
     other_location = db.CompositeField(Address, prefix="foo")
@@ -67,18 +67,18 @@ class Business(db.Model):
 class Owner(db.Model):
     query_class = OwnerQuery
 
-    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    first_name = db.Column(db.String())
-    last_name = db.Column(db.String())
+    id = db.IntegerField(autoincrement=True, primary_key=True)
+    first_name = db.CharField()
+    last_name = db.CharField()
 
 
 class Vehicle(db.Model):
-    id = db.Column(db.Integer(), autoincrement=True, primary_key=True, doc="The primary key")
-    name = db.Column(db.String(), doc="The name of the vehicle")
-    type = db.Column(db.Enum(VehicleType, name="ck_vehicle_type"), nullable=False)
-    created_at = db.Column(db.DateTime())
-    paint = db.Column(db.Enum(*COLORS, name="ck_colors"))
-    is_used = db.Column(db.Boolean)
+    id = db.IntegerField(autoincrement=True, primary_key=True, doc="The primary key")
+    name = db.CharField(doc="The name of the vehicle")
+    type = db.EnumField(choices=VehicleType, constraint_name="ck_vehicle_type", nullable=False)
+    created_at = db.DateTimeField()
+    paint = db.EnumField(choices=COLORS, constraint_name="ck_colors")
+    is_used = db.BooleanField()
 
     owner = db.ManyToOne(Owner, backref="vehicles")
 
@@ -99,15 +99,15 @@ class Vehicle(db.Model):
 
 
 class Part(db.Model):
-    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
+    id = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
 
     vehicles = db.ManyToMany(Vehicle, backref="parts", table_name="vehicle_parts")
 
 
 class Option(db.Model):
-    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
+    id = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
 
     vehicles = db.ManyToMany(Vehicle, backref=db.backref("options"), table_name="vehicle_options")
 
@@ -115,11 +115,11 @@ class Option(db.Model):
 class CompositePkModel(db.Model):
     query_class = None
 
-    id = db.Column(db.Integer(), primary_key=True)
-    pk = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String())
+    id = db.IntegerField(primary_key=True)
+    pk = db.IntegerField(primary_key=True)
+    name = db.CharField()
 
-    is_active = db.Column(db.Boolean())
+    is_active = db.BooleanField()
 
     active = db.queryproperty(is_active=True)
 
@@ -198,25 +198,25 @@ class Point(object):
 
 class Vertex(db.Model):
 
-    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
 
-    x1 = db.Column(db.Integer())
-    y1 = db.Column(db.Integer())
-    x2 = db.Column(db.Integer())
-    y2 = db.Column(db.Integer())
+    x1 = db.IntegerField()
+    y1 = db.IntegerField()
+    x2 = db.IntegerField()
+    y2 = db.IntegerField()
 
     start = db.composite(Point, x1, y1)
     end = db.composite(Point, x2, y2)
 
 
 class ModelTwo(db.Model):
-    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
 
 
 class ModelOne(db.Model):
-    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
 
     _model_twos = db.OneToMany(ModelTwo, backref="_model_one")
 
@@ -236,25 +236,25 @@ class ModelThree(db.Model):
 
 
 class ModelFour(db.Model):
-    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
 
     _model_twos = db.OneToMany(ModelTwo, backref=db.backref("_model_four"))
 
 
 class ModelFullCleanFail(db.Model):
-    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
 
     def clean(self):
         raise ValidationError("bad model")
 
 
 class ValidateUniqueModel(db.Model):
-    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
-    name = db.Column(db.String())
-    foo = db.Column(db.String())
-    bar = db.Column(db.String())
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
+    foo = db.CharField()
+    bar = db.CharField()
 
     validators = [ValidateUnique(db, "name"), ValidateUnique(db, "foo", "bar")]
 

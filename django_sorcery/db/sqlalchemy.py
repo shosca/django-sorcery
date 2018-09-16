@@ -12,6 +12,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from django.db import DEFAULT_DB_ALIAS
 
 from ..utils import make_args
+from . import fields
 from .composites import BaseComposite, CompositeField
 from .models import Base, BaseMeta
 from .query import Query, QueryProperty
@@ -76,7 +77,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         self.metadata = self.metadata_class(**self.kwargs.get("metadata_kwargs", {}))
         self.Model = self._make_declarative(self.model_class)
 
-        for module in sa, sa.sql, sa.orm:
+        for module in sa, sa.sql, sa.orm, fields:
             for key in module.__all__:
                 if not hasattr(self, key):
                     setattr(self, key, getattr(module, key))
