@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django_sorcery.db import signals
+from ...db import signals
 
 
 def include_object(obj, name, type_, reflected, compare_to):

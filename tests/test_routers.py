@@ -6,10 +6,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django_sorcery import viewsets
 from django_sorcery.routers import BaseRouter, Route, SimpleRouter, action
 
-from tests.testapp.models import Owner
-from tests.testapp.views import OwnerViewSet
-
 from .base import TestCase
+from .testapp.models import Owner
+from .testapp.views import OwnerViewSet
 
 
 class TestBaseRouter(TestCase):

@@ -6,9 +6,8 @@ from django.core.exceptions import ValidationError
 from django_sorcery import fields
 from django_sorcery.forms import modelform_factory
 
-from tests.testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
-
 from .base import TestCase
+from .testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 
 class TestEnumField(TestCase):
@@ -153,7 +152,7 @@ class TestModelChoiceField(TestCase):
         field = form.fields["owner"]
         bf = field.get_bound_field(form, "owner")
         self.assertHTMLEqual(
-            str(bf), '<select name="owner" required id="id_owner"><option value="" selected>---------</option></select>'
+            str(bf), '<select name="owner" id="id_owner"><option value="" selected>---------</option></select>'
         )
 
 

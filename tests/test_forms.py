@@ -5,9 +5,8 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 
 from django_sorcery.forms import ALL_FIELDS, ModelForm, modelform_factory
 
-from tests.testapp.models import ClassicModel, ModelFullCleanFail, Option, Owner, Vehicle, VehicleType, db
-
 from .base import TestCase
+from .testapp.models import ClassicModel, ModelFullCleanFail, Option, Owner, Vehicle, VehicleType, db
 
 
 class TestModelForm(TestCase):
@@ -37,7 +36,7 @@ class TestModelForm(TestCase):
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
         form = form_class(instance=vehicle, data={"name": "testing"})
         self.assertFalse(form.is_valid())
-        self.assertEqual({"type": ["This field is required."], "owner": ["This field is required."]}, form.errors)
+        self.assertEqual({"type": ["This field is required."]}, form.errors)
 
     def test_modelform_factory_instance_save(self):
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
@@ -61,11 +60,11 @@ class TestModelForm(TestCase):
         form = form_class(data={})
 
         self.assertTrue(form.is_bound)
-        self.assertEqual(form.errors, {"owner": ["This field is required."], "type": ["This field is required."]})
+        self.assertEqual(form.errors, {"type": ["This field is required."]})
         self.assertEqual(form.initial, {"paint": None, "created_at": None, "type": None, "name": None, "is_used": None})
         self.assertEqual(
             form.cleaned_data,
-            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None},
+            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None, "owner": None},
         )
 
         form.order_fields(sorted(form.fields.keys()))
@@ -100,14 +99,9 @@ class TestModelForm(TestCase):
                     "    <option value=\"4\">Option(id=4, name='Option 4')</option>",
                     "  </select>",
                     "</p>",
-                    '<ul class="errorlist">',
-                    "  <li>",
-                    "    This field is required.",
-                    "  </li>",
-                    "</ul>",
                     "<p>",
                     '  <label for="id_owner">Owner:</label>',
-                    '  <select id="id_owner" name="owner" required>',
+                    '  <select id="id_owner" name="owner">',
                     "    <option selected value>---------</option>",
                     '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
                     "  </select>",
@@ -151,7 +145,7 @@ class TestModelForm(TestCase):
         form = form_class(instance=vehicle, data={})
 
         self.assertTrue(form.is_bound)
-        self.assertEqual(form.errors, {"owner": ["This field is required."], "type": ["This field is required."]})
+        self.assertEqual(form.errors, {"type": ["This field is required."]})
         self.assertEqual(
             form.initial,
             {
@@ -165,7 +159,7 @@ class TestModelForm(TestCase):
         )
         self.assertEqual(
             form.cleaned_data,
-            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None},
+            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None, "owner": None},
         )
 
         form.order_fields(sorted(form.fields.keys()))
@@ -200,14 +194,9 @@ class TestModelForm(TestCase):
                     "    <option value=\"4\">Option(id=4, name='Option 4')</option>",
                     "  </select>",
                     "</p>",
-                    '<ul class="errorlist">',
-                    "  <li>",
-                    "    This field is required.",
-                    "  </li>",
-                    "</ul>",
                     "<p>",
                     '  <label for="id_owner">Owner:</label>',
-                    '  <select id="id_owner" name="owner" required>',
+                    '  <select id="id_owner" name="owner">',
                     "    <option selected value>---------</option>",
                     '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
                     "  </select>",

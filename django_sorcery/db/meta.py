@@ -152,7 +152,9 @@ class relation_info(object):
 
     @property
     def foreign_keys(self):
-        return [i[0] for i in self.local_remote_pairs]
+        return list(
+            set(chain(self.relationship._calculated_foreign_keys, self.relationship._user_defined_foreign_keys))
+        )
 
     @property
     def local_remote_pairs(self):

@@ -5,9 +5,9 @@ import sqlalchemy as sa
 
 from django_sorcery.db import meta  # noqa
 
-from tests.testapp.models import COLORS, AllKindsOfFields, Owner, Point, Vehicle, VehicleType, Vertex
-
 from ..base import TestCase
+from ..models_terrible_relations import Foo
+from ..testapp.models import COLORS, AllKindsOfFields, Owner, Point, Vehicle, VehicleType, Vertex
 
 
 class TestModelMeta(TestCase):
@@ -48,20 +48,69 @@ class TestCompositeMeta(TestCase):
 
 class TestRelationshipMeta(TestCase):
     def test_relationship_meta(self):
+        info = meta.model_info(Vehicle)
+
+        rel = info.relationships["owner"]
+
+        self.assertEqual(rel.related_model, Owner)
+        self.assertEqual(rel.related_table, Owner.__table__)
+        self.assertEqual(rel.name, "owner")
+        self.assertEqual(rel.direction, sa.orm.relationships.MANYTOONE)
+        self.assertEqual(rel.foreign_keys, [Vehicle._owner_id.property.columns[0]])
+        self.assertEqual(
+            rel.local_remote_pairs, [(Vehicle._owner_id.property.columns[0], Owner.id.property.columns[0])]
+        )
+        self.assertEqual(
+            rel.local_remote_pairs_for_identity_key,
+            [(Vehicle._owner_id.property.columns[0], Owner.id.property.columns[0])],
+        )
+        self.assertFalse(rel.uselist)
+        self.assertEqual(repr(rel), "<relation_info(Vehicle.owner)>")
+
+    def test_relationship_meta_backref(self):
         info = meta.model_info(Owner)
 
         rel = info.relationships["vehicles"]
 
         self.assertEqual(rel.related_model, Vehicle)
+        self.assertEqual(rel.related_table, Vehicle.__table__)
         self.assertEqual(rel.name, "vehicles")
         self.assertEqual(rel.direction, sa.orm.relationships.ONETOMANY)
-        self.assertEqual(list(rel.foreign_keys), Vehicle._owner_id.property.columns)
+        self.assertEqual(rel.foreign_keys, [Vehicle._owner_id.property.columns[0]])
+        self.assertEqual(
+            rel.local_remote_pairs, [(Owner.id.property.columns[0], Vehicle._owner_id.property.columns[0])]
+        )
+        self.assertEqual(
+            rel.local_remote_pairs_for_identity_key,
+            [(Owner.id.property.columns[0], Vehicle._owner_id.property.columns[0])],
+        )
         self.assertTrue(rel.uselist)
         self.assertEqual(repr(rel), "<relation_info(Owner.vehicles)>")
 
+    def test_terrible_relationship_meta(self):
+        info = meta.model_info(Foo)
+
+        rel = info.relationships["partial_parent"]
+
+        self.assertEqual(rel.related_model, Foo)
+        self.assertEqual(rel.related_table, Foo.__table__)
+        self.assertEqual(rel.name, "partial_parent")
+        self.assertEqual(rel.direction, sa.orm.relationships.MANYTOONE)
+        self.assertEqual(rel.foreign_keys, [Foo.parent_id2.property.columns[0]])
+        self.assertEqual(rel.local_remote_pairs, [(Foo.parent_id2.property.columns[0], Foo.id2.property.columns[0])])
+        self.assertEqual(
+            rel.local_remote_pairs_for_identity_key,
+            [
+                (Foo.id1.property.columns[0], Foo.id1.property.columns[0]),
+                (Foo.parent_id2.property.columns[0], Foo.id2.property.columns[0]),
+            ],
+        )
+        self.assertFalse(rel.uselist)
+        self.assertEqual(repr(rel), "<relation_info(Foo.partial_parent)>")
+
 
 class TestColumnMeta(TestCase):
-    def test_columnInfo(self):
+    def test_column_info(self):
         info = meta.model_info(Vehicle)
 
         col = info.primary_keys["id"]

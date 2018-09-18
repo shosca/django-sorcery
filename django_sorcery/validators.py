@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from django_sorcery.db.meta import model_info
+from .db.meta import model_info
 
 
 class ValidateTogetherModelFields(object):

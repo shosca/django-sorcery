@@ -5,9 +5,8 @@ from django_sorcery.db.meta import model_info
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import inlineformset_factory
 
-from tests.testapp.models import Owner, Vehicle, VehicleType, db
-
 from ..base import TestCase
+from ..testapp.models import Owner, Vehicle, VehicleType, db
 
 
 class TestInlineFormSet(TestCase):

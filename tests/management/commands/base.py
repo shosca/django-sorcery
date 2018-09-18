@@ -2,7 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import os
 
-from tests import testapp
+from ... import testapp
 
 
 MIGRATION_DIR = os.path.abspath(os.path.join(os.path.dirname(testapp.__file__), "migrations"))

@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from django_sorcery.views.base import SQLAlchemyMixin
 
-from tests.testapp.models import ClassicModel, Owner, db
+from ..testapp.models import ClassicModel, Owner, db
 
 
 class TestBaseView(TestCase):

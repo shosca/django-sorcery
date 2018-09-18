@@ -5,9 +5,8 @@ from django.http import Http404
 
 from django_sorcery import shortcuts
 
-from tests.testapp.models import Owner, db
-
 from .base import TestCase
+from .testapp.models import Owner, db
 
 
 class TestShortcuts(TestCase):

@@ -178,9 +178,9 @@ def _add_foreign_keys(cls, parent_cls, relation):
     Generate fk columns and constraint to the remote class from a relationship
     """
     fk_kwargs = {key[3:]: val for key, val in relation.info.items() if key.startswith("fk_")}
-    fk_prefix = fk_kwargs.pop("fk_prefix", "_")
-    fk_nullable = fk_kwargs.pop("fk_nullable", True)
-    fk_key = fk_kwargs.pop("fk_key", None)
+    fk_prefix = fk_kwargs.pop("prefix", "_")
+    fk_nullable = fk_kwargs.pop("nullable", True)
+    fk_key = fk_kwargs.pop("key", None)
 
     if not fk_key:
         if relation.direction == sa.orm.interfaces.MANYTOONE:
