@@ -6,7 +6,7 @@ from django.test import RequestFactory, TestCase, override_settings
 
 from django_sorcery.db.profiler import SQLAlchemyProfilingMiddleware
 
-from tests.testapp.models import Owner, db
+from ..testapp.models import Owner, db
 
 
 def get_response(request):

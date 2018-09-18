@@ -6,7 +6,7 @@ from collections import namedtuple
 from django.conf.urls import url
 from django.core.exceptions import ImproperlyConfigured
 
-from django_sorcery.db.meta import model_info
+from .db.meta import model_info
 
 
 Route = namedtuple("Route", ["url", "mapping", "name", "detail", "initkwargs"])

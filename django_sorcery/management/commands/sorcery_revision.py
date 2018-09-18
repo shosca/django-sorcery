@@ -4,8 +4,7 @@ from functools import partial
 
 import alembic
 
-from django_sorcery.db import signals
-
+from ...db import signals
 from ..alembic import AlembicCommand
 
 

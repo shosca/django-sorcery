@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django_sorcery.db import SQLAlchemy
 
 
-db = db = SQLAlchemy("minimal_backpop")
+db = SQLAlchemy("minimal_backpop")
 
 
 class Asset(db.Model):

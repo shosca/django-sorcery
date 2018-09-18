@@ -65,6 +65,14 @@ SQLALCHEMY_CONNECTIONS = {
         "HOST": "localhost",
         "PORT": "",
     },
+    "terrible": {
+        "DIALECT": "postgresql",
+        "NAME": "minimal_backpop",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
+    },
 }
 
 INSTALLED_APPS = [

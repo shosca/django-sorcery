@@ -7,9 +7,8 @@ from django.utils.html import escape
 
 from django_sorcery.views.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 
-from tests.testapp.models import Owner, db
-
 from ..base import TestCase
+from ..testapp.models import Owner, db
 
 
 class TestDetailView(TestCase):

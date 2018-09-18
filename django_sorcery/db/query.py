@@ -6,6 +6,8 @@ from functools import partial
 import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
 
+from .models import get_primary_keys
+
 
 Operation = namedtuple("Operation", ["name", "args", "kwargs"])
 
@@ -21,16 +23,13 @@ class Query(sa.orm.Query):
         kwargs for composite keys. If no instance is found, returns ``None``.
         """
         if kwargs:
-            pks = []
             mapper = self._only_full_mapper_zero("get")
-            for col in mapper.primary_key:
-                attr = mapper.get_property_by_column(col)
-                pks.append(kwargs.get(attr.key))
+            pk = get_primary_keys(mapper, kwargs)
 
-            if len(pks) == 1:
-                return super(Query, self).get(pks[0])
+            if pk is not None:
+                return super(Query, self).get(pk)
 
-            return super(Query, self).get(tuple(pks))
+            return None
 
         return super(Query, self).get(*args, **kwargs)
 

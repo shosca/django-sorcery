@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from itertools import chain
 
 import six
@@ -8,13 +8,16 @@ import six
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
-from sqlalchemy.orm.base import NO_VALUE
+from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
 from django.utils.text import camel_case_to_spaces
 
 from . import signals
 from .meta import model_info
 from .mixins import CleanMixin
+
+
+Identity = namedtuple("Key", ["model", "pk"])
 
 
 def get_primary_keys(model, kwargs):
@@ -28,13 +31,24 @@ def get_primary_keys(model, kwargs):
         pk = kwargs.get(attr)
         pks.append(pk)
 
-    if len(pks) < 2:
-        return next(iter(pks), None)
-
     if any(pk is None for pk in pks):
         return None
 
+    if len(pks) < 2:
+        return next(iter(pks), None)
+
     return tuple(pks)
+
+
+def get_identity_key(model, kwargs):
+    """
+    Returns identity key from a dictionary for the given model
+    """
+    pks = get_primary_keys(model, kwargs)
+    if pks is None:
+        return
+
+    return Identity(model, pks if isinstance(pks, tuple) else (pks,))
 
 
 def get_primary_keys_from_instance(instance):
@@ -167,8 +181,8 @@ def serialize(instance, *rels):
     data = {c.key: getattr(instance, c.key) for c in state.mapper.column_attrs}
 
     for composite in state.mapper.composites:
-        attr = getattr(state.mapper.class_, composite.key)
-        data[composite.key] = vars(getattr(instance, composite.key))
+        comp = getattr(instance, composite.key)
+        data[composite.key] = vars(comp) if comp else None
         # since we're copying, remove props from the composite
         for prop in composite.props:
             data.pop(prop.key, None)
@@ -181,6 +195,80 @@ def serialize(instance, *rels):
             data[relation.key] = serialize(sub_instance, *sub_rels)
 
     return data
+
+
+def deserialize(model, data):
+    """
+    Return a model instance from data
+    ------------------------------
+    model:
+        a model class
+    data: dict
+        values
+    """
+    identity_map = {}
+    instance = _deserialize(model, data, identity_map)
+
+    for val in identity_map.values():
+        info = model_info(val.__class__)
+        for prop, rel in info.relationships.items():
+            if rel.direction == MANYTOONE or not rel.uselist:
+                deserialized_instance = getattr(val, prop)
+                if deserialized_instance is not None:
+                    continue
+
+                fks = {}
+                for local, remote in rel.local_remote_pairs_for_identity_key:
+                    local_attr = rel.parent_mapper.get_property_by_column(local)
+                    remote_attr = rel.related_mapper.get_property_by_column(remote)
+                    fks[remote_attr.key] = getattr(val, local_attr.key)
+
+                ident_key = get_identity_key(rel.related_model, fks)
+                if ident_key is not None and ident_key in identity_map:
+                    setattr(val, prop, identity_map[ident_key])
+
+    return instance
+
+
+def _deserialize(model, data, identity_map):
+    if data is None:
+        return None
+
+    if isinstance(data, (list, tuple, set)):
+        return [_deserialize(model, i, identity_map) for i in data]
+
+    info = model_info(model)
+
+    kwargs = {}
+    for prop in info.primary_keys:
+        if prop in data:
+            kwargs[prop] = data.get(prop)
+
+    pk = get_identity_key(model, kwargs)
+    if pk is not None and pk in identity_map:
+        return identity_map[pk]
+
+    for prop in info.properties:
+        if prop in data:
+            kwargs[prop] = data.get(prop)
+
+    for prop, composite in info.composites.items():
+        if prop in data:
+            composite_data = data.get(prop)
+            composite_class = composite.related_model
+            composite_args = [composite_data.get(i) for i in composite.properties]
+            kwargs[prop] = composite_class(*composite_args)
+
+    for prop, rel in info.relationships.items():
+        if prop in data:
+            kwargs[prop] = _deserialize(rel.related_model, data.get(prop), identity_map)
+
+    instance = model(**kwargs)
+
+    if pk is not None:
+        identity_map[pk] = instance
+
+    return instance
 
 
 def clone(instance, *rels, **kwargs):

@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django_sorcery.db import signals
+from ...db import signals
 
 
 @signals.alembic_config_created.connect

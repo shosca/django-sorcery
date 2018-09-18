@@ -3,24 +3,19 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django_sorcery.db.query import QueryProperty
 
-from tests.testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
-
 from ..base import TestCase
+from ..testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
 
 
 class TestQuery(TestCase):
     def setUp(self):
         super(TestQuery, self).setUp()
-        db.add_all(
-            [
-                Owner(id=1, first_name="Test 1", last_name="Owner 1"),
-                Owner(id=2, first_name="Test 2", last_name="Owner 2"),
-                Owner(id=3, first_name="Test 3", last_name="Owner 3"),
-                Owner(id=4, first_name="Test 4", last_name="Owner 4"),
-            ]
-        )
+        owner = Owner(first_name="Test 1", last_name="Owner 1")
+        db.add(owner)
         db.add(CompositePkModel(id=1, pk=1, active=True, name="Test-1-1"))
         db.flush()
+        self.owner_id = owner.id
+        db.expire_all()
 
     def tearDown(self):
         super(TestQuery, self).tearDown()
@@ -28,12 +23,12 @@ class TestQuery(TestCase):
         db.remove()
 
     def test_query_get_regular(self):
-        owner = Owner.query.get(1)
-        self.assertEqual(owner.id, 1)
+        owner = Owner.query.get(self.owner_id)
+        self.assertEqual(owner.id, self.owner_id)
 
     def test_query_get_with_kwargs(self):
-        owner = Owner.query.get(id=1)
-        self.assertEqual(owner.id, 1)
+        owner = Owner.query.get(id=self.owner_id)
+        self.assertEqual(owner.id, self.owner_id)
 
     def test_query_get_with_kwargs_composite(self):
         obj = CompositePkModel.query.get(id=1, pk=1)
@@ -42,6 +37,9 @@ class TestQuery(TestCase):
     def test_query_get_with_kwargs_tuple(self):
         obj = CompositePkModel.query.get((1, 1))
         self.assertEqual(obj.name, "Test-1-1")
+
+    def test_query_kwarg_none(self):
+        self.assertIsNone(CompositePkModel.query.get(id=1))
 
 
 class TestQueryProperty(TestCase):

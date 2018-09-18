@@ -6,9 +6,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import modelformset_factory
 
-from tests.testapp.models import Owner, db
-
 from ..base import TestCase
+from ..testapp.models import Owner, db
 
 
 class TestModelFormSet(TestCase):

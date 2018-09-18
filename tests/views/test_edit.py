@@ -7,10 +7,9 @@ from django.urls import reverse
 from django_sorcery import forms
 from django_sorcery.views import edit
 
-from tests.testapp.models import Owner, db
-from tests.testapp.views import OwnerCreateViewWithForm
-
 from ..base import TestCase
+from ..testapp.models import Owner, db
+from ..testapp.views import OwnerCreateViewWithForm
 
 
 class TestCreateView(TestCase):
@@ -69,7 +68,7 @@ class TestCreateView(TestCase):
 
         form = response.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {"type": ["This field is required."], "owner": ["This field is required."]})
+        self.assertEqual(form.errors, {"type": ["This field is required."]})
         self.assertHTMLEqual(response.content.decode(), form.as_p())
 
 

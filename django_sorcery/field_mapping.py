@@ -160,7 +160,7 @@ class ModelFieldMapper(object):
         """
         Build field for a sqlalchemy many-to-one relationship field.
         """
-        kwargs["required"] = all([col.nullable for col in relation.foreign_keys])
+        kwargs["required"] = not all([col.nullable for col in relation.foreign_keys])
         return ModelChoiceField(relation.related_model, self.session, **kwargs)
 
     def build_modelmultiplechoice_field(self, relation, **kwargs):

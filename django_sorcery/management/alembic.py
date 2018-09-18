@@ -11,12 +11,11 @@ from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.functional import cached_property
 
-import django_sorcery.db.alembic
-from django_sorcery.db import databases, signals
-from django_sorcery.db.alembic import include_object, process_revision_directives
+from ..db import alembic as sorcery_alembic, databases, signals
+from ..db.alembic import include_object, process_revision_directives
 
 
-SORCERY_ALEMBIC_CONFIG_FOLDER = os.path.dirname(django_sorcery.db.alembic.__file__)
+SORCERY_ALEMBIC_CONFIG_FOLDER = os.path.dirname(sorcery_alembic.__file__)
 
 
 AlembicAppConfig = namedtuple("AlembicAppConfig", ["name", "config", "script", "db", "app", "version_path", "tables"])

@@ -6,9 +6,8 @@ from django.core.exceptions import ValidationError
 
 from django_sorcery.validators import ValidateTogetherModelFields
 
-from tests.testapp.models import ValidateUniqueModel, db
-
 from .base import TestCase
+from .testapp.models import ValidateUniqueModel, db
 
 
 Node = namedtuple("Node", ["left", "right", "value"])
