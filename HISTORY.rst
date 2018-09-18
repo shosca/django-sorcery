@@ -2,8 +2,28 @@ Changelog
 =========
 
 
-0.6.3 (2018-09-04)
+0.6.4 (2018-09-18)
 -----------------------------
+- Merge pull request #49 from shosca/deserialize. [Serkan Hosca]
+- Added tests for relation_info. [Miroslav Shubernetskiy]
+
+
+
+
+
+
+
+- Using local_remote_pairs_for_identity_key to backfill models relations
+  in deserialize. [Miroslav Shubernetskiy]
+- Try backpopulate by fk's on deserialize. [Serkan Hosca]
+- Deserialize model instance. [Serkan Hosca]
+- Merge pull request #50 from shosca/refactor-fieldmapper. [Serkan
+  Hosca]
+- Refactor field mapping. [Serkan Hosca]
+
+
+0.6.3 (2018-09-04)
+------------------
 - Merge pull request #48 from shosca/url. [Serkan Hosca]
 - Only popping custom engine parameters from url. [Miroslav
   Shubernetskiy]
