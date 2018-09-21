@@ -4,7 +4,16 @@ import os
 
 from django.test import TestCase, override_settings
 
-from django_sorcery.db.url import make_url
+from django_sorcery.db.url import (
+    boolean,
+    importable,
+    importable_list,
+    importable_list_tuples,
+    integer,
+    make_url,
+    string,
+    string_list,
+)
 
 
 @override_settings(
@@ -38,6 +47,31 @@ class TestMakeUrl(TestCase):
         super(TestMakeUrl, self).tearDown()
         os.environ.pop("FROM_ENV_URL", None)
         os.environ.pop("FROM_ENV_PRESERVE_URL", None)
+
+    def test_boolean(self):
+        self.assertTrue(boolean("True"))
+        self.assertTrue(boolean("1"))
+        self.assertFalse(boolean("False"))
+        self.assertFalse(boolean("0"))
+
+    def test_integer(self):
+        self.assertEqual(integer("5"), 5)
+
+    def test_string(self):
+        self.assertEqual(string(b"hello"), "hello")
+
+    def test_string_list(self):
+        self.assertEqual(string_list(b"hello"), ["hello"])
+
+    def test_importable(self):
+        self.assertIs(importable("django.test.TestCase"), TestCase)
+        self.assertIs(importable("os"), os)
+
+    def test_importable_list(self):
+        self.assertEqual(importable_list("django.test.TestCase"), [TestCase])
+
+    def test_importable_list_tuples(self):
+        self.assertEqual(importable_list_tuples("os:target"), [(os, "target")])
 
     def test_handles_url(self):
         url, options = make_url("postgresql://usr:hunter2@awesomedomain/db?engine_echo=True")
