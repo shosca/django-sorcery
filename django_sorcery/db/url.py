@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 import os
+from importlib import import_module
+
+import six
 
 import sqlalchemy as sa
 
 from django.conf import settings
+from django.utils.encoding import force_text
+from django.utils.module_loading import import_string
 
 
 DIALECT_MAP = {
@@ -15,7 +20,70 @@ DIALECT_MAP = {
     "sqlserver_ado": "mssql",
 }
 
-ENGINE_OPTIONS_NORMALIZATION = {"echo": lambda x: x in ["True", True]}
+
+def boolean(x):
+    return six.text_type(x) in ["True", "1"]
+
+
+def integer(x):
+    return int(x)
+
+
+def string(x):
+    return force_text(x)
+
+
+def string_list(x):
+    return force_text(x).split(",")
+
+
+def importable(x):
+    try:
+        return import_string(x)
+    except ImportError:
+        return import_module(x)
+
+
+def importable_list(x):
+    return [importable(i) for i in force_text(x).split(",")]
+
+
+def importable_list_tuples(x):
+    return [(importable(i), j) for i, j in [k.split(":") for k in force_text(x).split(",")]]
+
+
+ENGINE_OPTIONS_NORMALIZATION = {
+    "case_sensitive": boolean,
+    # connect_args - direct querystring params in url
+    "convert_unicode": boolean,
+    "creator": importable,
+    "echo": boolean,
+    "echo_pool": boolean,
+    "empty_in_strategy": string,
+    "encoding": string,
+    # execution_options - signal should be used instead
+    "implicit_returning": boolean,
+    "isolation_level": string,
+    "label_length": integer,
+    "listeners": importable_list,
+    "logging_name": string,
+    "max_overflow": integer,
+    "module": importable,
+    "paramstyle": string,
+    "plugins": string_list,
+    "pool": lambda x: importable(x)(),
+    "pool_events": importable_list_tuples,
+    "pool_logging_name": string,
+    "pool_pre_ping": boolean,
+    "pool_recycle": integer,
+    "pool_reset_on_return": string,
+    "pool_size": integer,
+    "pool_threadlocal": boolean,
+    "pool_timeout": integer,
+    "pool_use_lifo": boolean,
+    "poolclass": importable,
+    "strategy": string,
+}
 
 
 def get_settings(alias):
