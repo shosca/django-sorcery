@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.4 (2018-09-18)
+0.6.5 (2018-09-21)
 -----------------------------
+- Merge pull request #52 from shosca/engine_options. [Serkan Hosca]
+- Support for more engine options in url. [Miroslav Shubernetskiy]
+
+
+0.6.4 (2018-09-18)
+------------------
 - Merge pull request #49 from shosca/deserialize. [Serkan Hosca]
 - Added tests for relation_info. [Miroslav Shubernetskiy]
 
