@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.5 (2018-09-21)
+0.6.6 (2018-09-27)
 -----------------------------
+- Merge pull request #51 from shosca/fields. [Serkan Hosca]
+- Django-like fields. [Serkan Hosca]
+
+
+0.6.5 (2018-09-21)
+------------------
 - Merge pull request #52 from shosca/engine_options. [Serkan Hosca]
 - Support for more engine options in url. [Miroslav Shubernetskiy]
 
