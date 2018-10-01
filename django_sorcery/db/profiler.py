@@ -127,6 +127,8 @@ class SQLAlchemyProfiler(object):
 
 class SQLAlchemyProfilingMiddleware(object):
     logger = logger
+    log_results = settings.DEBUG
+    header_results = settings.DEBUG
 
     def __init__(self, get_response=None):
         self.get_response = get_response
@@ -148,13 +150,13 @@ class SQLAlchemyProfilingMiddleware(object):
     def process_response(self, request, response):
         try:
             stats = self.profiler.stats
-            if stats["duration"] or settings.DEBUG:
+            if stats["duration"] or self.log_results:
                 self.log("SQLAlchemy profiler", **{"sa_{}".format(k): v for k, v in stats.items()})
         except Exception:  # pragma: nocover
             # The show must go on...
             pass  # pragma: nocover
         else:
-            if settings.DEBUG:
+            if self.header_results:
                 for k, v in stats.items():
                     response["X-SA-{}".format("".join(i.title() for i in k.split("_")))] = v
         self.profiler.clear()
