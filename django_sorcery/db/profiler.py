@@ -127,12 +127,18 @@ class SQLAlchemyProfiler(object):
 
 class SQLAlchemyProfilingMiddleware(object):
     logger = logger
-    log_results = settings.DEBUG
-    header_results = settings.DEBUG
 
     def __init__(self, get_response=None):
         self.get_response = get_response
         self.profiler = SQLAlchemyProfiler()
+
+    @property
+    def log_results(self):
+        return settings.DEBUG
+
+    @property
+    def header_results(self):
+        return settings.DEBUG
 
     def start(self):
         self.profiler.start()
