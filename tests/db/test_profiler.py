@@ -33,3 +33,15 @@ class TestSQLAlchemyProfilingMiddleware(TestCase):
         response = m(RequestFactory().get("/"))
 
         self.assertNotIn("X-SA-Insert", response)
+
+    def test_log_results(self):
+        with override_settings(DEBUG=True):
+            self.assertTrue(SQLAlchemyProfilingMiddleware(get_response).log_results)
+        with override_settings(DEBUG=False):
+            self.assertFalse(SQLAlchemyProfilingMiddleware(get_response).log_results)
+
+    def test_header_results(self):
+        with override_settings(DEBUG=True):
+            self.assertTrue(SQLAlchemyProfilingMiddleware(get_response).log_results)
+        with override_settings(DEBUG=False):
+            self.assertFalse(SQLAlchemyProfilingMiddleware(get_response).log_results)
