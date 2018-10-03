@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.6 (2018-09-27)
+0.6.7 (2018-10-03)
 -----------------------------
+- Allowing to customize whether to log or add headers in profiler (#53)
+  [Miroslav Shubernetskiy]
+
+
+0.6.6 (2018-09-27)
+------------------
 - Merge pull request #51 from shosca/fields. [Serkan Hosca]
 - Django-like fields. [Serkan Hosca]
 
