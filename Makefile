@@ -51,9 +51,8 @@ coverage: ## check code coverage quickly with the default Python
 	pipenv run py.test \
 		--cov-report html \
 		--cov-report term-missing \
-		--cov=django_sorcery tests \
-		--doctest-modules \
-		tests django_sorcery
+		--cov=django_sorcery \
+		tests
 
 $(FILES):  ## helper target to run coverage tests on a module
 	pipenv run py.test --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)

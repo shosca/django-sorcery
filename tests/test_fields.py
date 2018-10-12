@@ -71,7 +71,7 @@ class TestModelChoiceField(TestCase):
 
     def test_apply_limit(self):
 
-        field = fields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.id == 1])
+        field = fields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.first_name == "first_name 1"])
         fields.apply_limit_choices_to_form_field(field)
         self.assertEqual(field.queryset.count(), 1)
 
