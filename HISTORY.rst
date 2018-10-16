@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.7 (2018-10-03)
+0.6.8 (2018-10-16)
 -----------------------------
+- Rename OPTIONS to ALCHEMY_OPTIONS (#55) [Serkan Hosca]
+- Relock (#54) [Serkan Hosca]
+
+
+0.6.7 (2018-10-03)
+------------------
 - Allowing to customize whether to log or add headers in profiler (#53)
   [Miroslav Shubernetskiy]
 
