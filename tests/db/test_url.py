@@ -20,7 +20,7 @@ from django_sorcery.db.url import (
     SQLALCHEMY_CONNECTIONS={
         "bad": {},
         "minimal": {"DIALECT": "sqlite"},
-        "from_env_preserve": {"DIALECT": "sqlite", "OPTIONS": {"foo": "bar"}},
+        "from_env_preserve": {"DIALECT": "sqlite", "ALCHEMY_OPTIONS": {"foo": "bar"}},
         "default": {
             "DIALECT": "postgresql",
             "DRIVER": "psycopg2",

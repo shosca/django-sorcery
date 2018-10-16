@@ -172,7 +172,7 @@ def make_url_from_settings(alias):
 
     ``QUERY`` - querystring arguments for sqlalchemy url
 
-    ``OPTIONS`` - Optional arguments to be used to initialize the :py:class:`..sqlalchemy.SQLAlchemy` instance
+    ``ALCHEMY_OPTIONS`` - Optional arguments to be used to initialize the :py:class:`..sqlalchemy.SQLAlchemy` instance
 
         * ``session_class`` - a custom session class to be used
         * ``registry_class`` - a custom registy class to be used for scoping
@@ -208,4 +208,4 @@ def make_url_from_settings(alias):
 
     url.query.update(data.get("QUERY", {}))
 
-    return url, data.get("OPTIONS", {})
+    return url, data.get("ALCHEMY_OPTIONS", {})
