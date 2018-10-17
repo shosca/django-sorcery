@@ -174,6 +174,7 @@ class TestModels(TestCase):
             {
                 "id": None,
                 "name": "test",
+                "employees": None,
                 "location": {"state": "state 1", "street": "street 1", "zip": "zip 1"},
                 "other_location": {"state": "state 2", "street": "street 2", "zip": "zip 2"},
             },
@@ -291,6 +292,7 @@ class TestModels(TestCase):
             {
                 "id": None,
                 "name": "test",
+                "employees": None,
                 "location": {"state": "state 1", "street": "street 1", "zip": "zip 1"},
                 "other_location": {"state": "state 2", "street": "street 2", "zip": "zip 2"},
             },

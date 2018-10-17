@@ -55,6 +55,7 @@ class Business(db.Model):
 
     id = db.IntegerField(autoincrement=True, primary_key=True)
     name = db.CharField()
+    employees = db.IntegerField(default=5, nullable=False)
 
     location = db.CompositeField(Address)
     other_location = db.CompositeField(Address, prefix="foo")
