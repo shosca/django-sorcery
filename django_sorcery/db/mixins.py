@@ -49,7 +49,12 @@ class CleanMixin(object):
             if name in exclude:
                 continue
 
-            if getattr(self, name) is None and field.column.nullable:
+            # skip validation if field is blank and either when field is nullable
+            # so blank value is valid or field has either local or server default value
+            # since we assume default value will pass validation
+            if getattr(self, name) is None and (
+                field.column.nullable or field.column.default or field.column.server_default
+            ):
                 continue
 
             for v in field.column.info.get("validators", []):
