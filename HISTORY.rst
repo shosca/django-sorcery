@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.8 (2018-10-16)
+0.6.9 (2018-10-17)
 -----------------------------
+- Not running field validations when column has default value (#56)
+  [Miroslav Shubernetskiy]
+
+
+0.6.8 (2018-10-16)
+------------------
 - Rename OPTIONS to ALCHEMY_OPTIONS (#55) [Serkan Hosca]
 - Relock (#54) [Serkan Hosca]
 
