@@ -73,7 +73,7 @@ class AlembicCommand(BaseCommand):
         config.set_main_option("script_location", SORCERY_ALEMBIC_CONFIG_FOLDER)
         config.set_main_option("version_locations", self.get_app_version_path(app))
         config.set_main_option("version_table", version_table)
-        if version_table_schema:
+        if version_table_schema and db.engine.dialect.name != "sqlite":
             config.set_main_option("version_table_schema", version_table_schema)
         return config
 
