@@ -101,6 +101,7 @@ class column_info(object):
             kwargs["max_length"] = self.column.type.length
 
         kwargs["required"] = not self.column.nullable
+        kwargs["validators"] = self.column.info.get("validators", [])
 
         return kwargs
 

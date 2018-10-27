@@ -3,6 +3,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import sqlalchemy as sa
 
+from django.core import validators as django_validators
+
 from django_sorcery.db import meta  # noqa
 
 from ..base import TestCase
@@ -115,17 +117,39 @@ class TestColumnMeta(TestCase):
 
         col = info.primary_keys["id"]
         self.assertEqual(col.name, "id")
-        self.assertDictEqual({"label": "Id", "help_text": "The primary key", "required": True}, col.field_kwargs)
+        self.assertDictEqual(
+            {
+                "label": "Id",
+                "help_text": "The primary key",
+                "required": True,
+                "validators": [django_validators.validate_integer],
+            },
+            col.field_kwargs,
+        )
 
         col = info.properties["type"]
         self.assertDictEqual(
-            {"enum_class": VehicleType, "help_text": None, "label": "Type", "max_length": 3, "required": True},
+            {
+                "enum_class": VehicleType,
+                "help_text": None,
+                "label": "Type",
+                "max_length": 3,
+                "required": True,
+                "validators": [],
+            },
             col.field_kwargs,
         )
 
         col = info.properties["paint"]
         self.assertDictEqual(
-            {"choices": COLORS, "help_text": None, "label": "Paint", "max_length": 6, "required": False},
+            {
+                "choices": COLORS,
+                "help_text": None,
+                "label": "Paint",
+                "max_length": 6,
+                "required": False,
+                "validators": [],
+            },
             col.field_kwargs,
         )
         self.assertEqual(col.parent_model, Vehicle)
@@ -134,6 +158,13 @@ class TestColumnMeta(TestCase):
         info = meta.model_info(AllKindsOfFields)
         col = info.properties["decimal"]
         self.assertDictEqual(
-            {"decimal_places": None, "help_text": None, "label": "Decimal", "max_digits": None, "required": False},
+            {
+                "decimal_places": None,
+                "help_text": None,
+                "label": "Decimal",
+                "max_digits": None,
+                "required": False,
+                "validators": [],
+            },
             col.field_kwargs,
         )
