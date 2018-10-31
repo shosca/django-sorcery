@@ -163,7 +163,7 @@ class relation_info(object):
 
     @property
     def local_remote_pairs_for_identity_key(self):
-        target_pk = list(self.relationship.target.primary_key.columns)
+        target_pk = list(self.relationship.target.primary_key)
         pairs = {v: k for k, v in self.local_remote_pairs}
 
         try:
