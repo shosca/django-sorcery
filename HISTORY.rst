@@ -2,8 +2,17 @@ Changelog
 =========
 
 
-0.6.9 (2018-10-17)
+0.6.10 (2018-10-31)
 -----------------------------
+- List primary keys directly (#59) [Serkan Hosca]
+- Passing model-defined validators to field_kwargs (#58) [Miroslav
+  Shubernetskiy]
+- Ignoring schema names in alembic version table for sqlite (#57)
+  [Miroslav Shubernetskiy]
+
+
+0.6.9 (2018-10-17)
+------------------
 - Not running field validations when column has default value (#56)
   [Miroslav Shubernetskiy]
 
