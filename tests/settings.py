@@ -95,6 +95,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+USE_THOUSAND_SEPARATOR = True
+
 SECRET_KEY = "secret"
 
 ALLOWED_HOSTS = ["*"]

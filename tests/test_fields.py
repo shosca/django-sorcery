@@ -47,6 +47,9 @@ class TestEnumField(TestCase):
         value = field.valid_value("car")
         self.assertFalse(value)
 
+        value = field.valid_value("Car")
+        self.assertFalse(value)
+
         value = field.valid_value(VehicleType.car)
         self.assertTrue(value)
 

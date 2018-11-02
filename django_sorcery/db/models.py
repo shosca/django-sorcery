@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict, namedtuple
+from functools import partial
 from itertools import chain
 
 import six
@@ -10,6 +11,9 @@ import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
 from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.forms.fields import DateField
 from django.utils.text import camel_case_to_spaces
 
 from . import signals
@@ -423,3 +427,68 @@ def full_clean_flush_handler(session, **kwargs):
     for i in session.dirty | session.new:
         if isinstance(i, Base):
             i.full_clean()
+
+
+def _coerce(target, value, oldvalue, initiator, form_field):
+    value = value.strip() if isinstance(value, six.string_types) else value
+    try:
+        form_field.required = False
+
+        if isinstance(form_field, DateField):
+            # somehow input_formats is missing some formats and has to be reset like this
+            form_field.input_formats = settings.DATE_INPUT_FORMATS
+
+        return form_field.clean(value)
+    except ValidationError as e:
+        raise ValidationError({initiator.key: e})
+
+
+_coercer_memo = {}
+
+
+def autocoerce_properties(cls=None):
+    """
+    This function automatically registers attribute events that coerces types for the attribute
+    using django's form fields for a given model classs. If no class is provided, it will wire up
+    coersion for all mappers so it can be used as a class decorator or globally.
+
+    ::
+
+        @autocoerce_properties
+        class MyModel(db.Model):
+            ...
+
+    or::
+
+        class MyModel(db.Model):
+            ...
+
+        autocoerce_properties()
+
+    Since django form fields are used for coersion, localization settings such as `USE_THOUSAND_SEPARATOR`,
+    `DATE_INPUT_FORMATS` and `DATETIME_INPUT_FORMATS` control type conversions.
+    """
+
+    m = cls.__mapper__ if cls else sa.orm.mapper
+
+    from django_sorcery.field_mapping import get_field_mapper
+
+    @sa.event.listens_for(m, "mapper_configured")
+    def hook_coercers(mapper, class_):
+        field_mapper = get_field_mapper()(model=class_)
+        info = model_info(class_)
+
+        for name, prop in chain(info.primary_keys.items(), info.properties.items()):
+
+            form_field = field_mapper.build_field(prop, localize=True)
+
+            if form_field is None:
+                continue
+
+            handler = _coercer_memo.setdefault(type(form_field), partial(_coerce, form_field=form_field))
+
+            target = getattr(class_, name)
+            if not sa.event.contains(target, "set", handler):
+                sa.event.listen(target, "set", handler, retval=True)
+
+    return cls
