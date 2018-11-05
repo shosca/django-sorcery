@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
+import datetime
+from decimal import Decimal
+
+import pytz
+
+from django.core.exceptions import ValidationError
 
 from django_sorcery.db import models
 from django_sorcery.utils import make_args
@@ -7,8 +13,10 @@ from django_sorcery.utils import make_args
 from ..base import TestCase
 from ..testapp.models import (
     Address,
+    AllKindsOfFields,
     Business,
     CompositePkModel,
+    DummyEnum,
     ModelOne,
     ModelTwo,
     Option,
@@ -406,3 +414,184 @@ class TestClone(TestCase):
             self.assertNotEqual(cloned, orig)
             self.assertNotEqual(cloned.as_dict(), orig.as_dict())
             self.assertNotEqual(cloned.id, orig.id)
+
+
+class TestAutoCoerce(TestCase):
+    def setUp(self):
+        self.instance = AllKindsOfFields()
+
+    def _run_tests(self, attr, tests):
+        for test, exp in tests:
+            if exp is ValidationError:
+                with self.assertRaises(ValidationError):
+                    setattr(self.instance, attr, test)
+            else:
+                setattr(self.instance, attr, test)
+                self.assertEqual(getattr(self.instance, attr), exp)
+
+    def test_boolean(self):
+        self.instance.boolean_notnull = "true"
+        self.assertIsInstance(self.instance.boolean_notnull, bool)
+
+        self.instance.boolean = "true"
+        self.assertTrue(self.instance.boolean)
+        self.assertTrue(type(self.instance.boolean) is bool)
+
+        self.instance.boolean = "false"
+        self.assertFalse(self.instance.boolean)
+        self.assertTrue(type(self.instance.boolean) is bool)
+
+    def test_enum(self):
+        self.instance.enum = "one"
+        self.assertTrue(self.instance.enum is DummyEnum.one)
+
+        with self.assertRaises(ValidationError):
+            self.instance.enum = "three"
+
+        with self.assertRaises(ValidationError):
+            self.instance.enum = 1
+
+    def test_enum_choice(self):
+        self.instance.enum_choice = "three"
+        self.assertEqual(self.instance.enum_choice, "three")
+
+        with self.assertRaises(ValidationError):
+            self.instance.enum_choice = "one"
+
+    def test_string(self):
+        tests = [
+            ("abc", "abc"),
+            (1234, "1234"),
+            ("", ""),
+            ("é", "é"),
+            (Decimal("1234.44"), "1234.44"),
+            (None, ""),
+            # excess whitespace tests
+            ("\t\t\t\t\n", ""),
+            ("\t\tabc\t\t\n", "abc"),
+            ("\t\t20,000\t\t\n", "20,000"),
+            ("  \t 23\t", "23"),
+        ]
+
+        for attr in ["char", "nchar", "string", "text", "unicode", "unicodetext", "varchar"]:
+            self._run_tests(attr, tests)
+
+    def test_decimal(self):
+        tests = [
+            ("1", Decimal("1")),
+            ("abc", ValidationError),
+            (1, Decimal("1")),
+            ("20,000", Decimal("20000")),
+            ("1.e-8", Decimal("1E-8")),
+            ("1.-8", ValidationError),
+            ("", None),
+            (None, None),
+            # excess whitespace tests
+            ("\t\t\t\t\n", None),
+            ("\t\tabc\t\t\n", ValidationError),
+            ("\t\t20,000\t\t\n", Decimal("20000")),
+            ("  \t 23\t", Decimal("23")),
+        ]
+        for attr in ["decimal", "numeric"]:
+            self._run_tests(attr, tests)
+
+    def test_float(self):
+        tests = [
+            ("1", 1.0),
+            ("abc", ValidationError),
+            ("1.0", 1.0),
+            ("1.", 1.0),
+            ("1.001", 1.001),
+            ("1.e-8", 1e-08),
+            ("", None),
+            (None, None),
+            # excess whitespace tests
+            ("\t\t\t\t\n", None),
+            ("\t\tabc\t\t\n", ValidationError),
+            ("\t\t20,000.02\t\t\n", 20000.02),
+            ("  \t 23\t", 23.0),
+        ]
+        for attr in ["float", "real"]:
+            self._run_tests(attr, tests)
+
+    def test_integer(self):
+
+        tests = [
+            ("1", 1),
+            ("abc", ValidationError),
+            (1.0, 1),
+            (1.01, ValidationError),
+            ("1.0", 1),
+            ("1.01", ValidationError),
+            ("", None),
+            (None, None),
+            # # excess whitespace tests
+            ("\t\t\t\t\n", None),
+            ("\t\tabc\t\t\n", ValidationError),
+            ("\t\t20,000.02\t\t\n", ValidationError),
+            ("\t\t20,000\t\t\n", 20000),
+            ("  \t 23\t", 23),
+        ]
+        for attr in ["int", "integer", "bigint", "biginteger", "smallint", "smallinteger"]:
+            self._run_tests(attr, tests)
+
+    def test_date(self):
+        tests = [
+            (datetime.date(2006, 10, 25), datetime.date(2006, 10, 25)),
+            (datetime.datetime(2006, 10, 25, 14, 30), datetime.date(2006, 10, 25)),
+            (datetime.datetime(2006, 10, 25, 14, 30, 59), datetime.date(2006, 10, 25)),
+            (datetime.datetime(2006, 10, 25, 14, 30, 59, 200), datetime.date(2006, 10, 25)),
+            ("2006-10-25", datetime.date(2006, 10, 25)),
+            ("10/25/2006", datetime.date(2006, 10, 25)),
+            ("10/25/06", datetime.date(2006, 10, 25)),
+            ("Oct 25 2006", datetime.date(2006, 10, 25)),
+            ("October 25 2006", datetime.date(2006, 10, 25)),
+            ("October 25, 2006", datetime.date(2006, 10, 25)),
+            ("25 October 2006", datetime.date(2006, 10, 25)),
+            ("25 October, 2006", datetime.date(2006, 10, 25)),
+            ("Hello", ValidationError),
+        ]
+        self._run_tests("date", tests)
+
+    def test_datetime(self):
+        tests = [
+            ("2006-10-25 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
+            ("2006-10-25 14:30:45.0002", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
+            ("2006-10-25 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45, tzinfo=pytz.utc)),
+            ("2006-10-25 14:30:00", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
+            ("2006-10-25 14:30", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
+            ("2006-10-25", datetime.datetime(2006, 10, 25, 0, 0, tzinfo=pytz.utc)),
+            ("10/25/2006 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
+            ("10/25/2006 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45, tzinfo=pytz.utc)),
+            ("10/25/2006 14:30:00", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
+            ("10/25/2006 14:30", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
+            ("10/25/2006", datetime.datetime(2006, 10, 25, 0, 0, tzinfo=pytz.utc)),
+            ("10/25/06 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
+            ("10/25/06 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45, tzinfo=pytz.utc)),
+            ("10/25/06 14:30:00", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
+            ("10/25/06 14:30", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
+            ("10/25/06", datetime.datetime(2006, 10, 25, 0, 0, tzinfo=pytz.utc)),
+            ("Hello", ValidationError),
+        ]
+        self._run_tests("datetime", tests)
+        self._run_tests("timestamp", tests)
+
+    def test_interval(self):
+        tests = [
+            ("30", datetime.timedelta(seconds=30)),
+            ("15:30", datetime.timedelta(minutes=15, seconds=30)),
+            ("1:15:30", datetime.timedelta(hours=1, minutes=15, seconds=30)),
+            ("1 1:15:30.3", datetime.timedelta(days=1, hours=1, minutes=15, seconds=30, milliseconds=300)),
+            ("Hello", ValidationError),
+        ]
+        self._run_tests("interval", tests)
+
+    def test_time(self):
+        tests = [
+            (datetime.time(14, 25), datetime.time(14, 25)),
+            (datetime.time(14, 25, 59), datetime.time(14, 25, 59)),
+            ("14:25", datetime.time(14, 25)),
+            ("14:25:59", datetime.time(14, 25, 59)),
+            ("Hello", ValidationError),
+        ]
+        self._run_tests("time", tests)

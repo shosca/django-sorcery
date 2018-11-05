@@ -15,6 +15,7 @@ install:
   - pipenv install -d --system --skip-lock
 
 script:
+  - make lint
   - make coverage
 
 after_success:

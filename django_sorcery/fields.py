@@ -29,8 +29,13 @@ class EnumField(djangofields.ChoiceField):
 
     def to_python(self, value):
         value = super(EnumField, self).to_python(value)
-        if value:
+        if not value:
+            return
+
+        try:
             return self.enum_class[value]
+        except KeyError:
+            raise ValidationError(self.error_messages["invalid_choice"], code="invalid", params={"value": value})
 
     def valid_value(self, value):
         if value is None:
