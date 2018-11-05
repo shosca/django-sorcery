@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.6.10 (2018-10-31)
+0.6.11 (2018-11-05)
 -----------------------------
+- Implement autocoerce using form fields (#61) [Serkan Hosca]
+- Update lock. [Serkan Hosca]
+- Adding more validators (#60) [Miroslav Shubernetskiy]
+
+
+0.6.10 (2018-10-31)
+-------------------
 - List primary keys directly (#59) [Serkan Hosca]
 - Passing model-defined validators to field_kwargs (#58) [Miroslav
   Shubernetskiy]
