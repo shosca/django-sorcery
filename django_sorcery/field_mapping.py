@@ -81,9 +81,6 @@ class ModelFieldMapper(object):
             with suppress(AttributeError):
                 self.session = self.model.query.session
 
-        if self.session is None:
-            raise ImproperlyConfigured("Creating a field mapper without session attribute prohibited")
-
     def get_default_kwargs(self, name, **kwargs):
         """
         Generate default kwargs from form options.
@@ -160,6 +157,9 @@ class ModelFieldMapper(object):
         """
         Build field for a sqlalchemy many-to-one relationship field.
         """
+        if self.session is None:
+            raise ImproperlyConfigured("Creating a field mapper without session attribute prohibited")
+
         kwargs["required"] = not all([col.nullable for col in relation.foreign_keys])
         return ModelChoiceField(relation.related_model, self.session, **kwargs)
 
@@ -167,6 +167,9 @@ class ModelFieldMapper(object):
         """
         Build field for a sqlalchemy one-to-many or many-to-many relationship field.
         """
+        if self.session is None:
+            raise ImproperlyConfigured("Creating a field mapper without session attribute prohibited")
+
         kwargs["required"] = False
         return ModelMultipleChoiceField(relation.related_model, self.session, **kwargs)
 
@@ -180,10 +183,11 @@ class ModelFieldMapper(object):
                 kwargs.update(attr.field_kwargs)
                 return type_func(attr, **kwargs)
 
-        for base in attr.column.type.python_type.mro():
-            if base in FIELD_LOOKUP:
-                kwargs.update(attr.field_kwargs)
-                return FIELD_LOOKUP[base](**kwargs)
+        with suppress(NotImplementedError):
+            for base in attr.column.type.python_type.mro():
+                if base in FIELD_LOOKUP:
+                    kwargs.update(attr.field_kwargs)
+                    return FIELD_LOOKUP[base](**kwargs)
 
     def build_enum_field(self, attr, **kwargs):
         """
@@ -202,6 +206,7 @@ class ModelFieldMapper(object):
         """
         Build field for sqlalchemy boolean type.
         """
+        kwargs.pop("max_length", None)
         if attr.column.nullable:
             return djangofields.NullBooleanField(**kwargs)
 

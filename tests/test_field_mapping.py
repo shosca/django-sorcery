@@ -23,7 +23,10 @@ class TestFieldMapping(TestCase):
     def test_no_session(self):
 
         with self.assertRaises(ImproperlyConfigured):
-            ModelFieldMapper(model=ClassicModel)
+            ModelFieldMapper(model=ClassicModel).build_modelmultiplechoice_field(None)
+
+        with self.assertRaises(ImproperlyConfigured):
+            ModelFieldMapper(model=ClassicModel).build_modelchoice_field(None)
 
     def test_get_default_kwargs(self):
 
