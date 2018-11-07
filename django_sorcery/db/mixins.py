@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
+from itertools import chain
+
+from sqlalchemy.exc import NoInspectionAvailable
 
 from django.core.exceptions import ValidationError
 
 from ..exceptions import NestedValidationError
+from ..utils import suppress
+from .meta import model_info
 
 
 class CleanMixin(object):
@@ -45,16 +50,26 @@ class CleanMixin(object):
         """
         errors = {}
 
+        local_remote_pairs = set()
+        with suppress(NoInspectionAvailable):
+            # It is possible that this could be a composite type so suppress this
+            info = model_info(type(self))
+            for rel in info.relationships.values():
+                for col in chain(*rel.local_remote_pairs):
+                    local_remote_pairs.add(col)
+
         for name, field in self._get_properties_for_validation().items():
             is_blank = getattr(self, name) is None
             is_nullable = field.column.nullable
+            is_fk = field.column in local_remote_pairs
             is_defaulted = field.column.default or field.column.server_default
-            # skip validation if field is blank and either when field is nullable
-            # so blank value is valid or field has either local or server default value
-            # since we assume default value will pass validation
-            # since default values are assigned during flush which as after
-            # which validation is verified
-            is_skippable = is_blank and (is_nullable or is_defaulted)
+
+            # skip validation if:
+            # - field is blank and either when field is nullable so blank value is valid
+            # - field has either local or server default value since we assume default value will pass validation
+            #   since default values are assigned during flush which as after which validation is verified
+            # - field is blank and is a foreign key in a relation that will be populated by the relation
+            is_skippable = is_blank and (is_nullable or is_defaulted or is_fk)
 
             if name not in exclude and not is_skippable:
 

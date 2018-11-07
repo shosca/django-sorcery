@@ -480,12 +480,12 @@ def autocoerce_properties(cls=None):
 
         for name, prop in chain(info.primary_keys.items(), info.properties.items()):
 
-            form_field = field_mapper.build_field(prop, localize=True)
+            form_field = field_mapper.build_field(prop, required=False, localize=True)
 
             if form_field is None:
                 continue
 
-            handler = _coercer_memo.setdefault(type(form_field), partial(_coerce, form_field=form_field))
+            handler = _coercer_memo.setdefault(getattr(class_, name), partial(_coerce, form_field=form_field))
 
             target = getattr(class_, name)
             if not sa.event.contains(target, "set", handler):
