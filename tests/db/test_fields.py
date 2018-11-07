@@ -49,7 +49,7 @@ class TestFields(TestCase):
     def test_email_field(self):
         column = fields.EmailField()
         self.assertIsInstance(column.type, sa.String)
-        self.assertEqual(column.info, {"validators": [django_validators.validate_email]})
+        self.assertEqual(column.info, {"validators": [django_validators.validate_email], "required": False})
 
     def test_enum_field(self):
         with self.assertRaises(KeyError):
@@ -105,7 +105,7 @@ class TestFields(TestCase):
     def test_slug_field(self):
         column = fields.SlugField()
         self.assertIsInstance(column.type, sa.String)
-        self.assertEqual(column.info, {"validators": [django_validators.validate_slug]})
+        self.assertEqual(column.info, {"validators": [django_validators.validate_slug], "required": False})
 
     def test_text_field(self):
         column = fields.TextField()
