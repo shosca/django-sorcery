@@ -48,6 +48,7 @@ class Field(sa.Column):
             column_type = args.pop(0)
 
         validators = kwargs.pop("validators", [])
+        required = kwargs.pop("required", None)
         column_kwargs = self.get_column_kwargs(kwargs)
 
         if column_type is None:
@@ -58,6 +59,7 @@ class Field(sa.Column):
         column_kwargs["type_"] = column_type
         super(Field, self).__init__(*args, **column_kwargs)
         self.info["validators"] = self.get_validators(validators)
+        self.info["required"] = required if required is not None else not self.nullable
 
     def get_type_kwargs(self, type_class, kwargs):
         args = []

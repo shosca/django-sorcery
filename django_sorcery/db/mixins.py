@@ -59,17 +59,19 @@ class CleanMixin(object):
                     local_remote_pairs.add(col)
 
         for name, field in self._get_properties_for_validation().items():
-            is_blank = getattr(self, name) is None
+            is_blank = not bool(getattr(self, name))
             is_nullable = field.column.nullable
             is_fk = field.column in local_remote_pairs
             is_defaulted = field.column.default or field.column.server_default
+            is_required = field.column.info.get("required", not is_nullable)
 
             # skip validation if:
             # - field is blank and either when field is nullable so blank value is valid
             # - field has either local or server default value since we assume default value will pass validation
             #   since default values are assigned during flush which as after which validation is verified
             # - field is blank and is a foreign key in a relation that will be populated by the relation
-            is_skippable = is_blank and (is_nullable or is_defaulted or is_fk)
+            # - field is marked as not required in column info
+            is_skippable = is_blank and (is_nullable or is_defaulted or is_fk or not is_required)
 
             if name not in exclude and not is_skippable:
 
