@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.6.11 (2018-11-05)
+0.6.12 (2018-11-07)
 -----------------------------
+- Allowing to set if field is required separately from nullable (#63)
+  [Miroslav Shubernetskiy]
+- Fix coercer issues (#62) [Serkan Hosca]
+
+
+0.6.11 (2018-11-05)
+-------------------
 - Implement autocoerce using form fields (#61) [Serkan Hosca]
 - Update lock. [Serkan Hosca]
 - Adding more validators (#60) [Miroslav Shubernetskiy]
