@@ -115,7 +115,7 @@ class CharField(Field):
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(CharField, self).get_type_kwargs(type_class, kwargs)
-        type_kwargs["length"] = type_kwargs["length"] or kwargs.get("max_length")
+        type_kwargs["length"] = type_kwargs.get("length") or kwargs.get("max_length")
         return type_kwargs
 
 
