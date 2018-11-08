@@ -68,7 +68,7 @@ class Field(sa.Column):
             args = inspect.get_func_full_args(type_class.__init__)
 
         type_args = [i for i in args if len(i) == 2]
-        return {k: kwargs.pop(k, v) for k, v in type_args if not k.startswith("*")}
+        return {k: kwargs.pop(k) for k, v in type_args if not k.startswith("*") and k in kwargs}
 
     def get_column_kwargs(self, kwargs):
         column_args = [
@@ -115,7 +115,7 @@ class CharField(Field):
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(CharField, self).get_type_kwargs(type_class, kwargs)
-        type_kwargs["length"] = type_kwargs["length"] or kwargs.get("max_length")
+        type_kwargs["length"] = type_kwargs.get("length") or kwargs.get("max_length")
         return type_kwargs
 
 
@@ -186,7 +186,7 @@ class FloatField(Field):
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(FloatField, self).get_type_kwargs(type_class, kwargs)
-        type_kwargs["precision"] = type_kwargs["precision"] or kwargs.pop("max_digits", None)
+        type_kwargs["precision"] = type_kwargs.get("precision") or kwargs.pop("max_digits", None)
         return type_kwargs
 
 
