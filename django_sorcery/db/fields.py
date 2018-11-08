@@ -68,7 +68,7 @@ class Field(sa.Column):
             args = inspect.get_func_full_args(type_class.__init__)
 
         type_args = [i for i in args if len(i) == 2]
-        return {k: kwargs.pop(k, v) for k, v in type_args if not k.startswith("*")}
+        return {k: kwargs.pop(k) for k, v in type_args if not k.startswith("*") and k in kwargs}
 
     def get_column_kwargs(self, kwargs):
         column_args = [
