@@ -186,7 +186,7 @@ class FloatField(Field):
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(FloatField, self).get_type_kwargs(type_class, kwargs)
-        type_kwargs["precision"] = type_kwargs["precision"] or kwargs.pop("max_digits", None)
+        type_kwargs["precision"] = type_kwargs.get("precision") or kwargs.pop("max_digits", None)
         return type_kwargs
 
 
