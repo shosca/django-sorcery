@@ -2,8 +2,21 @@ Changelog
 =========
 
 
-0.6.12 (2018-11-07)
+0.6.13 (2018-11-08)
 -----------------------------
+- Fixing DecimalField not honoring max_digits and decimal_places (#64)
+  [Miroslav Shubernetskiy]
+
+
+
+
+
+
+
+
+
+0.6.12 (2018-11-07)
+-------------------
 - Allowing to set if field is required separately from nullable (#63)
   [Miroslav Shubernetskiy]
 - Fix coercer issues (#62) [Serkan Hosca]
