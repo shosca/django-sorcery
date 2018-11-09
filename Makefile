@@ -46,7 +46,7 @@ resetdb:
 
 lint:  ## run pre-commit hooks on all files
 	if python -c "import sys; exit(1) if sys.version_info.major < 3 else exit(0)"; then \
-		pipenv run pre-commit run --files $$(git ls-files) ; \
+		pipenv run pre-commit run --all-files ; \
 	fi
 
 coverage: ## check code coverage quickly with the default Python
