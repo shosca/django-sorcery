@@ -444,9 +444,27 @@ def _coerce(target, value, oldvalue, initiator, form_field):
 
 
 _coercer_memo = {}
+_autocoerce_attrs = set()
 
 
-def autocoerce_properties(cls=None):
+def autocoerce_properties(*attrs):
+    """
+    This function automatically registers attribute events that coerces types for given attributes
+    using django's form fields.
+
+    ::
+        class MyModel(db.Model):
+            field1 = Column(...)
+            field2 = Column(...)
+            field3 = Column(...)
+            ...
+
+        autocoerce_properties(MyModel.field1, MyModel.field2)  # Will only force autocoersion on field1 and field2
+    """
+    _autocoerce_attrs.update(attrs)
+
+
+def autocoerce(cls):
     """
     This function automatically registers attribute events that coerces types for the attribute
     using django's form fields for a given model classs. If no class is provided, it will wire up
@@ -468,27 +486,28 @@ def autocoerce_properties(cls=None):
     Since django form fields are used for coersion, localization settings such as `USE_THOUSAND_SEPARATOR`,
     `DATE_INPUT_FORMATS` and `DATETIME_INPUT_FORMATS` control type conversions.
     """
+    m = sa.inspect(cls)
+    autocoerce_properties(*[getattr(cls, attr.key) for attr in m.column_attrs])
+    return cls
 
-    m = cls.__mapper__ if cls else sa.orm.mapper
 
+@sa.event.listens_for(sa.orm.mapper, "after_configured")
+def configure_coercers():
     from django_sorcery.field_mapping import get_field_mapper
 
-    @sa.event.listens_for(m, "mapper_configured")
-    def hook_coercers(mapper, class_):
-        field_mapper = get_field_mapper()(model=class_)
-        info = model_info(class_)
+    for target in _autocoerce_attrs:
+        field_mapper = get_field_mapper()(model=target.parent)
+        info = model_info(target.parent)
+        form_field = field_mapper.build_field(
+            info.primary_keys.get(target.key) or info.properties.get(target.key), required=False, localize=True
+        )
 
-        for name, prop in chain(info.primary_keys.items(), info.properties.items()):
+        if form_field is None:
+            continue
 
-            form_field = field_mapper.build_field(prop, required=False, localize=True)
+        handler = _coercer_memo.setdefault(target, partial(_coerce, form_field=form_field))
 
-            if form_field is None:
-                continue
+        if not sa.event.contains(target, "set", handler):
+            sa.event.listen(target, "set", handler, retval=True)
 
-            handler = _coercer_memo.setdefault(getattr(class_, name), partial(_coerce, form_field=form_field))
-
-            target = getattr(class_, name)
-            if not sa.event.contains(target, "set", handler):
-                sa.event.listen(target, "set", handler, retval=True)
-
-    return cls
+    _autocoerce_attrs.clear()

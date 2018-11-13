@@ -5,6 +5,8 @@ Field mapping from SQLAlchemy type's to form fields
 from __future__ import absolute_import, print_function, unicode_literals
 import json
 
+import six
+
 from django.core.exceptions import ValidationError
 from django.forms import fields as djangofields
 from django.utils.translation import gettext_lazy
@@ -28,12 +30,14 @@ class EnumField(djangofields.ChoiceField):
         super(EnumField, self).__init__(*args, **kwargs)
 
     def to_python(self, value):
-        value = super(EnumField, self).to_python(value)
+        if value in self.empty_values:
+            value = None
+
         if not value:
             return
 
         try:
-            return self.enum_class[value]
+            return self.enum_class[value] if isinstance(value, six.text_type) else self.enum_class(value)
         except KeyError:
             raise ValidationError(self.error_messages["invalid_choice"], code="invalid", params={"value": value})
 

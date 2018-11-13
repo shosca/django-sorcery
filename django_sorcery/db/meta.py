@@ -221,20 +221,30 @@ class model_info(six.with_metaclass(model_info_meta)):
         self.relationships = {}
         self.primary_keys = OrderedDict()
 
+        sa.event.listen(self.mapper, "mapper_configured", self._configure)
+        self._configure(self.mapper, self.model_class)
+
+    def _configure(self, mapper, class_):
+        assert mapper is self.mapper
+        assert class_ is self.model_class
+
         for col in self.mapper.primary_key:
             attr = self.mapper.get_property_by_column(col)
-            self.primary_keys[attr.key] = column_info(attr, col)
+            if attr.key not in self.primary_keys:
+                self.primary_keys[attr.key] = column_info(attr, col)
 
         for col in self.mapper.columns:
             attr = self.mapper.get_property_by_column(col)
-            if attr.key not in self.primary_keys:
+            if attr.key not in self.primary_keys and attr.key not in self.properties:
                 self.properties[attr.key] = column_info(attr, col)
 
         for composite in self.mapper.composites:
-            self.composites[composite.key] = composite_info(getattr(model, composite.key))
+            if composite.key not in self.composites:
+                self.composites[composite.key] = composite_info(getattr(self.model_class, composite.key))
 
         for relationship in self.mapper.relationships:
-            self.relationships[relationship.key] = relation_info(relationship)
+            if relationship.key not in self.relationships:
+                self.relationships[relationship.key] = relation_info(relationship)
 
     @property
     def field_names(self):

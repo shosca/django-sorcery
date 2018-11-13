@@ -20,6 +20,9 @@ class TestEnumField(TestCase):
         value = field.to_python("car")
         self.assertEqual(value, VehicleType.car)
 
+        value = field.to_python(VehicleType.car)
+        self.assertEqual(value, VehicleType.car)
+
         value = field.valid_value(None)
         self.assertFalse(value)
 
