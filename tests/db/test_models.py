@@ -22,6 +22,7 @@ from ..testapp.models import (
     Option,
     Owner,
     Part,
+    SelectedAutoCoerce,
     Vehicle,
     VehicleType,
     db,
@@ -445,11 +446,14 @@ class TestAutoCoerce(TestCase):
         self.instance.enum = "one"
         self.assertTrue(self.instance.enum is DummyEnum.one)
 
-        with self.assertRaises(ValidationError):
-            self.instance.enum = "three"
+        self.instance.enum = 2
+        self.assertTrue(self.instance.enum is DummyEnum.two)
+
+        self.instance.enum = DummyEnum.one
+        self.assertTrue(self.instance.enum is DummyEnum.one)
 
         with self.assertRaises(ValidationError):
-            self.instance.enum = 1
+            self.instance.enum = "three"
 
     def test_enum_choice(self):
         self.instance.enum_choice = "three"
@@ -595,3 +599,15 @@ class TestAutoCoerce(TestCase):
             ("Hello", ValidationError),
         ]
         self._run_tests("time", tests)
+
+    def test_selected_fields_only(self):
+        model = SelectedAutoCoerce()
+
+        with self.assertRaises(ValidationError):
+            model.foo = "abc"
+
+        with self.assertRaises(ValidationError):
+            model.bar = "abc"
+
+        model.me = "abc"
+        self.assertEqual(model.me, "abc")

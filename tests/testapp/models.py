@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
 from django_sorcery.db import databases
-from django_sorcery.db.models import autocoerce_properties
+from django_sorcery.db.models import autocoerce, autocoerce_properties
 from django_sorcery.db.query import Query
 from django_sorcery.validators import ValidateTogetherModelFields, ValidateUnique
 
@@ -134,7 +134,7 @@ class DummyEnum(Enum):
 Choices = ["three", "four"]
 
 
-@autocoerce_properties
+@autocoerce
 class AllKindsOfFields(db.Model):
 
     pk = db.Column(db.Integer(), primary_key=True)
@@ -265,6 +265,16 @@ class ValidateUniqueModel(db.Model):
 
 class ClassicModel(object):
     pass
+
+
+class SelectedAutoCoerce(db.Model):
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    foo = db.DecimalField()
+    bar = db.FloatField()
+    me = db.IntegerField()
+
+
+autocoerce_properties(SelectedAutoCoerce.foo, SelectedAutoCoerce.bar)
 
 
 classic_model_table = db.Table(
