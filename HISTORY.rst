@@ -2,8 +2,17 @@ Changelog
 =========
 
 
-0.6.13 (2018-11-08)
+0.6.14 (2018-11-13)
 -----------------------------
+- Refactor autocoercers to allow coerce individual attrs (#68) [Serkan
+  Hosca]
+- Bump pre-commit check versions (#67) [Serkan Hosca]
+- Caching pip and pre-commit. [Miroslav Shubernetskiy]
+- Tiny fixup (#65) [Anthony Sottile]
+
+
+0.6.13 (2018-11-08)
+-------------------
 - Fixing DecimalField not honoring max_digits and decimal_places (#64)
   [Miroslav Shubernetskiy]
 
