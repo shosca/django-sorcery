@@ -443,6 +443,9 @@ class TestAutoCoerce(TestCase):
         self.assertTrue(type(self.instance.boolean) is bool)
 
     def test_enum(self):
+        self.instance.enum = 0
+        self.assertTrue(self.instance.enum is DummyEnum.zero)
+
         self.instance.enum = "one"
         self.assertTrue(self.instance.enum is DummyEnum.one)
 
