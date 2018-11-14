@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.6.14 (2018-11-13)
+0.6.15 (2018-11-14)
 -----------------------------
+- Fix edge case with enum field (#69) [Serkan Hosca]
+
+
+0.6.14 (2018-11-14)
+-------------------
 - Refactor autocoercers to allow coerce individual attrs (#68) [Serkan
   Hosca]
 - Bump pre-commit check versions (#67) [Serkan Hosca]
