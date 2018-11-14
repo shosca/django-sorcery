@@ -33,7 +33,7 @@ class EnumField(djangofields.ChoiceField):
         if value in self.empty_values:
             value = None
 
-        if not value:
+        if value is None:
             return
 
         try:

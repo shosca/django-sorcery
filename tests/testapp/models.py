@@ -127,6 +127,7 @@ class CompositePkModel(db.Model):
 
 
 class DummyEnum(Enum):
+    zero = 0
     one = 1
     two = 2
 
