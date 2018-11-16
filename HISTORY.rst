@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
+0.6.16 (2018-11-16)
 -----------------------------
+- Fix docs build. [Serkan Hosca]
 - Add TimestampField (#74) [Serkan Hosca]
 
 
