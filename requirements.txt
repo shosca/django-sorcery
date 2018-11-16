@@ -1,7 +1,7 @@
 -e .
 pytest
 pytest-cov
-flake8
+flake8==3.6.0
 simplejson
 sphinx-autobuild
 gitchangelog
