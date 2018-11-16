@@ -16,4 +16,4 @@ attrs
 tox
 coveralls
 sqlalchemy_utils
-psycopg2
+psycopg2==2.7.6.1
