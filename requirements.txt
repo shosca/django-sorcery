@@ -1,5 +1,5 @@
 -e .
-pytest
+pytest==4.0.0
 pytest-cov
 flake8
 simplejson
