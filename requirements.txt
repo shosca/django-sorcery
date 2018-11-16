@@ -10,7 +10,7 @@ pdbpp
 pre_commit
 Sphinx
 sphinx_rtd_theme
-mock; python_version <= '2.7'
+mock==2.0.0; python_version <= '2.7'
 beautifulsoup4
 attrs
 tox
