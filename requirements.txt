@@ -2,7 +2,7 @@
 pytest
 pytest-cov
 flake8
-simplejson
+simplejson==3.16.0
 sphinx-autobuild
 gitchangelog
 yapf
