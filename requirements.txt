@@ -11,7 +11,7 @@ pre_commit
 Sphinx
 sphinx_rtd_theme
 mock; python_version <= '2.7'
-beautifulsoup4
+beautifulsoup4==4.6.3
 attrs
 tox
 coveralls
