@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.6.15 (2018-11-14)
+Next version (unreleased yet)
 -----------------------------
+- Add TimestampField (#74) [Serkan Hosca]
+
+
+0.6.15 (2018-11-14)
+-------------------
 - Fix edge case with enum field (#69) [Serkan Hosca]
 
 

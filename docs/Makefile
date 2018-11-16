@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = pipenv run python -msphinx
+SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = DjangoSorcery
 SOURCEDIR     = .
 BUILDDIR      = _build
@@ -16,7 +16,7 @@ help:
 
 autodoc:
 	rm -rf api/*.rst
-	pipenv run sphinx-apidoc --module-first --separate --output-dir=api ../django_sorcery
+	sphinx-apidoc --module-first --separate --output-dir=api ../django_sorcery
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
