@@ -1,5 +1,1 @@
-Django
-SQLAlchemy
-djangorestframework
-six
-pipenv
+-r ../requirements.txt
