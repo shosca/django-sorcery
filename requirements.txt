@@ -9,7 +9,7 @@ yapf
 pdbpp
 pre_commit
 Sphinx
-sphinx_rtd_theme
+sphinx_rtd_theme==0.4.2
 mock; python_version <= '2.7'
 beautifulsoup4
 attrs
