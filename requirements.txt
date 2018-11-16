@@ -4,7 +4,7 @@ pytest-cov
 flake8
 simplejson
 sphinx-autobuild
-gitchangelog
+gitchangelog==3.0.3
 yapf
 pdbpp
 pre_commit
