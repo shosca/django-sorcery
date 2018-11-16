@@ -3,7 +3,7 @@ pytest
 pytest-cov
 flake8
 simplejson
-sphinx-autobuild
+sphinx-autobuild==0.7.1
 gitchangelog
 yapf
 pdbpp
