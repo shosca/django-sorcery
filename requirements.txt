@@ -1,6 +1,6 @@
 -e .
 pytest
-pytest-cov
+pytest-cov==2.6.0
 flake8
 simplejson
 sphinx-autobuild
