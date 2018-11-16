@@ -15,5 +15,5 @@ beautifulsoup4
 attrs
 tox
 coveralls
-sqlalchemy_utils
+sqlalchemy_utils==0.33.6
 psycopg2
