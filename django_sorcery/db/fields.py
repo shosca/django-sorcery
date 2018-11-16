@@ -223,6 +223,10 @@ class TimeField(Field):
     type_class = sa.Time
 
 
+class TimestampField(DateTimeField):
+    type_class = sa.TIMESTAMP
+
+
 class URLField(CharField):
     default_validators = [django_validators.URLValidator()]
 

@@ -5,10 +5,6 @@ NEXT=$(shell semver -i $(BUMP) $(VERSION))
 
 .PHONY: docs $(FILES)
 
-init:  ## setup environment
-	pip install pipenv
-	pipenv install --dev
-
 help:
 	@for f in $(MAKEFILE_LIST) ; do \
 		echo "$$f:" ; \
@@ -46,27 +42,27 @@ resetdb:
 
 lint:  ## run pre-commit hooks on all files
 	if python -c "import sys; exit(1) if sys.version_info.major < 3 else exit(0)"; then \
-		pipenv run pre-commit run --all-files ; \
+		pre-commit run --all-files ; \
 	fi
 
 coverage: ## check code coverage quickly with the default Python
-	pipenv run py.test \
+	py.test \
 		--cov-report html \
 		--cov-report term-missing \
 		--cov=django_sorcery \
 		tests
 
 $(FILES):  ## helper target to run coverage tests on a module
-	pipenv run py.test --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
+	py.test --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
-	pipenv run py.test --doctest-modules tests django_sorcery
+	py.test --doctest-modules tests django_sorcery
 
 check:  ## run all tests
 	tox
 
 history:  ## generate HISTORY.rst
-	pipenv run gitchangelog > HISTORY.rst
+	gitchangelog > HISTORY.rst
 
 docs:  ## generate docs
 	$(MAKE) -C docs html

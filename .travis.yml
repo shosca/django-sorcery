@@ -11,8 +11,7 @@ before_script:
   - make resetdb
 
 install:
-  - pip install -U pipenv 'backports.shutil_get_terminal_size; python_version<"3"' 'backports.weakref; python_version<"3"'
-  - pipenv install -d --system --skip-lock
+  - pip install -U -r requirements.txt
 
 script:
   - make lint

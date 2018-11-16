@@ -115,6 +115,10 @@ class TestFields(TestCase):
         column = fields.TimeField()
         self.assertIsInstance(column.type, sa.Time)
 
+    def test_timestamp_field(self):
+        column = fields.TimestampField()
+        self.assertIsInstance(column.type, sa.TIMESTAMP)
+
     def test_url_field(self):
         column = fields.URLField()
         self.assertIsInstance(column.type, sa.String)
