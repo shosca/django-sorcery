@@ -12,7 +12,7 @@ Sphinx
 sphinx_rtd_theme
 mock; python_version <= '2.7'
 beautifulsoup4
-attrs
+attrs==18.2.0
 tox
 coveralls
 sqlalchemy_utils
