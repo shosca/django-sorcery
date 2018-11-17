@@ -68,7 +68,7 @@ class TestCreateView(TestCase):
 
         form = response.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {"type": ["This field is required."]})
+        self.assertEqual(form.errors, {"type": ["This field is required."], "is_used": ["This field is required."]})
         self.assertHTMLEqual(response.content.decode(), form.as_p())
 
 

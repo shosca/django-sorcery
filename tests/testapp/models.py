@@ -76,11 +76,12 @@ class Owner(db.Model):
 
 class Vehicle(db.Model):
     id = db.IntegerField(autoincrement=True, primary_key=True, doc="The primary key")
-    name = db.CharField(doc="The name of the vehicle")
+    name = db.CharField(doc="The name of the vehicle", label="Name")
     type = db.EnumField(choices=VehicleType, constraint_name="ck_vehicle_type", nullable=False)
     created_at = db.DateTimeField()
     paint = db.EnumField(choices=COLORS, constraint_name="ck_colors")
     is_used = db.BooleanField()
+    msrp = db.DecimalField(max_digits=10, decimal_places=2)
 
     owner = db.ManyToOne(Owner, backref="vehicles")
 

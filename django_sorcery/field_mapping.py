@@ -124,7 +124,7 @@ class ModelFieldMapper(object):
             kwargs = self.get_default_kwargs(name)
             formfield = self.build_field(attr, **kwargs)
 
-            if formfield:
+            if formfield is not None:
                 if self.apply_limit_choices_to:
                     apply_limit_choices_to_form_field(formfield)
                 field_list.append((name, formfield))
@@ -136,6 +136,10 @@ class ModelFieldMapper(object):
             return self.formfield_callback(info, **kwargs)
 
         if isinstance(info, meta.column_info):
+            field = info.formfield(**kwargs)
+            if field is not None:
+                return field
+
             return self.build_standard_field(info, **kwargs)
 
         if isinstance(info, meta.relation_info):
@@ -177,17 +181,17 @@ class ModelFieldMapper(object):
         """
         Build a field for a sqlalchemy non-relation property depending on their type.
         """
+        field_kwargs = attr.field_kwargs
+        field_kwargs.update(kwargs)
         for base in attr.column.type.__class__.mro():
             type_func = getattr(self, "build_{}_field".format(base.__name__.lower()), None)
             if type_func and callable(type_func):
-                kwargs.update(attr.field_kwargs)
-                return type_func(attr, **kwargs)
+                return type_func(attr, **field_kwargs)
 
         with suppress(NotImplementedError):
             for base in attr.column.type.python_type.mro():
                 if base in FIELD_LOOKUP:
-                    kwargs.update(attr.field_kwargs)
-                    return FIELD_LOOKUP[base](**kwargs)
+                    return FIELD_LOOKUP[base](**field_kwargs)
 
     def build_enum_field(self, attr, **kwargs):
         """
