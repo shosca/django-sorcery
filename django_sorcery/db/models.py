@@ -418,6 +418,39 @@ class Base(CleanMixin):
         return model_info(self.__class__).composites
 
 
+def instant_defaults(cls):
+    """
+    This function automatically registers attribute events that sets the column defaults to a
+    model instance at model instance initialization provided that default values are simple
+    types::
+
+        @instant_defaults
+        class MyModel(db.Model):
+            attr = db.Column(..., default=1)
+
+        assert MyModel().default == 1
+
+    """
+
+    mapper = sa.inspect(cls, raiseerr=False)
+    if not mapper:
+        return
+
+    @sa.event.listens_for(mapper, "init")
+    def initialize_value_defaults(target, args, kwargs):
+        info = model_info(target.__class__)
+        for prop in info.properties.values():
+            if not prop.column.default or not hasattr(prop.column.default, "arg") or callable(prop.column.default.arg):
+                continue  # pragma: nocover
+
+            setattr(target, prop.name, prop.column.default.arg)
+
+    return cls
+
+
+signals.declare_last.connect(instant_defaults)
+
+
 @signals.before_flush.connect
 def full_clean_flush_handler(session, **kwargs):
     """
@@ -492,7 +525,7 @@ def autocoerce(cls):
 
 
 @sa.event.listens_for(sa.orm.mapper, "after_configured")
-def configure_coercers():
+def _configure_coercers():
     from django_sorcery.field_mapping import get_field_mapper
 
     for target in _autocoerce_attrs:

@@ -38,19 +38,19 @@ class TestModels(TestCase):
     def test_simple_repr(self):
 
         vehicle = Vehicle()
-        self.assertEqual(models.simple_repr(vehicle), "Vehicle(id=None)")
+        self.assertEqual(models.simple_repr(vehicle), "Vehicle(id=None, is_used=False)")
 
         vehicle.name = "Test"
-        self.assertEqual(models.simple_repr(vehicle), "Vehicle(id=None, name='Test')")
+        self.assertEqual(models.simple_repr(vehicle), "Vehicle(id=None, is_used=False, name='Test')")
 
         vehicle.id = 1234
-        self.assertTrue(models.simple_repr(vehicle), "Vehicle(id=1234, name='Test')")
+        self.assertTrue(models.simple_repr(vehicle), "Vehicle(id=1234, is_used=False, name='Test')")
 
         vehicle.id = "abc"
-        self.assertTrue(models.simple_repr(vehicle), "Vehicle(id='abc', name='Test')")
+        self.assertTrue(models.simple_repr(vehicle), "Vehicle(id='abc', is_used=False, name='Test')")
 
         vehicle.id = b"abc"
-        self.assertTrue(models.simple_repr(vehicle), "Vehicle(id='abc', name='Test')")
+        self.assertTrue(models.simple_repr(vehicle), "Vehicle(id='abc', is_used=False, name='Test')")
 
     def test_primary_keys(self):
         pks = models.get_primary_keys(Vehicle, {"pk": 1234})
@@ -97,6 +97,7 @@ class TestModels(TestCase):
             {
                 "created_at": None,
                 "is_used": True,
+                "msrp": None,
                 "name": "vehicle",
                 "options": [3, 4],
                 "owner": 2,
@@ -123,6 +124,7 @@ class TestModels(TestCase):
             {
                 "created_at": None,
                 "is_used": True,
+                "msrp": None,
                 "name": "vehicle",
                 "options": [3, 4],
                 "paint": "red",
@@ -164,8 +166,9 @@ class TestModels(TestCase):
                 "_owner_id": None,
                 "created_at": None,
                 "id": None,
-                "is_used": None,
+                "is_used": False,
                 "name": None,
+                "msrp": None,
                 "paint": None,
                 "type": VehicleType.car,
             },
@@ -183,7 +186,7 @@ class TestModels(TestCase):
             {
                 "id": None,
                 "name": "test",
-                "employees": None,
+                "employees": 5,
                 "location": {"state": "state 1", "street": "street 1", "zip": "zip 1"},
                 "other_location": {"state": "state 2", "street": "street 2", "zip": "zip 2"},
             },
@@ -208,12 +211,13 @@ class TestModels(TestCase):
                 "created_at": None,
                 "id": None,
                 "is_used": True,
-                "paint": "red",
-                "type": VehicleType.car,
+                "msrp": None,
                 "name": "vehicle",
-                "owner": {"id": None, "first_name": "first_name", "last_name": "last_name"},
                 "options": [{"id": None, "name": "option 1"}, {"id": None, "name": "option 2"}],
+                "owner": {"id": None, "first_name": "first_name", "last_name": "last_name"},
+                "paint": "red",
                 "parts": [{"id": None, "name": "part 1"}, {"id": None, "name": "part 2"}],
+                "type": VehicleType.car,
             },
             models.serialize(vehicle, Vehicle.owner, Vehicle.options, Vehicle.parts),
         )
@@ -225,12 +229,12 @@ class TestModels(TestCase):
             "created_at": None,
             "id": 1,
             "is_used": True,
-            "paint": "red",
-            "type": VehicleType.car,
             "name": "vehicle",
-            "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
             "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
+            "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
+            "paint": "red",
             "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
+            "type": VehicleType.car,
         }
 
         vehicle = models.deserialize(Vehicle, data)
@@ -241,12 +245,13 @@ class TestModels(TestCase):
                 "created_at": None,
                 "id": 1,
                 "is_used": True,
-                "paint": "red",
-                "type": VehicleType.car,
+                "msrp": None,
                 "name": "vehicle",
-                "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
                 "options": [{"id": 3, "name": "option 1"}, {"id": 4, "name": "option 2"}],
+                "owner": {"id": 2, "first_name": "first_name", "last_name": "last_name"},
+                "paint": "red",
                 "parts": [{"id": 5, "name": "part 1"}, {"id": 6, "name": "part 2"}],
+                "type": VehicleType.car,
             },
             models.serialize(vehicle, Vehicle.owner, Vehicle.options, Vehicle.parts),
         )
@@ -301,7 +306,7 @@ class TestModels(TestCase):
             {
                 "id": None,
                 "name": "test",
-                "employees": None,
+                "employees": 5,
                 "location": {"state": "state 1", "street": "street 1", "zip": "zip 1"},
                 "other_location": {"state": "state 2", "street": "street 2", "zip": "zip 2"},
             },

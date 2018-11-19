@@ -28,7 +28,8 @@ class TestModelForm(TestCase):
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
         form = form_class()
         self.assertListEqual(
-            sorted(form.fields.keys()), ["created_at", "is_used", "name", "options", "owner", "paint", "parts", "type"]
+            sorted(form.fields.keys()),
+            ["created_at", "is_used", "msrp", "name", "options", "owner", "paint", "parts", "type"],
         )
 
     def test_modelform_factory_instance_validate(self):
@@ -36,11 +37,11 @@ class TestModelForm(TestCase):
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
         form = form_class(instance=vehicle, data={"name": "testing"})
         self.assertFalse(form.is_valid())
-        self.assertEqual({"type": ["This field is required."]}, form.errors)
+        self.assertEqual(form.errors, {"type": ["This field is required."], "is_used": ["This field is required."]})
 
     def test_modelform_factory_instance_save(self):
         form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
-        data = {"name": "testing", "type": "car", "owner": self.owner.id}
+        data = {"name": "testing", "type": "car", "owner": self.owner.id, "is_used": True}
         form = form_class(data=data)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
@@ -60,11 +61,14 @@ class TestModelForm(TestCase):
         form = form_class(data={})
 
         self.assertTrue(form.is_bound)
-        self.assertEqual(form.errors, {"type": ["This field is required."]})
-        self.assertEqual(form.initial, {"paint": None, "created_at": None, "type": None, "name": None, "is_used": None})
+        self.assertEqual(form.errors, {"type": ["This field is required."], "is_used": ["This field is required."]})
+        self.assertEqual(
+            form.initial,
+            {"paint": None, "created_at": None, "type": None, "msrp": None, "name": None, "is_used": False},
+        )
         self.assertEqual(
             form.cleaned_data,
-            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None, "owner": None},
+            {"paint": "", "created_at": None, "options": [], "parts": [], "msrp": None, "name": "", "owner": None},
         )
 
         form.order_fields(sorted(form.fields.keys()))
@@ -75,14 +79,16 @@ class TestModelForm(TestCase):
                 [
                     "<p>",
                     '  <label for="id_created_at">Created at:</label>',
-                    '  <input type="text" name="created_at" id="id_created_at" />' "</p>",
+                    '  <input type="text" name="created_at" id="id_created_at" />',
+                    "</p>",
+                    '<ul class="errorlist"><li>This field is required.</li></ul>',
                     "<p>",
                     '  <label for="id_is_used">Is used:</label>',
-                    '  <select name="is_used" id="id_is_used">',
-                    '    <option value="1" selected>Unknown</option>',
-                    '    <option value="2">Yes</option>',
-                    '    <option value="3">No</option>',
-                    "  </select>",
+                    '  <input id="id_is_used" name="is_used" required="" type="checkbox"/>',
+                    "</p>",
+                    "<p>",
+                    '  <label for="id_msrp">Msrp:</label>',
+                    '  <input id="id_msrp" name="msrp" step="0.01" type="number"/>',
                     "</p>",
                     "<p>",
                     '  <label for="id_name">Name:</label>',
@@ -145,21 +151,22 @@ class TestModelForm(TestCase):
         form = form_class(instance=vehicle, data={})
 
         self.assertTrue(form.is_bound)
-        self.assertEqual(form.errors, {"type": ["This field is required."]})
+        self.assertEqual(form.errors, {"type": ["This field is required."], "is_used": ["This field is required."]})
         self.assertEqual(
             form.initial,
             {
-                "paint": None,
                 "created_at": None,
-                "type": VehicleType.car,
+                "is_used": False,
+                "msrp": None,
                 "name": None,
-                "is_used": None,
                 "owner": self.owner.id,
+                "paint": None,
+                "type": VehicleType.car,
             },
         )
         self.assertEqual(
             form.cleaned_data,
-            {"paint": "", "created_at": None, "options": [], "parts": [], "name": "", "is_used": None, "owner": None},
+            {"paint": "", "msrp": None, "created_at": None, "options": [], "parts": [], "name": "", "owner": None},
         )
 
         form.order_fields(sorted(form.fields.keys()))
@@ -170,14 +177,16 @@ class TestModelForm(TestCase):
                 [
                     "<p>",
                     '  <label for="id_created_at">Created at:</label>',
-                    '  <input type="text" name="created_at" id="id_created_at" />' "</p>",
+                    '  <input type="text" name="created_at" id="id_created_at" />',
+                    "</p>",
+                    '<ul class="errorlist"><li>This field is required.</li></ul>',
                     "<p>",
                     '  <label for="id_is_used">Is used:</label>',
-                    '  <select name="is_used" id="id_is_used">',
-                    '    <option value="1" selected>Unknown</option>',
-                    '    <option value="2">Yes</option>',
-                    '    <option value="3">No</option>',
-                    "  </select>",
+                    '  <input id="id_is_used" name="is_used" required type="checkbox" />',
+                    "</p>",
+                    "<p>",
+                    '  <label for="id_msrp">Msrp:</label>',
+                    '  <input id="id_msrp" name="msrp" step="0.01" type="number" />',
                     "</p>",
                     "<p>",
                     '  <label for="id_name">Name:</label>',

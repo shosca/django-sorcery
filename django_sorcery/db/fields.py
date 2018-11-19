@@ -5,9 +5,12 @@ import six
 
 import sqlalchemy as sa
 
+from django import forms as djangoforms
 from django.core import validators as django_validators
+from django.forms import fields as djangofields
 from django.utils import inspect
 
+from .. import fields
 from ..utils import suppress
 
 
@@ -37,6 +40,8 @@ __all__ = [
 class Field(sa.Column):
     default_validators = []
     type_class = None
+    form_class = None
+    widget_class = None
 
     def __init__(self, *args, **kwargs):
         args = list(args)
@@ -60,6 +65,15 @@ class Field(sa.Column):
         super(Field, self).__init__(*args, **column_kwargs)
         self.info["validators"] = self.get_validators(validators)
         self.info["required"] = required if required is not None else not self.nullable
+        label = kwargs.pop("label", None)
+        if label:
+            self.info["label"] = label
+        self.info["form_class"] = kwargs.pop("form_class", None) or self.get_form_class(kwargs)
+        if self.widget_class:
+            self.info["widget_class"] = self.widget_class
+
+    def get_form_class(self, kwargs):
+        return self.form_class
 
     def get_type_kwargs(self, type_class, kwargs):
         args = []
@@ -108,10 +122,18 @@ class Field(sa.Column):
 
 class BooleanField(Field):
     type_class = sa.Boolean
+    form_class = djangofields.BooleanField
+
+    def get_column_kwargs(self, kwargs):
+        column_kwargs = super(BooleanField, self).get_column_kwargs(kwargs)
+        column_kwargs["nullable"] = False
+        column_kwargs.setdefault("default", False)
+        return column_kwargs
 
 
 class CharField(Field):
     type_class = sa.String
+    form_class = djangofields.CharField
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(CharField, self).get_type_kwargs(type_class, kwargs)
@@ -121,18 +143,22 @@ class CharField(Field):
 
 class DateField(Field):
     type_class = sa.Date
+    form_class = djangofields.DateField
 
 
 class DateTimeField(Field):
     type_class = sa.DateTime
+    form_class = djangofields.DateTimeField
 
 
 class DurationField(Field):
     type_class = sa.Interval
+    form_class = djangofields.DurationField
 
 
 class DecimalField(Field):
     type_class = sa.Numeric
+    form_class = djangofields.DecimalField
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(DecimalField, self).get_type_kwargs(type_class, kwargs)
@@ -149,6 +175,7 @@ class DecimalField(Field):
 
 class EmailField(CharField):
     default_validators = [django_validators.validate_email]
+    form_class = djangofields.EmailField
 
 
 class EnumField(Field):
@@ -156,7 +183,7 @@ class EnumField(Field):
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(EnumField, self).get_type_kwargs(type_class, kwargs)
-        choices = kwargs.pop("choices")
+        choices = kwargs.pop("choices", None) or kwargs.pop("enum_class", None)
         type_kwargs["choices"] = choices if len(choices) > 1 and isinstance(choices, (list, tuple)) else [choices]
         type_kwargs["name"] = kwargs.pop("constraint_name", None)
 
@@ -180,9 +207,16 @@ class EnumField(Field):
         choices = type_kwargs.pop("choices")
         return type_class(*choices, **type_kwargs)
 
+    def get_form_class(self, kwargs):
+        if self.type.enum_class:
+            return fields.EnumField
+
+        return djangofields.TypedChoiceField
+
 
 class FloatField(Field):
     type_class = sa.Float
+    form_class = djangofields.FloatField
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(FloatField, self).get_type_kwargs(type_class, kwargs)
@@ -193,34 +227,43 @@ class FloatField(Field):
 class IntegerField(Field):
     default_validators = [django_validators.validate_integer]
     type_class = sa.Integer
+    form_class = djangofields.IntegerField
 
 
 class BigIntegerField(Field):
     default_validators = [django_validators.validate_integer]
     type_class = sa.BigInteger
+    form_class = djangofields.IntegerField
 
 
 class SmallIntegerField(Field):
     default_validators = [django_validators.validate_integer]
     type_class = sa.SmallInteger
+    form_class = djangofields.IntegerField
 
 
 class NullBooleanField(BooleanField):
+    form_class = djangofields.NullBooleanField
+
     def get_column_kwargs(self, kwargs):
-        kwargs["nullable"] = False
+        kwargs["nullable"] = True
         return kwargs
 
 
 class SlugField(CharField):
     default_validators = [django_validators.validate_slug]
+    form_class = djangofields.SlugField
 
 
 class TextField(CharField):
     type_class = sa.Text
+    form_class = djangofields.CharField
+    widget_class = djangoforms.Textarea
 
 
 class TimeField(Field):
     type_class = sa.Time
+    form_class = djangofields.TimeField
 
 
 class TimestampField(DateTimeField):
@@ -229,6 +272,7 @@ class TimestampField(DateTimeField):
 
 class URLField(CharField):
     default_validators = [django_validators.URLValidator()]
+    form_class = djangofields.URLField
 
 
 class BinaryField(Field):

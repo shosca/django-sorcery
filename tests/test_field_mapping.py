@@ -115,7 +115,8 @@ class TestFieldMapping(TestCase):
         fields = mapper.get_fields()
 
         self.assertEqual(
-            list(sorted(fields.keys())), ["created_at", "is_used", "name", "options", "owner", "paint", "parts", "type"]
+            list(sorted(fields.keys())),
+            ["created_at", "is_used", "msrp", "name", "options", "owner", "paint", "parts", "type"],
         )
         self.assertNotIn(Vehicle._owner_id.key, fields)
 
