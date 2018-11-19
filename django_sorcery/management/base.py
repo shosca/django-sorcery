@@ -3,6 +3,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 import inspect
 import os
 
+import sqlalchemy as sa
+
 from django.core.management.base import BaseCommand, CommandParser
 
 
@@ -39,15 +41,15 @@ class NamespacedCommand(BaseCommand):
             self.print_help(argv[0], argv[1])
 
     def create_parser(self, prog_name, subcommand):
-        try:
-            # for django<2.1 compat
-            parser = CommandParser(
-                None, prog="%s %s" % (os.path.basename(prog_name), subcommand), description=self.help or None
-            )
-        except TypeError:
-            parser = CommandParser(
-                prog="%s %s" % (os.path.basename(prog_name), subcommand), description=self.help or None
-            )
+
+        # for django<2.1 compat, filter kwargs
+        args = sa.util.get_cls_kwargs(CommandParser)
+        kwargs = {
+            "cmd": None,
+            "prog": "%s %s" % (os.path.basename(prog_name), subcommand),
+            "description": self.help or None,
+        }
+        parser = CommandParser(**{k: v for k, v in kwargs.items() if k in args})
 
         for name, command_cls in self.commands.items():
             parser.add_argument(name, help=command_cls.help)

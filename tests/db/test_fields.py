@@ -31,7 +31,7 @@ class TestFields(TestCase):
         column = fields.BooleanField()
         self.assertIsInstance(column.type, sa.Boolean)
         self.assertFalse(column.nullable)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.BooleanField)
 
     def test_char_field(self):
@@ -41,32 +41,32 @@ class TestFields(TestCase):
 
         column = fields.CharField(max_length=120)
         self.assertEqual(column.type.length, 120)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.CharField)
 
     def test_date_field(self):
         column = fields.DateField()
         self.assertIsInstance(column.type, sa.Date)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.DateField)
 
     def test_datetime_field(self):
         column = fields.DateTimeField()
         self.assertIsInstance(column.type, sa.DateTime)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.DateTimeField)
 
     def test_duration_field(self):
         column = fields.DurationField()
         self.assertIsInstance(column.type, sa.Interval)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.DurationField)
 
     def test_decimal_field(self):
         column = fields.DecimalField()
         self.assertIsInstance(column.type, sa.Numeric)
         self.assertTrue(column.type.asdecimal)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.DecimalField)
 
     def test_email_field(self):
@@ -80,7 +80,7 @@ class TestFields(TestCase):
                 "validators": [django_validators.validate_email],
             },
         )
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.EmailField)
 
     def test_enum_field_bad_config(self):
@@ -95,7 +95,7 @@ class TestFields(TestCase):
         self.assertIsInstance(column.type, sa.Enum)
         self.assertIsNone(column.type.enum_class)
         self.assertEqual(column.type.enums, ["a", "b"])
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.TypedChoiceField)
         self.assertEqual(form_field.choices, [("a", "a"), ("b", "b")])
 
@@ -103,7 +103,7 @@ class TestFields(TestCase):
         column = fields.EnumField(choices=DummyEnum)
         self.assertIsInstance(column.type, sa.Enum)
         self.assertEqual(column.type.enum_class, DummyEnum)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, formfields.EnumField)
 
     def test_enum_field_enum_choices_with_constraint_name(self):
@@ -111,7 +111,7 @@ class TestFields(TestCase):
         self.assertIsInstance(column.type, sa.Enum)
         self.assertEqual(column.type.enum_class, DummyEnum)
         self.assertEqual(column.type.name, "dummy")
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, formfields.EnumField)
 
     def test_enum_field_enum_choices_with_constraint_name_and_no_native_type(self):
@@ -120,7 +120,7 @@ class TestFields(TestCase):
         self.assertEqual(column.type.enum_class, DummyEnum)
         self.assertEqual(column.type.name, "dummy")
         self.assertFalse(column.type.native_enum)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, formfields.EnumField)
 
     def test_float_field(self):
@@ -135,28 +135,28 @@ class TestFields(TestCase):
         column = fields.FloatField(max_digits=10)
         self.assertEqual(column.type.precision, 10)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.FloatField)
 
     def test_integer_field(self):
         column = fields.IntegerField()
         self.assertIsInstance(column.type, sa.Integer)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.IntegerField)
 
     def test_biginteger_field(self):
         column = fields.BigIntegerField()
         self.assertIsInstance(column.type, sa.BigInteger)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.IntegerField)
 
     def test_smallinteger_field(self):
         column = fields.SmallIntegerField()
         self.assertIsInstance(column.type, sa.SmallInteger)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.IntegerField)
 
     def test_nullboolean_field(self):
@@ -164,7 +164,7 @@ class TestFields(TestCase):
         self.assertIsInstance(column.type, sa.Boolean)
         self.assertTrue(column.nullable)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.NullBooleanField)
 
     def test_slug_field(self):
@@ -180,14 +180,14 @@ class TestFields(TestCase):
             },
         )
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.SlugField)
 
     def test_text_field(self):
         column = fields.TextField()
         self.assertIsInstance(column.type, sa.Text)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.CharField)
         self.assertIsInstance(form_field.widget, djangoforms.Textarea)
 
@@ -195,14 +195,14 @@ class TestFields(TestCase):
         column = fields.TimeField()
         self.assertIsInstance(column.type, sa.Time)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.TimeField)
 
     def test_timestamp_field(self):
         column = fields.TimestampField()
         self.assertIsInstance(column.type, sa.TIMESTAMP)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.DateTimeField)
 
     def test_url_field(self):
@@ -210,7 +210,7 @@ class TestFields(TestCase):
         self.assertIsInstance(column.type, sa.String)
         self.assertIsInstance(column.info["validators"][0], django_validators.URLValidator)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.URLField)
 
     def test_binary_field(self):
@@ -219,11 +219,11 @@ class TestFields(TestCase):
     def test_override_form_class(self):
         column = fields.EnumField(choices=["a", "b"], form_class=djangofields.ChoiceField)
 
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIs(type(form_field), djangofields.ChoiceField)
         self.assertIsNot(type(form_field), djangofields.TypedChoiceField)
 
         column = fields.URLField(form_class=djangofields.CharField)
-        form_field = meta.column_info(None, column).formfield()
+        form_field = meta.column_info(column).formfield()
         self.assertIs(type(form_field), djangofields.CharField)
         self.assertIsNot(type(form_field), djangofields.URLField)

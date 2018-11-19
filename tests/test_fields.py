@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.core.exceptions import ValidationError
 
 from django_sorcery import fields
-from django_sorcery.forms import modelform_factory
+from django_sorcery.forms import apply_limit_choices_to_form_field, modelform_factory
 
 from .base import TestCase
 from .testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
@@ -78,7 +78,7 @@ class TestModelChoiceField(TestCase):
     def test_apply_limit(self):
 
         field = fields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.first_name == "first_name 1"])
-        fields.apply_limit_choices_to_form_field(field)
+        apply_limit_choices_to_form_field(field)
         self.assertEqual(field.queryset.count(), 1)
 
     def test_choices(self):

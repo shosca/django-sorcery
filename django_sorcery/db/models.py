@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-from collections import OrderedDict, namedtuple
+import warnings
 from functools import partial
 from itertools import chain
 
@@ -16,115 +16,42 @@ from django.core.exceptions import ValidationError
 from django.forms.fields import DateField
 from django.utils.text import camel_case_to_spaces
 
-from . import signals
-from .meta import model_info
+from . import meta, signals
 from .mixins import CleanMixin
 
 
-Identity = namedtuple("Key", ["model", "pk"])
-
-
 def get_primary_keys(model, kwargs):
-    """
-    Returns the primary key from a dictionary to be used in a sqlalchemy query.get() call
-    """
-    info = model_info(model)
-    pks = []
+    warnings.warn(
+        "Deprecated, use django_sorcery.db.meta.model_info.primary_keys_from_dict instead.", DeprecationWarning
+    )
+    from .meta import model_info
 
-    for attr, _ in info.primary_keys.items():
-        pk = kwargs.get(attr)
-        pks.append(pk)
-
-    if any(pk is None for pk in pks):
-        return None
-
-    if len(pks) < 2:
-        return next(iter(pks), None)
-
-    return tuple(pks)
-
-
-def get_identity_key(model, kwargs):
-    """
-    Returns identity key from a dictionary for the given model
-    """
-    pks = get_primary_keys(model, kwargs)
-    if pks is None:
-        return
-
-    return Identity(model, pks if isinstance(pks, tuple) else (pks,))
+    return model_info(model).primary_keys_from_dict(kwargs)
 
 
 def get_primary_keys_from_instance(instance):
-    """
-    Return a dict containing the primary keys of the ``instance``
-    """
-    if instance is None:
-        return None
+    warnings.warn(
+        "Deprecated, use django_sorcery.db.meta.model_info.primary_keys_from_instance instead.", DeprecationWarning
+    )
+    from .meta import model_info
 
-    info = model_info(type(instance))
+    return model_info(type(instance)).primary_keys_from_instance(instance)
 
-    if len(info.primary_keys) > 1:
-        return OrderedDict((name, getattr(instance, name)) for name in info.primary_keys)
 
-    return getattr(instance, next(iter(info.primary_keys)))
+def get_identity_key(model, kwargs):
+    warnings.warn(
+        "Deprecated, use django_sorcery.db.meta.model_info.identity_key_from_dict instead.", DeprecationWarning
+    )
+    from .meta import model_info
+
+    return model_info(model).identity_key_from_dict(kwargs)
 
 
 def model_to_dict(instance, fields=None, exclude=None):
-    """
-    Return a dict containing the data in ``instance`` suitable for passing as
-    a Form's ``initial`` keyword argument.
+    warnings.warn("Deprecated, use django_sorcery.forms.model_to_dict instead.", DeprecationWarning)
+    from ..forms import model_to_dict
 
-    ``fields`` is an optional list of field names. If provided, return only the
-    named.
-
-    ``exclude`` is an optional list of field names. If provided, exclude the
-    named from the returned dict, even if they are listed in the ``fields``
-    argument.
-    """
-    info = model_info(type(instance))
-
-    fields = set(
-        fields or list(info.properties.keys()) + list(info.primary_keys.keys()) + list(info.relationships.keys())
-    )
-    exclude = set(exclude or [])
-    data = {}
-    for name in info.properties:
-
-        if name.startswith("_"):
-            continue
-
-        if name not in fields:
-            continue
-
-        if name in exclude:
-            continue
-
-        data[name] = getattr(instance, name)
-
-    for name, rel in info.relationships.items():
-
-        if name.startswith("_"):
-            continue
-
-        if name not in fields:
-            continue
-
-        if name in exclude:
-            continue
-
-        if rel.uselist:
-            for obj in getattr(instance, name):
-                pks = get_primary_keys_from_instance(obj)
-                if pks:
-                    data.setdefault(name, []).append(pks)
-        else:
-            obj = getattr(instance, name)
-            pks = get_primary_keys_from_instance(obj)
-            if pks:
-                data[name] = pks
-
-    return data
+    return model_to_dict(instance, fields=fields, exclude=exclude)
 
 
 def simple_repr(instance, fields=None):
@@ -214,7 +141,7 @@ def deserialize(model, data):
     instance = _deserialize(model, data, identity_map)
 
     for val in identity_map.values():
-        info = model_info(val.__class__)
+        info = meta.model_info(val.__class__)
         for prop, rel in info.relationships.items():
             if rel.direction == MANYTOONE or not rel.uselist:
                 deserialized_instance = getattr(val, prop)
@@ -227,7 +154,8 @@ def deserialize(model, data):
                     remote_attr = rel.related_mapper.get_property_by_column(remote)
                     fks[remote_attr.key] = getattr(val, local_attr.key)
 
-                ident_key = get_identity_key(rel.related_model, fks)
+                related_info = meta.model_info(rel.related_model)
+                ident_key = related_info.identity_key_from_dict(fks)
                 if ident_key is not None and ident_key in identity_map:
                     setattr(val, prop, identity_map[ident_key])
 
@@ -241,14 +169,14 @@ def _deserialize(model, data, identity_map):
     if isinstance(data, (list, tuple, set)):
         return [_deserialize(model, i, identity_map) for i in data]
 
-    info = model_info(model)
+    info = meta.model_info(model)
 
     kwargs = {}
     for prop in info.primary_keys:
         if prop in data:
             kwargs[prop] = data.get(prop)
 
-    pk = get_identity_key(model, kwargs)
+    pk = info.identity_key_from_dict(kwargs)
     if pk is not None and pk in identity_map:
         return identity_map[pk]
 
@@ -408,20 +336,20 @@ class Base(CleanMixin):
         """
         Return all model columns which can be validated
         """
-        info = model_info(self.__class__)
+        info = meta.model_info(self.__class__)
         return {k: v for k, v in info.properties.items() if k in info.field_names}
 
     def _get_nested_objects_for_validation(self):
         """
         Return all composites to be validated
         """
-        return model_info(self.__class__).composites
+        return meta.model_info(self.__class__).composites
 
     def _get_relation_objects_for_validation(self):
         """
         Return all relations to be validated
         """
-        return model_info(self.__class__).relationships
+        return meta.model_info(self.__class__).relationships
 
 
 def instant_defaults(cls):
@@ -444,12 +372,13 @@ def instant_defaults(cls):
 
     @sa.event.listens_for(mapper, "init")
     def initialize_value_defaults(target, args, kwargs):
-        info = model_info(target.__class__)
+        info = meta.model_info(target.__class__)
         for prop in info.properties.values():
             if not prop.column.default or not hasattr(prop.column.default, "arg") or callable(prop.column.default.arg):
                 continue  # pragma: nocover
 
-            setattr(target, prop.name, prop.column.default.arg)
+            if getattr(target, prop.name, None) is None:
+                setattr(target, prop.name, prop.column.default.arg)
 
     return cls
 
@@ -532,14 +461,14 @@ def autocoerce(cls):
 
 @sa.event.listens_for(sa.orm.mapper, "after_configured")
 def _configure_coercers():
-    from django_sorcery.field_mapping import get_field_mapper
-
     for target in _autocoerce_attrs:
-        field_mapper = get_field_mapper()(model=target.parent)
-        info = model_info(target.parent)
-        form_field = field_mapper.build_field(
-            info.primary_keys.get(target.key) or info.properties.get(target.key), required=False, localize=True
-        )
+        info = meta.model_info(target.parent)
+        form_field = None
+
+        column_info = getattr(info, target.key, None)
+
+        if column_info:
+            form_field = column_info.formfield(required=False, localize=True)
 
         if form_field is None:
             continue

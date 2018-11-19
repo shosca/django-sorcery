@@ -11,7 +11,7 @@ from django.http import Http404
 from django.utils.translation import gettext
 from django.views.generic.base import ContextMixin
 
-from ..db.models import get_primary_keys
+from ..db import meta
 from ..utils import suppress
 
 
@@ -212,7 +212,8 @@ class BaseSingleObjectMixin(SQLAlchemyMixin):
 
         slug = self.kwargs.get(self.slug_url_kwarg)
         model = self.get_model()
-        pk = get_primary_keys(model, self.kwargs)
+        info = meta.model_info(model)
+        pk = info.primary_keys_from_dict(self.kwargs)
         obj = None
 
         if pk is not None:

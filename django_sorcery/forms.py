@@ -3,16 +3,179 @@
 Helper functions for creating Form classes from SQLAlchemy models.
 """
 from __future__ import absolute_import, print_function, unicode_literals
+from collections import OrderedDict
+from itertools import chain
 
 import six
 
 from django.core.exceptions import NON_FIELD_ERRORS, ImproperlyConfigured, ValidationError
+from django.forms import ALL_FIELDS
 from django.forms.forms import BaseForm, DeclarativeFieldsMetaclass
 from django.forms.models import ModelFormOptions
 from django.forms.utils import ErrorList
 
-from .db.models import model_to_dict
-from .field_mapping import ALL_FIELDS, apply_limit_choices_to_form_field, get_field_mapper
+from .db import meta
+from .utils import suppress
+
+
+def _get_default_kwargs(
+    info,
+    session,
+    fields=None,
+    exclude=None,
+    widgets=None,
+    localized_fields=None,
+    labels=None,
+    help_texts=None,
+    error_messages=None,
+    field_classes=None,
+):
+    kwargs = {}
+    if widgets and info.name in widgets:
+        kwargs["widget"] = widgets[info.name]
+    if labels and info.name in labels:
+        kwargs["label"] = labels[info.name]
+    if help_texts and info.name in help_texts:
+        kwargs["help_text"] = help_texts[info.name]
+    if error_messages and info.name in error_messages:
+        kwargs["error_messages"] = error_messages[info.name]
+    if field_classes and info.name in field_classes:
+        kwargs["form_class"] = field_classes[info.name]
+
+    if localized_fields == ALL_FIELDS:
+        kwargs["localize"] = True
+    if localized_fields and info.name in localized_fields:
+        kwargs["localize"] = True
+
+    if session is None:
+        with suppress(AttributeError):
+            session = info.related_model.query.session
+
+    if isinstance(info, meta.relation_info):
+        kwargs["session"] = session
+    return kwargs
+
+
+def fields_for_model(
+    model,
+    session,
+    fields=None,
+    exclude=None,
+    widgets=None,
+    formfield_callback=None,
+    localized_fields=None,
+    labels=None,
+    help_texts=None,
+    error_messages=None,
+    field_classes=None,
+    apply_limit_choices_to=True,
+    **kwargs
+):
+
+    field_list = []
+    info = meta.model_info(model)
+
+    for name, attr in chain(info.properties.items(), info.relationships.items()):
+
+        if name.startswith("_"):
+            continue
+
+        if fields and name not in fields:
+            continue
+
+        if exclude and name in exclude:
+            continue
+
+        kwargs = _get_default_kwargs(
+            attr,
+            session,
+            fields=fields,
+            exclude=exclude,
+            widgets=widgets,
+            localized_fields=localized_fields,
+            labels=labels,
+            help_texts=help_texts,
+            error_messages=error_messages,
+            field_classes=field_classes,
+        )
+        if formfield_callback is None:
+            formfield = attr.formfield(**kwargs)
+        elif not callable(formfield_callback):
+            raise TypeError("formfield_callback must be a function or callable")
+        else:
+            formfield = formfield_callback(attr, **kwargs)
+
+        if formfield is not None:
+            if apply_limit_choices_to:
+                apply_limit_choices_to_form_field(formfield)
+            field_list.append((name, formfield))
+
+    return OrderedDict(field_list)
+
+
+def apply_limit_choices_to_form_field(formfield):
+    if hasattr(formfield, "queryset") and hasattr(formfield, "get_limit_choices_to"):
+        limit_choices_to = formfield.get_limit_choices_to()
+        if limit_choices_to is not None:
+            formfield.queryset = formfield.queryset.filter(*limit_choices_to)
+
+
+def model_to_dict(instance, fields=None, exclude=None):
+    """
+    Return a dict containing the data in ``instance`` suitable for passing as
+    a Form's ``initial`` keyword argument.
+
+    ``fields`` is an optional list of field names. If provided, return only the
+    named.
+
+    ``exclude`` is an optional list of field names. If provided, exclude the
+    named from the returned dict, even if they are listed in the ``fields``
+    argument.
+    """
+    info = meta.model_info(type(instance))
+
+    fields = set(
+        fields or list(info.properties.keys()) + list(info.primary_keys.keys()) + list(info.relationships.keys())
+    )
+    exclude = set(exclude or [])
+    data = {}
+    for name in info.properties:
+
+        if name.startswith("_"):
+            continue
+
+        if name not in fields:
+            continue
+
+        if name in exclude:
+            continue
+
+        data[name] = getattr(instance, name)
+
+    for name, rel in info.relationships.items():
+        related_info = meta.model_info(rel.related_model)
+
+        if name.startswith("_"):
+            continue
+
+        if name not in fields:
+            continue
+
+        if name in exclude:
+            continue
+
+        if rel.uselist:
+            for obj in getattr(instance, name):
+                pks = related_info.primary_keys_from_instance(obj)
+                if pks:
+                    data.setdefault(name, []).append(pks)
+        else:
+            obj = getattr(instance, name)
+            pks = related_info.primary_keys_from_instance(obj)
+            if pks:
+                data[name] = pks
+
+    return data
 
 
 class SQLAModelFormOptions(ModelFormOptions):
@@ -56,11 +219,21 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
             if opts.fields == ALL_FIELDS:
                 opts.fields = None
 
-            mapper = get_field_mapper()
-            mcs.base_fields = mapper(
-                formfield_callback=formfield_callback, apply_limit_choices_to=False, **vars(opts)
-            ).get_fields()
-
+            mcs.base_fields = fields_for_model(
+                opts.model,
+                opts.session,
+                error_messages=opts.error_messages,
+                exclude=opts.exclude,
+                field_classes=opts.field_classes,
+                fields=opts.fields,
+                help_texts=opts.help_texts,
+                labels=opts.labels,
+                localized_fields=opts.localized_fields,
+                widgets=opts.widgets,
+                formfield_callback=formfield_callback,
+                apply_limit_choices_to=False,
+            )
+            mcs.base_fields.update(mcs.declared_fields)
         else:
             mcs.base_fields = mcs.declared_fields
 
@@ -227,15 +400,15 @@ def modelform_factory(model, form=ModelForm, formfield_callback=None, **kwargs):
             attrs[key] = value
 
     bases = (form.Meta,) if hasattr(form, "Meta") else tuple()
-    meta = type(str("Meta"), bases, attrs)
+    meta_ = type(str("Meta"), bases, attrs)
     if formfield_callback:
-        meta.formfield_callback = staticmethod(formfield_callback)
+        meta_.formfield_callback = staticmethod(formfield_callback)
 
     class_name = model.__name__ + "Form"
 
-    if getattr(meta, "fields", None) is None and getattr(meta, "exclude", None) is None:
+    if getattr(meta_, "fields", None) is None and getattr(meta_, "exclude", None) is None:
         raise ImproperlyConfigured(
             "Calling modelform_factory without defining 'fields' or 'exclude' explicitly is prohibited."
         )
 
-    return type(form)(str(class_name), (form,), {"Meta": meta, "formfield_callback": formfield_callback})
+    return type(form)(str(class_name), (form,), {"Meta": meta_, "formfield_callback": formfield_callback})
