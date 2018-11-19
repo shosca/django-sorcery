@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.16 (2018-11-16)
+0.6.17 (2018-11-19)
 -----------------------------
+- Implement formfield support in fields (#93) [Serkan Hosca]
+- Remove yapf config. [Serkan Hosca]
+
+
+0.6.16 (2018-11-16)
+-------------------
 - Fix docs build. [Serkan Hosca]
 - Add TimestampField (#74) [Serkan Hosca]
 
