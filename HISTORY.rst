@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.17 (2018-11-19)
+0.6.18 (2018-11-20)
 -----------------------------
+- Added full_clean(recursive=True) for adhoc full tree validation (#96)
+  [Miroslav Shubernetskiy]
+
+
+0.6.17 (2018-11-19)
+-------------------
 - Implement formfield support in fields (#93) [Serkan Hosca]
 - Remove yapf config. [Serkan Hosca]
 
