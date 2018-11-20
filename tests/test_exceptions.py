@@ -8,43 +8,34 @@ from django_sorcery.exceptions import NestedValidationError
 
 
 class TestNestedValidationError(TestCase):
-    def test_string_message(self):
+    def test_string(self):
         error = NestedValidationError("error")
+        self.assertEqual(error.messages, ["error"])
 
-        self.assertEqual(error.message, "error")
-        self.assertIsNone(error.params)
+        error = NestedValidationError("error %s", params=("here",))
+        self.assertEqual(error.messages, ["error here"])
 
-        self.assertIsInstance(error.error_list, list)
-        self.assertEqual(len(error.error_list), 1)
-        self.assertEqual(error.error_list, [error])
+    def test_list(self):
+        error = NestedValidationError(["error"])
+        self.assertEqual(error.messages, ["error"])
 
-        error_dict = error.update_error_dict({"some": "other error"})
-
-        self.assertDictEqual({"some": "other error", "__all__": [error]}, error_dict)
-
-    def test_dict_message(self):
+    def test_dict(self):
         error = NestedValidationError({"some": "error"})
+        self.assertEqual(error.message_dict, {"some": ["error"]})
 
-        self.assertIsInstance(error.error_dict, dict)
-        self.assertIn("some", error.error_dict)
+    def test_nested(self):
+        error = NestedValidationError(NestedValidationError({"some": {"field": ["error"]}}))
+        self.assertEqual(error.message_dict, {"some": {"field": ["error"]}})
 
-        errors = error.error_dict["some"]
+    def test_update_error_dict(self):
+        error = NestedValidationError("error")
+        self.assertDictEqual(
+            {"some": "other error", "__all__": [error]}, error.update_error_dict({"some": "other error"})
+        )
 
-        self.assertIsInstance(errors, list)
-
-        other = [ValidationError("other error")]
-        error_dict = error.update_error_dict({"some": other})
-
-        self.assertDictEqual({"some": [other[0], errors[0]]}, error_dict)
-
-        error = errors[0]
-
-        self.assertEqual(error.message, "error")
-        self.assertIsNone(error.params)
-
-        self.assertIsInstance(error.error_list, list)
-        self.assertEqual(len(error.error_list), 1)
-        self.assertEqual(error.error_list, [error])
+        other = ValidationError("other error")
+        error2 = NestedValidationError({"some": error})
+        self.assertDictEqual({"some": [other, error]}, error2.update_error_dict({"some": [other]}))
 
     def test_dict_nested(self):
         error = NestedValidationError({"some": {"field": "error", "list": ["errors"], "object": {"field": "error"}}})
@@ -52,41 +43,36 @@ class TestNestedValidationError(TestCase):
             error.message_dict, {"some": {"field": ["error"], "list": ["errors"], "object": {"field": ["error"]}}}
         )
 
+    def test_list_nested(self):
+        error = NestedValidationError(
+            {
+                "some": {
+                    "field": "error",
+                    "list": ["error1", "error2"],
+                    "object": {"field": "error"},
+                    "nested": [{"field": "error", "list": ["errors"]}],
+                }
+            }
+        )
+        self.assertEqual(
+            error.message_dict,
+            {
+                "some": {
+                    "field": ["error"],
+                    "list": ["error1", "error2"],
+                    "object": {"field": ["error"]},
+                    "nested": [{"field": ["error"], "list": ["errors"]}],
+                }
+            },
+        )
+
     def test_nested_error(self):
         error = NestedValidationError({"some": ValidationError("error")})
+        self.assertEqual(error.message_dict, {"some": ["error"]})
 
-        self.assertIsInstance(error.error_dict, dict)
-        self.assertIn("some", error.error_dict)
-
-        errors = error.error_dict["some"]
-
-        self.assertIsInstance(errors, list)
-
-        error = errors[0]
-
-        self.assertEqual(error.message, "error")
-        self.assertIsNone(error.params)
-
-        self.assertIsInstance(error.error_list, list)
-        self.assertEqual(len(error.error_list), 1)
-        self.assertEqual(error.error_list, [error])
-
-    def test_nested_error_error(self):
         inner = NestedValidationError("error")
         error = NestedValidationError({"some": inner})
+        self.assertEqual(error.message_dict, {"some": ["error"]})
 
-        self.assertIsInstance(error.error_dict, dict)
-        self.assertIn("some", error.error_dict)
-
-        errors = error.error_dict["some"]
-
-        self.assertIsInstance(errors, list)
-
-        error = errors[0]
-
-        self.assertEqual(error.message, "error")
-        self.assertIsNone(error.params)
-
-        self.assertIsInstance(error.error_list, list)
-        self.assertEqual(len(error.error_list), 1)
-        self.assertEqual(error.error_list, [error])
+    def test_repr(self):
+        self.assertTrue(repr(NestedValidationError("error")).startswith("NestedValidationError"))

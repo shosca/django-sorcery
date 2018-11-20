@@ -82,12 +82,6 @@ class BaseComposite(CleanMixin):
         """
         return {k: column_info(None, v) for k, v in self._columns.items()}
 
-    def _get_nested_objects_for_validation(self):
-        """
-        Dont return any fields since composites cant be nested
-        """
-        return []
-
     def as_dict(self):
         """
         Serializer composite to a dictionary

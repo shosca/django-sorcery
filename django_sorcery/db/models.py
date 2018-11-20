@@ -417,6 +417,12 @@ class Base(CleanMixin):
         """
         return model_info(self.__class__).composites
 
+    def _get_relation_objects_for_validation(self):
+        """
+        Return all relations to be validated
+        """
+        return model_info(self.__class__).relationships
+
 
 def instant_defaults(cls):
     """
