@@ -37,14 +37,14 @@ class CleanMixin(object):
                     raise ValidationError("NY state did not exist before 1776")
     """
 
-    def clean(self):
+    def clean(self, **kwargs):
         """
         Hook for adding custom model validations before model is flushed.
 
         Should raise ``ValidationError`` if any errors are found.
         """
 
-    def clean_fields(self, exclude):
+    def clean_fields(self, exclude, **kwargs):
         """
         Clean all fields on object
         """
@@ -58,7 +58,7 @@ class CleanMixin(object):
                 for col in chain(*rel.local_remote_pairs):
                     local_remote_pairs.add(col)
 
-        for name, field in self._get_properties_for_validation().items():
+        for name, field in (self._get_properties_for_validation() or {}).items():
             is_blank = not bool(getattr(self, name))
             is_nullable = field.column.nullable
             is_fk = field.column in local_remote_pairs
@@ -79,6 +79,7 @@ class CleanMixin(object):
                     try:
                         v(getattr(self, name))
                     except ValidationError as e:
+                        e = NestedValidationError(e)
                         try:
                             e.error_list
                         except AttributeError:
@@ -90,6 +91,7 @@ class CleanMixin(object):
                     getattr(self, "clean_{}".format(name), bool)()
 
                 except ValidationError as e:
+                    e = NestedValidationError(e)
                     try:
                         e.error_list
                     except AttributeError:
@@ -98,20 +100,20 @@ class CleanMixin(object):
                         errors.setdefault(name, []).extend(e.error_list)
 
         if errors:
-            raise ValidationError(errors)
+            raise NestedValidationError(errors)
 
     def _get_properties_for_validation(self):
         """
         Needs to be implemented to return all properties for the object
         """
 
-    def clean_nested_fields(self, exclude):
+    def clean_nested_fields(self, exclude, **kwargs):
         """
         Clean all nested fields which includes composites
         """
         errors = {}
 
-        for name in self._get_nested_objects_for_validation():
+        for name in self._get_nested_objects_for_validation() or []:
             try:
                 e = exclude.get(name, [])
             except AttributeError:
@@ -124,11 +126,12 @@ class CleanMixin(object):
 
                 try:
                     try:
-                        getattr(self, name).full_clean(exclude=e)
+                        getattr(self, name).full_clean(exclude=e, **kwargs)
                     except AttributeError:
                         pass
 
                 except ValidationError as e:
+                    e = NestedValidationError(e)
                     errors[name] = e.update_error_dict({})
 
         if errors:
@@ -139,7 +142,61 @@ class CleanMixin(object):
         Needs to be implemented to return all nested objects
         """
 
-    def run_validators(self):
+    def clean_relation_fields(self, exclude, **kwargs):
+        """
+        Clean all relation fields
+        """
+        visited = kwargs.pop("visited", set())
+        visited.add(id(self))
+        errors = {}
+
+        for name in self._get_relation_objects_for_validation() or []:
+            try:
+                e = exclude.get(name, [])
+            except AttributeError:
+                e = []
+
+            # only exclude when subexclude is not either list or dict
+            # otherwise validate nested object and let it ignore its own subfields
+            is_nestable = e and isinstance(e, (dict, list, tuple))
+            if name not in exclude or is_nestable:
+                value = getattr(self, name)
+
+                if isinstance(value, (list, tuple)):
+                    _errors = []
+
+                    for i in value:
+                        if id(i) not in visited:
+                            try:
+                                i.full_clean(exclude=e, visited=visited, **kwargs)
+                            except AttributeError:
+                                pass
+                            except ValidationError as e:
+                                e = NestedValidationError(e)
+                                _errors.append(e.update_error_dict({}))
+
+                    if _errors:
+                        errors[name] = _errors
+
+                else:
+                    try:
+                        if id(value) not in visited:
+                            value.full_clean(exclude=e, visited=visited, **kwargs)
+                    except AttributeError:
+                        pass
+                    except ValidationError as e:
+                        e = NestedValidationError(e)
+                        errors[name] = e.update_error_dict({})
+
+        if errors:
+            raise NestedValidationError(errors)
+
+    def _get_relation_objects_for_validation(self):
+        """
+        Needs to be implemented to return all relation objects
+        """
+
+    def run_validators(self, **kwargs):
         """
         Check all model validators registered on ``validators`` attribute
         """
@@ -149,12 +206,13 @@ class CleanMixin(object):
             try:
                 v(self)
             except ValidationError as e:
+                e = NestedValidationError(e)
                 errors = e.update_error_dict(errors)
 
         if errors:
-            raise ValidationError(errors)
+            raise NestedValidationError(errors)
 
-    def full_clean(self, exclude=None):
+    def full_clean(self, exclude=None, **kwargs):
         """
         Run model's full clean chain
 
@@ -164,29 +222,42 @@ class CleanMixin(object):
         * will validate all nested objects (e.g. composites) with ``full_clean``
         * will run through all registered validators on ``validators`` attribute
         * will run full model validation with ``self.clean()``
+        * if ``recursive`` kwarg is provided, will recursively clean all relations.
+          Useful when all models need to be explicitly cleaned without flushing to DB.
         """
         exclude = exclude or []
         errors = {}
 
         try:
-            self.clean_fields(exclude=exclude)
+            self.clean_fields(exclude=exclude, **kwargs)
         except ValidationError as e:
+            e = NestedValidationError(e)
             errors = e.update_error_dict(errors)
 
         try:
-            self.clean_nested_fields(exclude=exclude)
+            self.clean_nested_fields(exclude=exclude, **kwargs)
         except ValidationError as e:
+            e = NestedValidationError(e)
             errors = e.update_error_dict(errors)
 
         try:
-            self.run_validators()
+            self.run_validators(**kwargs)
         except ValidationError as e:
+            e = NestedValidationError(e)
             errors = e.update_error_dict(errors)
 
         try:
-            self.clean()
+            self.clean(**kwargs)
         except ValidationError as e:
+            e = NestedValidationError(e)
             errors = e.update_error_dict(errors)
+
+        if kwargs.get("recursive", False):
+            try:
+                self.clean_relation_fields(exclude=exclude, **kwargs)
+            except ValidationError as e:
+                e = NestedValidationError(e)
+                errors = e.update_error_dict(errors)
 
         if errors:
             raise NestedValidationError(errors)

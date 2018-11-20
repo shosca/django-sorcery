@@ -21,20 +21,35 @@ class NestedValidationError(ValidationError):
     """
 
     def __init__(self, message, code=None, params=None):
-        if not isinstance(message, dict):
-            return super(NestedValidationError, self).__init__(message, code, params)
+        if isinstance(message, dict):
+            self.error_dict = {}
 
-        super(ValidationError, self).__init__(message, code, params)
+            for field, messages in message.items():
+                _messages = messages
+                if not isinstance(messages, ValidationError):
+                    _messages = NestedValidationError(messages)
+                try:
+                    self.error_dict[field] = _messages.error_list
+                except AttributeError:
+                    self.error_dict[field] = _messages.error_dict
 
-        self.error_dict = {}
+        elif isinstance(message, list):
+            self.error_list = []
 
-        for field, messages in message.items():
-            if not isinstance(messages, ValidationError):
-                messages = NestedValidationError(messages)
-            try:
-                self.error_dict[field] = messages.error_list
-            except AttributeError:
-                self.error_dict[field] = messages.error_dict
+            for m in message:
+                _m = m
+                if not isinstance(m, ValidationError):
+                    _m = NestedValidationError(m)
+                try:
+                    self.error_list.extend(_m.error_list)
+                except AttributeError:
+                    self.error_list.append(_m)
+
+        elif isinstance(message, NestedValidationError):
+            self.__dict__.update(vars(message))
+
+        else:
+            super(NestedValidationError, self).__init__(message, code, params)
 
     def update_error_dict(self, error_dict):
         if hasattr(self, "error_dict"):
@@ -46,13 +61,26 @@ class NestedValidationError(ValidationError):
             return super(NestedValidationError, self).update_error_dict(error_dict)
 
     def __iter__(self):
-        if hasattr(self, "error_dict"):
+        if hasattr(self, "code"):
+            for i in super(NestedValidationError, self).__iter__():
+                yield i
+
+        elif hasattr(self, "error_dict"):
             for field, errors in self.error_dict.items():
                 errors = NestedValidationError(errors)
                 if hasattr(errors, "error_dict"):
                     yield field, dict(errors)
                 else:
                     yield field, list(errors)
+
         else:
-            for error in super(NestedValidationError, self).__iter__():
-                yield error
+            for errors in self.error_list:
+                errors = NestedValidationError(errors)
+                if hasattr(errors, "error_dict"):
+                    yield dict(errors)
+                else:
+                    for i in errors:
+                        yield i
+
+    def __repr__(self):
+        return "Nested" + super(NestedValidationError, self).__repr__()

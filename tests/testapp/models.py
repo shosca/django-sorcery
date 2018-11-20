@@ -73,6 +73,10 @@ class Owner(db.Model):
     first_name = db.CharField()
     last_name = db.CharField()
 
+    def clean_first_name(self):
+        if self.first_name == "invalid":
+            raise ValidationError("Invalid first name")
+
 
 class Vehicle(db.Model):
     id = db.IntegerField(autoincrement=True, primary_key=True, doc="The primary key")
