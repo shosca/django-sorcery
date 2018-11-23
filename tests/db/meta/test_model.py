@@ -11,7 +11,6 @@ class TestModelMeta(TestCase):
     def test_model_meta(self):
         info = meta.model_info(Owner)
 
-        self.assertEqual(repr(info), "<model_info(Owner)>")
         self.assertEqual(set(info.primary_keys.keys()), {"id"})
         self.assertEqual(info.primary_keys["id"].property, Owner.id.property)
 
@@ -57,6 +56,68 @@ class TestModelMeta(TestCase):
         self.assertEqual(info.location, info.composites["location"])
         self.assertEqual(info.other_location, info.composites["other_location"])
         self.assertNotEqual(info.location, info.other_location)
+
+    def test_reprs(self):
+        owner_info = meta.model_info(Owner)
+        self.assertEqual(
+            repr(owner_info),
+            "\n".join(
+                [
+                    "<model_info(Owner)>",
+                    "    <integer_column_info(Owner.id) pk>",
+                    "    <string_column_info(Owner.first_name)>",
+                    "    <string_column_info(Owner.last_name)>",
+                    "    <relation_info(Owner.vehicles)>",
+                ]
+            ),
+        )
+
+        vehicle_info = meta.model_info(Vehicle)
+        self.assertEqual(
+            repr(vehicle_info),
+            "\n".join(
+                [
+                    "<model_info(Vehicle)>",
+                    "    <integer_column_info(Vehicle.id) pk>",
+                    "    <integer_column_info(Vehicle._owner_id)>",
+                    "    <datetime_column_info(Vehicle.created_at)>",
+                    "    <boolean_column_info(Vehicle.is_used)>",
+                    "    <numeric_column_info(Vehicle.msrp)>",
+                    "    <string_column_info(Vehicle.name)>",
+                    "    <enum_column_info(Vehicle.paint)>",
+                    "    <enum_column_info(Vehicle.type)>",
+                    "    <relation_info(Vehicle.options)>",
+                    "    <relation_info(Vehicle.owner)>",
+                    "    <relation_info(Vehicle.parts)>",
+                ]
+            ),
+        )
+        business_info = meta.model_info(Business)
+        self.assertEqual(
+            repr(business_info),
+            "\n".join(
+                [
+                    "<model_info(Business)>",
+                    "    <integer_column_info(Business.id) pk>",
+                    "    <enum_column_info(Business._foo_state)>",
+                    "    <string_column_info(Business._foo_street)>",
+                    "    <string_column_info(Business._foo_zip)>",
+                    "    <enum_column_info(Business._location_state)>",
+                    "    <string_column_info(Business._location_street)>",
+                    "    <string_column_info(Business._location_zip)>",
+                    "    <integer_column_info(Business.employees)>",
+                    "    <string_column_info(Business.name)>",
+                    "    <composite_info(Address, Business.location)>",
+                    "        <enum_column_info(Business._location_state)>",
+                    "        <string_column_info(Business._location_street)>",
+                    "        <string_column_info(Business._location_zip)>",
+                    "    <composite_info(Address, Business.other_location)>",
+                    "        <enum_column_info(Business._foo_state)>",
+                    "        <string_column_info(Business._foo_street)>",
+                    "        <string_column_info(Business._foo_zip)>",
+                ]
+            ),
+        )
 
     def test_model_meta_with_mapper(self):
         mapper = Vehicle.owner.property.parent

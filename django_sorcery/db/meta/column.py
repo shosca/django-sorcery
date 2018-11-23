@@ -63,6 +63,14 @@ class column_info(object):
         self.column = column
         self.parent = parent
 
+    def __repr__(self):
+        return "<{!s}({!s}.{!s}){!s}>".format(
+            self.__class__.__name__,
+            self.parent_model.__name__ if self.parent_model else "<None>",
+            self.name,
+            " pk" if self.column.primary_key else "",
+        )
+
     @property
     def validators(self):
         return self.column.info.get("validators") or []
@@ -133,11 +141,6 @@ class column_info(object):
             kwargs["widget"] = self.widget
 
         return kwargs
-
-    def __repr__(self):
-        return "<{!s}({!s}.{!s})>".format(
-            self.__class__.__name__, self.parent_model.__name__ if self.parent_model else "<None>", self.name
-        )
 
 
 class string_column_info(column_info):

@@ -44,6 +44,10 @@ class composite_info(six.with_metaclass(model_info_meta)):
         return self.prop.composite_class
 
     def __repr__(self):
-        return "<composite_info({!s}, {!s}.{!s})>".format(
-            self.related_model.__name__, self.prop.parent.class_.__name__, self.prop.key
-        )
+        reprs = [
+            "<composite_info({!s}, {!s}.{!s})>".format(
+                self.related_model.__name__, self.prop.parent.class_.__name__, self.prop.key
+            )
+        ]
+        reprs.extend("    " + repr(i) for _, i in sorted(self.properties.items()))
+        return "\n".join(reprs)
