@@ -7,7 +7,7 @@ import pytz
 
 from django.core.exceptions import ValidationError
 
-from django_sorcery.db import models
+from django_sorcery.db import meta, models
 from django_sorcery.utils import make_args
 
 from ..base import TestCase
@@ -15,10 +15,7 @@ from ..testapp.models import (
     Address,
     AllKindsOfFields,
     Business,
-    CompositePkModel,
     DummyEnum,
-    ModelOne,
-    ModelTwo,
     Option,
     Owner,
     Part,
@@ -29,7 +26,26 @@ from ..testapp.models import (
 )
 
 
-class TestModels(TestCase):
+class TestDeprecated(TestCase):
+    def test_get_primary_keys(self):
+        key = models.get_primary_keys(Owner, {"id": 1})
+        self.assertEqual(key, 1)
+
+    def test_get_primary_keys_from_instance(self):
+        key = models.get_primary_keys_from_instance(Owner(id=1))
+        self.assertEqual(key, 1)
+
+    def test_get_identity_key(self):
+        key = models.get_identity_key(Owner, {"id": 1})
+        self.assertEqual(key, meta.Identity(Owner, (1,)))
+        self.assertIsNone(models.get_identity_key(Owner, {}))
+
+    def test_model_to_dict(self):
+        val = models.model_to_dict(Owner(id=1))
+        self.assertDictEqual(val, {"first_name": None, "last_name": None})
+
+
+class TestModelRepr(TestCase):
     def test_model_repr(self):
         owner = Owner(id=1, first_name="Meaty", last_name="McManPipes")
 
@@ -52,108 +68,8 @@ class TestModels(TestCase):
         vehicle.id = b"abc"
         self.assertTrue(models.simple_repr(vehicle), "Vehicle(id='abc', is_used=False, name='Test')")
 
-    def test_primary_keys(self):
-        pks = models.get_primary_keys(Vehicle, {"pk": 1234})
-        self.assertIsNone(pks)
 
-    def test_primary_keys_composite(self):
-        pks = models.get_primary_keys(CompositePkModel, {"id": 4321, "pk": 1234})
-        self.assertEqual(pks, (4321, 1234))
-
-    def test_primary_keys_composite_missing(self):
-        pks = models.get_primary_keys(CompositePkModel, {"pk": 1234})
-        self.assertIsNone(pks)
-
-    def test_primary_keys_from_instance(self):
-        vehicle = Vehicle(id=1234)
-
-        pks = models.get_primary_keys_from_instance(vehicle)
-
-        self.assertEqual(pks, 1234)
-
-    def test_primary_keys_from_instance_composite(self):
-        vehicle = CompositePkModel(id=1234, pk=4321)
-
-        pks = models.get_primary_keys_from_instance(vehicle)
-
-        self.assertEqual(pks, {"id": 1234, "pk": 4321})
-
-    def test_primary_keys_from_instance_with_none(self):
-        self.assertIsNone(models.get_primary_keys_from_instance(None))
-
-    def test_model_to_dict(self):
-        vehicle = Vehicle(
-            id=1,
-            name="vehicle",
-            owner=Owner(id=2, first_name="first_name", last_name="last_name"),
-            is_used=True,
-            paint="red",
-            type=VehicleType.car,
-            options=[Option(id=3, name="option 1"), Option(id=4, name="option 2")],
-            parts=[Part(id=5, name="part 1"), Part(id=6, name="part 2")],
-        )
-
-        self.assertEqual(
-            {
-                "created_at": None,
-                "is_used": True,
-                "msrp": None,
-                "name": "vehicle",
-                "options": [3, 4],
-                "owner": 2,
-                "paint": "red",
-                "parts": [5, 6],
-                "type": VehicleType.car,
-            },
-            models.model_to_dict(vehicle),
-        )
-
-    def test_model_to_dict_exclude(self):
-        vehicle = Vehicle(
-            id=1,
-            name="vehicle",
-            owner=Owner(id=2, first_name="first_name", last_name="last_name"),
-            is_used=True,
-            paint="red",
-            type=VehicleType.car,
-            options=[Option(id=3, name="option 1"), Option(id=4, name="option 2")],
-            parts=[Part(id=5, name="part 1"), Part(id=6, name="part 2")],
-        )
-
-        self.assertEqual(
-            {
-                "created_at": None,
-                "is_used": True,
-                "msrp": None,
-                "name": "vehicle",
-                "options": [3, 4],
-                "paint": "red",
-                "parts": [5, 6],
-            },
-            models.model_to_dict(vehicle, exclude=["type", "owner"]),
-        )
-
-    def test_model_to_dict_fields(self):
-        vehicle = Vehicle(
-            name="vehicle",
-            owner=Owner(first_name="first_name", last_name="last_name"),
-            is_used=True,
-            paint="red",
-            type=VehicleType.car,
-            options=[Option(name="option 1"), Option(name="option 2")],
-            parts=[Part(name="part 1"), Part(name="part 2")],
-        )
-
-        self.assertEqual(
-            {"is_used": True, "name": "vehicle", "paint": "red"},
-            models.model_to_dict(vehicle, fields=["name", "is_used", "paint"]),
-        )
-
-    def test_model_to_dict_private_relation(self):
-        obj = ModelTwo(pk=2, name="two", _model_one=ModelOne(pk=1, name="one"))
-
-        self.assertEqual({"name": "two"}, models.model_to_dict(obj))
-
+class TestSerialization(TestCase):
     def test_serialize_none(self):
         self.assertIsNone(models.serialize(None))
 
@@ -342,8 +258,11 @@ class TestClone(TestCase):
         self.assertNotEqual(clone, self.vehicle)
         self.assertNotEqual(clone.as_dict(), self.vehicle.as_dict())
         self.assertNotEqual(clone.id, self.vehicle.id)
+        self.assertEqual(clone.is_used, self.vehicle.is_used)
+        self.assertEqual(clone.msrp, self.vehicle.msrp)
         self.assertEqual(clone.name, self.vehicle.name)
-        # self.assertEqual(models.model_to_dict(clone), models.model_to_dict(self.vehicle))
+        self.assertEqual(clone.paint, self.vehicle.paint)
+        self.assertEqual(clone.type, self.vehicle.type)
         self.assertIsNone(clone.owner)
         self.assertEqual(clone.options, [])
         self.assertEqual(clone.parts, [])
@@ -361,14 +280,13 @@ class TestClone(TestCase):
         self.assertNotEqual(clone.id, self.vehicle.id)
         self.assertEqual(clone.paint, "blue")
         self.assertEqual(clone.name, self.vehicle.name)
-        # self.assertNotEqual(models.model_to_dict(clone), models.model_to_dict(self.vehicle))
         clone.paint = "red"
-        # self.assertEqual(models.model_to_dict(clone), models.model_to_dict(self.vehicle))
 
-        self.assertNotEqual(clone.owner, self.vehicle.owner)
+        self.assertIsNot(clone.owner, self.vehicle.owner)
         self.assertNotEqual(clone.owner.as_dict(), self.vehicle.owner.as_dict())
         self.assertNotEqual(clone.owner.id, self.vehicle.owner.id)
-        # self.assertEqual(models.model_to_dict(clone.owner), models.model_to_dict(self.vehicle.owner))
+        self.assertEqual(clone.owner.first_name, self.vehicle.owner.first_name)
+        self.assertEqual(clone.owner.last_name, self.vehicle.owner.last_name)
 
         self.assertEqual(clone.options, self.vehicle.options)
         self.assertEqual(clone.parts, self.vehicle.parts)
@@ -382,10 +300,9 @@ class TestClone(TestCase):
 
         clone = models.clone(business)
 
-        self.assertNotEqual(clone, business)
-        self.assertDictEqual(models.model_to_dict(clone), models.model_to_dict(business))
-        self.assertNotEqual(id(clone.location), id(business.location))
-        self.assertNotEqual(id(clone.other_location), id(business.other_location))
+        self.assertIsNot(clone, business)
+        self.assertIsNot(clone.location, business.location)
+        self.assertIsNot(clone.other_location, business.other_location)
 
         self.assertEqual(clone.location, business.location)
         self.assertEqual(clone.other_location, business.other_location)
@@ -414,7 +331,6 @@ class TestClone(TestCase):
         self.assertNotEqual(clone, self.vehicle)
         self.assertNotEqual(clone.as_dict(), self.vehicle.as_dict())
         self.assertNotEqual(clone.id, self.vehicle.id)
-        # self.assertEqual(models.model_to_dict(clone), models.model_to_dict(self.vehicle))
 
         for cloned, orig in zip(clone.options, self.vehicle.options):
             self.assertNotEqual(cloned, orig)
@@ -619,3 +535,14 @@ class TestAutoCoerce(TestCase):
 
         model.me = "abc"
         self.assertEqual(model.me, "abc")
+
+
+class TestInstantDefaults(TestCase):
+    def test(self):
+        instance = Business()
+
+        self.assertEquals(instance.employees, 5)
+
+        instance = Business(employees=1)
+
+        self.assertEquals(instance.employees, 1)

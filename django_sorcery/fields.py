@@ -5,29 +5,27 @@ Field mapping from SQLAlchemy type's to form fields
 from __future__ import absolute_import, print_function, unicode_literals
 import json
 
-import six
-
 from django.core.exceptions import ValidationError
 from django.forms import fields as djangofields
 from django.utils.translation import gettext_lazy
 
-from .db.models import get_primary_keys, get_primary_keys_from_instance
+from .utils import suppress
 
 
 class EnumField(djangofields.ChoiceField):
 
     empty_value = None
 
-    def __init__(self, *args, **kwargs):
-        self.enum_class = kwargs.pop("enum_class", None)
-        kwargs.pop("max_length", None)
+    def __init__(self, enum_class=None, choices=None, **kwargs):
+        self.enum_class = enum_class or choices
 
         kwargs["choices"] = [(e.name, e.value) for e in self.enum_class]
         if not kwargs.get("required", True):
             empty_label = kwargs.pop("empty_label", "")
             kwargs["choices"] = [(self.empty_value, empty_label)] + kwargs["choices"]
 
-        super(EnumField, self).__init__(*args, **kwargs)
+        kwargs.pop("max_length", None)
+        super(EnumField, self).__init__(**kwargs)
 
     def to_python(self, value):
         if value in self.empty_values:
@@ -36,10 +34,12 @@ class EnumField(djangofields.ChoiceField):
         if value is None:
             return
 
-        try:
-            return self.enum_class[value] if isinstance(value, six.text_type) else self.enum_class(value)
-        except KeyError:
-            raise ValidationError(self.error_messages["invalid_choice"], code="invalid", params={"value": value})
+        with suppress(KeyError, ValueError):
+            return self.enum_class[value]
+        with suppress(KeyError, ValueError):
+            return self.enum_class(value)
+
+        raise ValidationError(self.error_messages["invalid_choice"], code="invalid", params={"value": value})
 
     def valid_value(self, value):
         if value is None:
@@ -72,13 +72,6 @@ class ModelChoiceIterator(object):
 
     def choice(self, obj):
         return (self.field.prepare_value(obj), self.field.label_from_instance(obj))
-
-
-def apply_limit_choices_to_form_field(formfield):
-    if hasattr(formfield, "queryset") and hasattr(formfield, "get_limit_choices_to"):
-        limit_choices_to = formfield.get_limit_choices_to()
-        if limit_choices_to is not None:
-            formfield.queryset = formfield.queryset.filter(*limit_choices_to)
 
 
 class ModelChoiceField(djangofields.ChoiceField):
@@ -115,6 +108,9 @@ class ModelChoiceField(djangofields.ChoiceField):
 
         self._choices = None
         self.model = model
+        from .db import meta
+
+        self.model_info = meta.model_info(model)
         self.session = session
         self._queryset = None
         self.limit_choices_to = limit_choices_to  # limit the queryset later.
@@ -139,7 +135,7 @@ class ModelChoiceField(djangofields.ChoiceField):
 
         pk = None
         try:
-            pk = get_primary_keys(self.model, json.loads(value))
+            pk = self.model_info.primary_keys_from_dict(json.loads(value))
         except TypeError:
             pk = value
 
@@ -156,7 +152,7 @@ class ModelChoiceField(djangofields.ChoiceField):
         return str(obj)
 
     def prepare_instance_value(self, obj):
-        return get_primary_keys_from_instance(obj)
+        return self.model_info.primary_keys_from_instance(obj)
 
     def prepare_value(self, obj):
         if isinstance(obj, self.model):

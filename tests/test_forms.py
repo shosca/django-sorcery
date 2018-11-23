@@ -1,12 +1,212 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django import forms as djangoforms
 from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.forms import fields as djangofields
 
-from django_sorcery.forms import ALL_FIELDS, ModelForm, modelform_factory
+from django_sorcery import fields as sorceryfields, forms
 
 from .base import TestCase
-from .testapp.models import ClassicModel, ModelFullCleanFail, Option, Owner, Vehicle, VehicleType, db
+from .testapp.models import (
+    ClassicModel,
+    ModelFullCleanFail,
+    ModelOne,
+    ModelTwo,
+    Option,
+    Owner,
+    Part,
+    Vehicle,
+    VehicleType,
+    db,
+)
+
+
+class TestFieldsForModel(TestCase):
+    def test_default_case(self):
+        fields = forms.fields_for_model(Vehicle, db)
+
+        checks = [
+            ("name", djangofields.CharField),
+            ("type", sorceryfields.EnumField),
+            ("created_at", djangofields.DateTimeField),
+            ("paint", djangofields.TypedChoiceField),
+            ("is_used", djangofields.BooleanField),
+            ("msrp", djangofields.DecimalField),
+            ("owner", sorceryfields.ModelChoiceField),
+            ("parts", sorceryfields.ModelMultipleChoiceField),
+            ("options", sorceryfields.ModelMultipleChoiceField),
+        ]
+        self.assertEqual(len(fields), len(checks))
+        for name, fieldtype in checks:
+            self.assertIsInstance(fields[name], fieldtype)
+
+    def test_fields(self):
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",))
+        checks = [("name", djangofields.CharField)]
+        self.assertEqual(len(fields), len(checks))
+        for name, fieldtype in checks:
+            self.assertIsInstance(fields[name], fieldtype)
+
+    def test_exclude(self):
+        fields = forms.fields_for_model(Vehicle, db, exclude=("name",))
+        checks = [
+            ("type", sorceryfields.EnumField),
+            ("created_at", djangofields.DateTimeField),
+            ("paint", djangofields.TypedChoiceField),
+            ("is_used", djangofields.BooleanField),
+            ("msrp", djangofields.DecimalField),
+            ("owner", sorceryfields.ModelChoiceField),
+            ("parts", sorceryfields.ModelMultipleChoiceField),
+            ("options", sorceryfields.ModelMultipleChoiceField),
+        ]
+        self.assertEqual(len(fields), len(checks))
+        for name, fieldtype in checks:
+            self.assertIsInstance(fields[name], fieldtype)
+
+    def test_widgets(self):
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",), widgets={"name": djangoforms.Textarea})
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.CharField)
+        self.assertIsInstance(fields["name"].widget, djangoforms.Textarea)
+
+    def test_localized_fields(self):
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",), localized_fields=("name",))
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.CharField)
+        self.assertTrue(fields["name"].localize)
+
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",), localized_fields=djangoforms.ALL_FIELDS)
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.CharField)
+        self.assertTrue(fields["name"].localize)
+
+    def test_labels(self):
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",), labels={"name": "dummy"})
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.CharField)
+        self.assertEqual(fields["name"].label, "dummy")
+
+    def test_help_texts(self):
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",), help_texts={"name": "dummy"})
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.CharField)
+        self.assertEqual(fields["name"].help_text, "dummy")
+
+    def test_error_messages(self):
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",), error_messages={"name": {"required": "dummy"}})
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.CharField)
+        self.assertEqual(fields["name"].error_messages, {"required": "dummy"})
+
+    def test_field_classes(self):
+        fields = forms.fields_for_model(
+            Vehicle, db, fields=("name",), help_texts={"name": None}, field_classes={"name": djangofields.FileField}
+        )
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.FileField)
+
+    def test_formfield_callback(self):
+        def callback(*args, **kwargs):
+            return djangofields.FileField()
+
+        fields = forms.fields_for_model(Vehicle, db, fields=("name",), formfield_callback=callback)
+
+        self.assertEqual(len(fields), 1)
+        self.assertIsInstance(fields["name"], djangofields.FileField)
+
+        with self.assertRaises(TypeError):
+            fields = forms.fields_for_model(Vehicle, db, fields=("name",), formfield_callback=[])
+
+
+class TestApplyLimitChoicesTo(TestCase):
+    def test_apply_limit(self):
+        db.add_all([Owner(first_name="one"), Owner(first_name="one_more"), Owner(first_name="two")])
+        field = sorceryfields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.first_name.startswith("one")])
+        forms.apply_limit_choices_to_form_field(field)
+        self.assertEqual(field.queryset.count(), 2)
+
+
+class TestModelToDict(TestCase):
+    def test_model_to_dict(self):
+        vehicle = Vehicle(
+            id=1,
+            name="vehicle",
+            owner=Owner(id=2, first_name="first_name", last_name="last_name"),
+            is_used=True,
+            paint="red",
+            type=VehicleType.car,
+            options=[Option(id=3, name="option 1"), Option(id=4, name="option 2")],
+            parts=[Part(id=5, name="part 1"), Part(id=6, name="part 2")],
+        )
+
+        self.assertEqual(
+            {
+                "created_at": None,
+                "is_used": True,
+                "msrp": None,
+                "name": "vehicle",
+                "options": [3, 4],
+                "owner": 2,
+                "paint": "red",
+                "parts": [5, 6],
+                "type": VehicleType.car,
+            },
+            forms.model_to_dict(vehicle),
+        )
+
+    def test_model_to_dict_exclude(self):
+        vehicle = Vehicle(
+            id=1,
+            name="vehicle",
+            owner=Owner(id=2, first_name="first_name", last_name="last_name"),
+            is_used=True,
+            paint="red",
+            type=VehicleType.car,
+            options=[Option(id=3, name="option 1"), Option(id=4, name="option 2")],
+            parts=[Part(id=5, name="part 1"), Part(id=6, name="part 2")],
+        )
+
+        self.assertEqual(
+            {
+                "created_at": None,
+                "is_used": True,
+                "msrp": None,
+                "name": "vehicle",
+                "options": [3, 4],
+                "paint": "red",
+                "parts": [5, 6],
+            },
+            forms.model_to_dict(vehicle, exclude=["type", "owner"]),
+        )
+
+    def test_model_to_dict_fields(self):
+        vehicle = Vehicle(
+            name="vehicle",
+            owner=Owner(first_name="first_name", last_name="last_name"),
+            is_used=True,
+            paint="red",
+            type=VehicleType.car,
+            options=[Option(name="option 1"), Option(name="option 2")],
+            parts=[Part(name="part 1"), Part(name="part 2")],
+        )
+
+        self.assertEqual(
+            {"is_used": True, "name": "vehicle", "paint": "red"},
+            forms.model_to_dict(vehicle, fields=["name", "is_used", "paint"]),
+        )
+
+    def test_model_to_dict_private_relation(self):
+        obj = ModelTwo(pk=2, name="two", _model_one=ModelOne(pk=1, name="one"))
+
+        self.assertEqual({"name": "two"}, forms.model_to_dict(obj))
 
 
 class TestModelForm(TestCase):
@@ -25,7 +225,7 @@ class TestModelForm(TestCase):
         db.flush()
 
     def test_modelform_factory_fields(self):
-        form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
+        form_class = forms.modelform_factory(Vehicle, fields=forms.ALL_FIELDS, session=db)
         form = form_class()
         self.assertListEqual(
             sorted(form.fields.keys()),
@@ -34,20 +234,20 @@ class TestModelForm(TestCase):
 
     def test_modelform_factory_instance_validate(self):
         vehicle = Vehicle(owner=self.owner)
-        form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
+        form_class = forms.modelform_factory(Vehicle, fields=forms.ALL_FIELDS, session=db)
         form = form_class(instance=vehicle, data={"name": "testing"})
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors, {"type": ["This field is required."], "is_used": ["This field is required."]})
 
     def test_modelform_factory_instance_save(self):
-        form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
+        form_class = forms.modelform_factory(Vehicle, fields=forms.ALL_FIELDS, session=db)
         data = {"name": "testing", "type": "car", "owner": self.owner.id, "is_used": True}
         form = form_class(data=data)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
 
     def test_modelform_factory_modelchoicefield_choices(self):
-        form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
+        form_class = forms.modelform_factory(Vehicle, fields=forms.ALL_FIELDS, session=db)
         data = {"name": "testing", "type": "car", "owner": 1}
         form = form_class(data=data)
 
@@ -57,7 +257,7 @@ class TestModelForm(TestCase):
         self.assertEqual(len(option_choices), 4)
 
     def test_modelform_factory_new_render(self):
-        form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
+        form_class = forms.modelform_factory(Vehicle, fields=forms.ALL_FIELDS, session=db)
         form = form_class(data={})
 
         self.assertTrue(form.is_bound)
@@ -146,7 +346,7 @@ class TestModelForm(TestCase):
         self.assertEqual(soup.prettify(), expected_soup.prettify())
 
     def test_modelform_factory_instance_render(self):
-        form_class = modelform_factory(Vehicle, fields=ALL_FIELDS, session=db)
+        form_class = forms.modelform_factory(Vehicle, fields=forms.ALL_FIELDS, session=db)
         vehicle = Vehicle(owner=self.owner, type=VehicleType.car)
         form = form_class(instance=vehicle, data={})
 
@@ -251,11 +451,11 @@ class TestModelForm(TestCase):
         def callback(*args, **kwargs):
             self.callback_called = True
 
-        class OwnerBaseForm(ModelForm):
+        class OwnerBaseForm(forms.ModelForm):
             class Meta:
                 model = Owner
                 session = db
-                fields = ALL_FIELDS
+                fields = forms.ALL_FIELDS
                 formfield_callback = staticmethod(callback)
 
         class OwnerForm(OwnerBaseForm):
@@ -266,7 +466,7 @@ class TestModelForm(TestCase):
     def test_fields_bad_value(self):
 
         with self.assertRaises(TypeError) as ctx:
-            modelform_factory(Owner, ModelForm, fields="abc1234")
+            forms.modelform_factory(Owner, forms.ModelForm, fields="abc1234")
 
         self.assertEqual(
             ctx.exception.args, ("OwnerForm.Meta.fields cannot be a string. Did you mean to type: ('abc1234',)?",)
@@ -276,7 +476,7 @@ class TestModelForm(TestCase):
 
         with self.assertRaises(ImproperlyConfigured) as ctx:
 
-            class OwnerForm(ModelForm):
+            class OwnerForm(forms.ModelForm):
                 class Meta:
                     model = Owner
 
@@ -289,7 +489,7 @@ class TestModelForm(TestCase):
         )
 
     def test_modelform_no_model(self):
-        class OwnerForm(ModelForm):
+        class OwnerForm(forms.ModelForm):
             pass
 
         with self.assertRaises(ValueError) as ctx:
@@ -298,10 +498,10 @@ class TestModelForm(TestCase):
         self.assertEqual(ctx.exception.args, ("ModelForm has no model class specified.",))
 
     def test_modelform_no_session(self):
-        class OwnerForm(ModelForm):
+        class OwnerForm(forms.ModelForm):
             class Meta:
                 model = Owner
-                fields = ALL_FIELDS
+                fields = forms.ALL_FIELDS
 
         with self.assertRaises(ValueError) as ctx:
             OwnerForm()
@@ -309,7 +509,7 @@ class TestModelForm(TestCase):
         self.assertEqual(ctx.exception.args, ("ModelForm has no session specified.",))
 
     def test_modelform_custom_setter(self):
-        class OwnerForm(ModelForm):
+        class OwnerForm(forms.ModelForm):
             class Meta:
                 model = Owner
                 session = db
@@ -325,7 +525,7 @@ class TestModelForm(TestCase):
         self.assertEqual(instance.first_name, "other")
 
     def test_modelform_validation_with_model_clean(self):
-        class VehicleForm(ModelForm):
+        class VehicleForm(forms.ModelForm):
             class Meta:
                 model = Vehicle
                 session = db
@@ -336,7 +536,7 @@ class TestModelForm(TestCase):
         self.assertDictEqual(form.errors, {"__all__": ["Name cannot be `Bad Value`"]})
 
     def test_modelform_validation_with_field_clean(self):
-        class VehicleForm(ModelForm):
+        class VehicleForm(forms.ModelForm):
             class Meta:
                 model = Vehicle
                 session = db
@@ -347,7 +547,7 @@ class TestModelForm(TestCase):
         self.assertDictEqual(form.errors, {"paint": ["Can't have a pink car"]})
 
     def test_modelform_save_with_errors(self):
-        class VehicleForm(ModelForm):
+        class VehicleForm(forms.ModelForm):
             class Meta:
                 model = Vehicle
                 session = db
@@ -362,7 +562,7 @@ class TestModelForm(TestCase):
         self.assertEqual(ctx.exception.args, ("The Vehicle could not be saved because the data didn't validate.",))
 
     def test_modelform_model_full_clean_validate(self):
-        class BadModelForm(ModelForm):
+        class BadModelForm(forms.ModelForm):
             class Meta:
                 model = ModelFullCleanFail
                 session = db
@@ -373,7 +573,7 @@ class TestModelForm(TestCase):
         self.assertDictEqual(form.errors, {"__all__": ["bad model"]})
 
     def test_modelform_clean_with_classic_model(self):
-        class ClassicModelForm(ModelForm):
+        class ClassicModelForm(forms.ModelForm):
             class Meta:
                 model = ClassicModel
                 session = db
@@ -390,14 +590,14 @@ class TestModelForm(TestCase):
         def callback(*args, **kwargs):
             self.callback_called = True
 
-        modelform_factory(Owner, fields=ALL_FIELDS, formfield_callback=callback, session=db)
+        forms.modelform_factory(Owner, fields=forms.ALL_FIELDS, formfield_callback=callback, session=db)
 
         self.assertTrue(self.callback_called)
 
     def test_modelform_factory_with_no_fields_exclude(self):
 
         with self.assertRaises(ImproperlyConfigured) as ctx:
-            modelform_factory(Owner, session=db)
+            forms.modelform_factory(Owner, session=db)
 
         self.assertEqual(
             ctx.exception.args,
@@ -405,7 +605,7 @@ class TestModelForm(TestCase):
         )
 
     def test_update_errors(self):
-        class OwnerForm(ModelForm):
+        class OwnerForm(forms.ModelForm):
             class Meta:
                 model = Owner
                 session = db

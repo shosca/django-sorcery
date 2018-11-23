@@ -6,7 +6,7 @@ from functools import partial
 import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
 
-from .models import get_primary_keys
+from . import meta
 
 
 Operation = namedtuple("Operation", ["name", "args", "kwargs"])
@@ -24,7 +24,7 @@ class Query(sa.orm.Query):
         """
         if kwargs:
             mapper = self._only_full_mapper_zero("get")
-            pk = get_primary_keys(mapper, kwargs)
+            pk = meta.model_info(mapper).primary_keys_from_dict(kwargs)
 
             if pk is not None:
                 return super(Query, self).get(pk)

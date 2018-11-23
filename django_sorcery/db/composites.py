@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import CompositeProperty
 from sqlalchemy.util.langhelpers import classproperty
 
-from .meta import column_info
+from .meta.column import column_info
 from .mixins import CleanMixin
 
 
@@ -80,7 +80,7 @@ class BaseComposite(CleanMixin):
         """
         Return all composite attributes
         """
-        return {k: column_info(None, v) for k, v in self._columns.items()}
+        return {k: column_info(v) for k, v in self._columns.items()}
 
     def as_dict(self):
         """

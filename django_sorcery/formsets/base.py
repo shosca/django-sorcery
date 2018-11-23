@@ -9,8 +9,7 @@ from django.forms import fields as djangofields
 from django.forms.formsets import BaseFormSet, formset_factory
 from django.forms.widgets import HiddenInput
 
-from ..db.meta import model_info
-from ..db.models import get_primary_keys
+from ..db import meta
 from ..forms import ModelForm, modelform_factory
 
 
@@ -41,13 +40,13 @@ class BaseModelFormSet(BaseFormSet):
         return super(BaseModelFormSet, self).initial_form_count()
 
     def _existing_object(self, pk):
-        info = model_info(self.model)
+        info = meta.model_info(self.model)
 
         if not isinstance(pk, tuple):
             pk = (pk,)
 
         if not hasattr(self, "_object_dict"):
-            self._object_dict = {info.mapper.primary_key_from_instance(o): o for o in self.get_queryset()}
+            self._object_dict = {info.get_key(o): o for o in self.get_queryset()}
 
         return self._object_dict.get(pk)
 
@@ -56,14 +55,14 @@ class BaseModelFormSet(BaseFormSet):
         if pk_required:
             if self.is_bound:
 
-                info = model_info(self.model)
+                info = meta.model_info(self.model)
                 pks = {}
                 for name, pk_info in info.primary_keys.items():
                     pk_key = "%s-%s" % (self.add_prefix(i), name)
                     pk_val = self.data.get(pk_key)
                     pks[name] = pk_info.column.type.python_type(pk_val) if pk_val else None
 
-                pk = get_primary_keys(self.model, pks)
+                pk = info.primary_keys_from_dict(pks)
 
                 kwargs["instance"] = self._existing_object(pk)
             else:
@@ -79,7 +78,7 @@ class BaseModelFormSet(BaseFormSet):
         return form
 
     def add_fields(self, form, index):
-        info = model_info(self.model)
+        info = meta.model_info(self.model)
 
         if form.instance in self.session:
             for name in info.primary_keys:

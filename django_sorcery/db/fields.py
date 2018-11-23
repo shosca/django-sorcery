@@ -8,10 +8,6 @@ import sqlalchemy as sa
 from django import forms as djangoforms
 from django.core import validators as django_validators
 from django.forms import fields as djangofields
-from django.utils import inspect
-
-from .. import fields
-from ..utils import suppress
 
 
 __all__ = [
@@ -76,13 +72,8 @@ class Field(sa.Column):
         return self.form_class
 
     def get_type_kwargs(self, type_class, kwargs):
-        args = []
-        with suppress(ValueError, TypeError):
-            # this is required for python2 for slot wrappers
-            args = inspect.get_func_full_args(type_class.__init__)
-
-        type_args = [i for i in args if len(i) == 2]
-        return {k: kwargs.pop(k) for k, v in type_args if not k.startswith("*") and k in kwargs}
+        type_args = sa.util.get_cls_kwargs(type_class)
+        return {k: kwargs.pop(k) for k in type_args if not k.startswith("*") and k in kwargs}
 
     def get_column_kwargs(self, kwargs):
         column_args = [
@@ -209,7 +200,9 @@ class EnumField(Field):
 
     def get_form_class(self, kwargs):
         if self.type.enum_class:
-            return fields.EnumField
+            from ..fields import EnumField
+
+            return EnumField
 
         return djangofields.TypedChoiceField
 
