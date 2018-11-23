@@ -2,8 +2,18 @@ Changelog
 =========
 
 
-0.6.18 (2018-11-20)
+0.7.0 (2018-11-22)
 -----------------------------
+- Refactor formfield mapping (#95) [Serkan Hosca]
+
+
+
+
+
+
+
+0.6.18 (2018-11-20)
+-------------------
 - Added full_clean(recursive=True) for adhoc full tree validation (#96)
   [Miroslav Shubernetskiy]
 
