@@ -78,6 +78,14 @@ class model_info(six.with_metaclass(model_info_meta)):
             return self.relationships[name]
         return getattr(super(model_info, self), name)
 
+    def __repr__(self):
+        reprs = ["<model_info({!s})>".format(self.model_class.__name__)]
+        reprs.extend("    " + repr(i) for i in self.primary_keys.values())
+        reprs.extend("    " + repr(i) for _, i in sorted(self.properties.items()))
+        reprs.extend("    " + i for i in chain(*[repr(c).split("\n") for _, c in sorted(self.composites.items())]))
+        reprs.extend("    " + repr(i) for _, i in sorted(self.relationships.items()))
+        return "\n".join(reprs)
+
     @property
     def field_names(self):
         if not self._field_names:
@@ -90,9 +98,6 @@ class model_info(six.with_metaclass(model_info_meta)):
             ]
 
         return self._field_names
-
-    def __repr__(self):
-        return "<model_info(%s)>" % self.model_class.__name__
 
     def primary_keys_from_dict(self, kwargs):
         """
