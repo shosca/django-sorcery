@@ -24,27 +24,21 @@ def get_primary_keys(model, kwargs):
     warnings.warn(
         "Deprecated, use django_sorcery.db.meta.model_info.primary_keys_from_dict instead.", DeprecationWarning
     )
-    from .meta import model_info
-
-    return model_info(model).primary_keys_from_dict(kwargs)
+    return meta.model_info(model).primary_keys_from_dict(kwargs)
 
 
 def get_primary_keys_from_instance(instance):
     warnings.warn(
         "Deprecated, use django_sorcery.db.meta.model_info.primary_keys_from_instance instead.", DeprecationWarning
     )
-    from .meta import model_info
-
-    return model_info(type(instance)).primary_keys_from_instance(instance)
+    return meta.model_info(type(instance)).primary_keys_from_instance(instance)
 
 
 def get_identity_key(model, kwargs):
     warnings.warn(
         "Deprecated, use django_sorcery.db.meta.model_info.identity_key_from_dict instead.", DeprecationWarning
     )
-    from .meta import model_info
-
-    return model_info(model).identity_key_from_dict(kwargs)
+    return meta.model_info(model).identity_key_from_dict(kwargs)
 
 
 def model_to_dict(instance, fields=None, exclude=None):
@@ -63,11 +57,10 @@ def simple_repr(instance, fields=None):
     fields: list
         list of fields to display on repr
     """
-    state = sa.inspect(instance)
-    pks = [state.mapper.get_property_by_column(col).key for col in state.mapper.primary_key]
-    fields = fields or [
-        state.mapper.get_property_by_column(col).key for col in state.mapper.columns if not col.primary_key
-    ]
+    info = meta.model_info(instance)
+    state = info.state(instance)
+    pks = info.primary_keys
+    fields = fields or info.properties
 
     pk_reprs = []
     for key in pks:
@@ -106,24 +99,24 @@ def serialize(instance, *rels):
     if isinstance(instance, (list, set)):
         return [serialize(i, *rels) for i in instance]
 
-    state = sa.inspect(instance)
+    info = meta.model_info(instance)
     rels = set(rels)
 
-    data = {c.key: getattr(instance, c.key) for c in state.mapper.column_attrs}
+    data = {name: getattr(instance, name) for name, _ in info.column_properties}
 
-    for composite in state.mapper.composites:
-        comp = getattr(instance, composite.key)
-        data[composite.key] = vars(comp) if comp else None
+    for name, composite in info.composites.items():
+        comp = getattr(instance, name)
+        data[name] = vars(comp) if comp else None
         # since we're copying, remove props from the composite
-        for prop in composite.props:
-            data.pop(prop.key, None)
+        for _, prop in composite.properties.items():
+            data.pop(prop.name, None)
 
-    for relation in state.mapper.relationships:
-        attr = getattr(state.mapper.class_, relation.key)
+    for name, relation in info.relationships.items():
+        attr = getattr(info.model_class, name)
         if attr in rels:
-            sub_instance = getattr(instance, relation.key, None)
+            sub_instance = getattr(instance, name, None)
             sub_rels = [r for r in rels if r is not attr]
-            data[relation.key] = serialize(sub_instance, *sub_rels)
+            data[name] = serialize(sub_instance, *sub_rels)
 
     return data
 
@@ -229,8 +222,7 @@ def clone(instance, *rels, **kwargs):
 
         relations[r] = rkwargs
 
-    state = sa.inspect(instance)
-    mapper = state.mapper
+    mapper = sa.inspect(instance).mapper
     kwargs = kwargs or {}
 
     fks = set(

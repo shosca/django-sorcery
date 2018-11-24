@@ -8,8 +8,13 @@ class model_info_meta(type):
     _registry = {}
 
     def __call__(cls, model, *args, **kwargs):
-        if isinstance(model, sa.orm.Mapper):
-            model = model.class_
+        obj = sa.inspect(model)
+
+        if isinstance(obj, sa.orm.Mapper):
+            model = obj.class_
+
+        if isinstance(obj, sa.orm.state.InstanceState):
+            model = obj.mapper.class_
 
         if model not in cls._registry:
             instance = super(model_info_meta, cls).__call__(model, *args, **kwargs)

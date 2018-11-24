@@ -86,6 +86,13 @@ class model_info(six.with_metaclass(model_info_meta)):
         reprs.extend("    " + repr(i) for _, i in sorted(self.relationships.items()))
         return "\n".join(reprs)
 
+    def state(self, instance):
+        return sa.inspect(instance)
+
+    @property
+    def column_properties(self):
+        return chain(self.primary_keys.items(), sorted(self.properties.items()))
+
     @property
     def field_names(self):
         if not self._field_names:

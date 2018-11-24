@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+import sqlalchemy as sa
+
 from django_sorcery.db import meta  # noqa
 
 from ...base import TestCase
@@ -28,6 +30,7 @@ class TestModelMeta(TestCase):
             [
                 "_configure",
                 "_field_names",
+                "column_properties",
                 "composites",
                 "field_names",
                 "first_name",
@@ -43,6 +46,7 @@ class TestModelMeta(TestCase):
                 "primary_keys_from_instance",
                 "properties",
                 "relationships",
+                "state",
                 "vehicles",
             ],
         )
@@ -117,6 +121,18 @@ class TestModelMeta(TestCase):
                     "        <string_column_info(Business._foo_zip)>",
                 ]
             ),
+        )
+
+    def test_inspect(self):
+        info = meta.model_info(Owner)
+        self.assertIsInstance(info.state(Owner()), sa.orm.state.InstanceState)
+
+    def test_column_properties(self):
+        info = meta.model_info(Owner)
+
+        self.assertListEqual(
+            list(info.column_properties),
+            [("id", info.id), ("first_name", info.first_name), ("last_name", info.last_name)],
         )
 
     def test_model_meta_with_mapper(self):
