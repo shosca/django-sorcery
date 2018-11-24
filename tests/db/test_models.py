@@ -46,11 +46,6 @@ class TestDeprecated(TestCase):
 
 
 class TestModelRepr(TestCase):
-    def test_model_repr(self):
-        owner = Owner(id=1, first_name="Meaty", last_name="McManPipes")
-
-        self.assertEqual(repr(owner), "Owner(id=1, first_name='Meaty', last_name='McManPipes')")
-
     def test_simple_repr(self):
 
         vehicle = Vehicle()
@@ -338,6 +333,80 @@ class TestClone(TestCase):
             self.assertNotEqual(cloned.id, orig.id)
 
 
+class TestBaseModel(TestCase):
+    def test_default_table_name(self):
+        self.assertEqual(AllKindsOfFields.__table__.name, "all_kinds_of_fields")
+
+    def test_as_dict(self):
+        instance = AllKindsOfFields()
+
+        self.assertDictEqual(
+            instance.as_dict(),
+            {
+                "bigint": None,
+                "biginteger": None,
+                "binary": None,
+                "boolean": None,
+                "boolean_notnull": None,
+                "char": None,
+                "date": None,
+                "datetime": None,
+                "decimal": None,
+                "enum": None,
+                "enum_choice": None,
+                "float": None,
+                "int": None,
+                "integer": None,
+                "interval": None,
+                "largebinary": None,
+                "nchar": None,
+                "numeric": None,
+                "pk": None,
+                "real": None,
+                "smallint": None,
+                "smallinteger": None,
+                "string": None,
+                "text": None,
+                "time": None,
+                "timestamp": None,
+                "unicode": None,
+                "unicodetext": None,
+                "varchar": None,
+            },
+        )
+
+    def test_model_repr(self):
+        owner = Owner(id=1, first_name="Morty", last_name="McFly")
+
+        self.assertEqual(repr(owner), "Owner(id=1, first_name='Morty', last_name='McFly')")
+
+    def test_get_properties_for_validation(self):
+        instance = Owner(id=1, first_name="Morty", last_name="McFly")
+        info = meta.model_info(instance)
+
+        self.assertDictEqual(
+            instance._get_properties_for_validation(), {"first_name": info.first_name, "last_name": info.last_name}
+        )
+
+    def test_get_nested_objects_for_validation(self):
+        instance = Business()
+        info = meta.model_info(instance)
+
+        self.assertDictEqual(
+            instance._get_nested_objects_for_validation(),
+            {"location": info.location, "other_location": info.other_location},
+        )
+
+    def test_get_relation_objects_for_validation(self):
+        instance = Vehicle()
+        info = meta.model_info(instance)
+
+        self.assertDictEqual(
+            instance._get_relation_objects_for_validation(),
+            {"options": info.options, "owner": info.owner, "parts": info.parts},
+        )
+
+
 class TestAutoCoerce(TestCase):
     def setUp(self):
         self.instance = AllKindsOfFields()
@@ -546,3 +615,6 @@ class TestInstantDefaults(TestCase):
         instance = Business(employees=1)
 
         self.assertEquals(instance.employees, 1)
+
+    def test_non_model(self):
+        self.assertIsNone(models.instant_defaults(list))
