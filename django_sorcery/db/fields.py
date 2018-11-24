@@ -29,6 +29,7 @@ __all__ = [
     "SmallIntegerField",
     "TextField",
     "TimeField",
+    "TimestampField",
     "URLField",
 ]
 
@@ -114,6 +115,11 @@ class Field(sa.Column):
 class BooleanField(Field):
     type_class = sa.Boolean
     form_class = djangofields.BooleanField
+
+    def get_type_kwargs(self, type_class, kwargs):
+        type_kwargs = super(BooleanField, self).get_type_kwargs(type_class, kwargs)
+        type_kwargs["name"] = kwargs.pop("constraint_name", None)
+        return type_kwargs
 
     def get_column_kwargs(self, kwargs):
         column_kwargs = super(BooleanField, self).get_column_kwargs(kwargs)
