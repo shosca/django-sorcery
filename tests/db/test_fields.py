@@ -34,6 +34,9 @@ class TestFields(TestCase):
         form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.BooleanField)
 
+        column = fields.BooleanField(constraint_name="test")
+        self.assertEqual(column.type.name, "test")
+
     def test_char_field(self):
         column = fields.CharField()
         self.assertIsInstance(column.type, sa.String)
@@ -163,6 +166,9 @@ class TestFields(TestCase):
         column = fields.NullBooleanField()
         self.assertIsInstance(column.type, sa.Boolean)
         self.assertTrue(column.nullable)
+
+        column = fields.NullBooleanField(constraint_name="test")
+        self.assertEqual(column.type.name, "test")
 
         form_field = meta.column_info(column).formfield()
         self.assertIsInstance(form_field, djangofields.NullBooleanField)
