@@ -4,5 +4,5 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 __author__ = "Serkan Hosca"
 __author_email__ = "serkan@hosca.com"
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 __description__ = "Django and SQLAlchemy integration"

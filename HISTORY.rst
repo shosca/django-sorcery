@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.7.0 (2018-11-22)
+0.7.1 (2018-11-24)
 -----------------------------
+- Fix boolean field constraint name (#99) [Serkan Hosca]
+- Meta docs and more meta usage (#98) [Serkan Hosca]
+- Nicer meta reprs (#97) [Serkan Hosca]
+
+
+0.7.0 (2018-11-23)
+------------------
 - Refactor formfield mapping (#95) [Serkan Hosca]
 
 
