@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+import sqlalchemy as sa
+
 from django import forms as djangoforms
 from django.core import validators as django_validators
+from django.forms import fields as djangofields
 
 from django_sorcery.db import fields as dbfields, meta  # noqa
 
@@ -58,6 +61,16 @@ class TestColumnMeta(TestCase):
             col.field_kwargs,
         )
         self.assertTrue(col.required)
+
+    def test_column_info_enum_from_class_from_info(self):
+        info = meta.column_info(sa.Column(sa.Enum(VehicleType), info={"form_class": djangofields.IntegerField}))
+        self.assertIsInstance(info, meta.enum_column_info)
+        self.assertEqual(info.form_class, djangofields.IntegerField)
+
+    def test_column_info_boolean_from_class_from_info(self):
+        info = meta.column_info(sa.Column(sa.Boolean(), info={"form_class": djangofields.IntegerField}))
+        self.assertIsInstance(info, meta.boolean_column_info)
+        self.assertEqual(info.form_class, djangofields.IntegerField)
 
     def test_column_info_validators(self):
         info = meta.model_info(Vehicle)

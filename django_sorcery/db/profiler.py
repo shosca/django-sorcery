@@ -16,9 +16,9 @@ STATEMENT_TYPES = {"SELECT": "select", "INSERT INTO": "insert", "UPDATE": "updat
 
 
 class SQLAlchemyProfiler(object):
-    def __init__(self):
+    def __init__(self, exclude=None):
         self.local = local()
-        self.exclude = []
+        self.exclude = exclude or []
 
         self._events = [
             ("before_cursor_execute", sa.engine.Engine, self._before_cursor_execute),
@@ -71,7 +71,6 @@ class SQLAlchemyProfiler(object):
                 pass  # pragma: nocover
 
     def stop(self):
-        self.clear()
         for ev, target, handler in self._events:
             try:
                 if sa.event.contains(target, ev, handler):

@@ -23,6 +23,9 @@ class TestEnumField(TestCase):
         value = field.to_python(VehicleType.car)
         self.assertEqual(value, VehicleType.car)
 
+        with self.assertRaises(ValidationError):
+            field.to_python("blue")
+
         value = field.valid_value(None)
         self.assertFalse(value)
 
@@ -52,6 +55,9 @@ class TestEnumField(TestCase):
 
         value = field.valid_value("Car")
         self.assertFalse(value)
+
+        with self.assertRaises(ValidationError):
+            field.to_python("blue")
 
         value = field.valid_value(VehicleType.car)
         self.assertTrue(value)

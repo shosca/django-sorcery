@@ -19,29 +19,29 @@ class TestSession(TestCase):
         self.before_commit_called = False
         self.after_commit_called = False
 
-        def before_flush(session, **kwargs):
-            self.before_flush_signal_called = True
+        signals.before_flush.connect(self._before_flush, weak=False)
+        signals.after_flush.connect(self._after_flush, weak=False)
+        signals.before_commit.connect(self._before_commit, weak=False)
+        signals.after_commit.connect(self._after_commit, weak=False)
 
-        def after_flush(session, **kwargs):
-            self.after_flush_signal_called = True
+    def _before_flush(self, session, **kwargs):
+        self.before_flush_signal_called = True
 
-        def before_commit(session, **kwargs):
-            self.before_commit_called = True
+    def _after_flush(self, session, **kwargs):
+        self.after_flush_signal_called = True
 
-        def after_commit(session, **kwargs):
-            self.after_commit_called = True
+    def _before_commit(self, session, **kwargs):
+        self.before_commit_called = True
 
-        signals.before_flush.connect(before_flush, weak=False)
-        signals.after_flush.connect(after_flush, weak=False)
-        signals.before_commit.connect(before_commit, weak=False)
-        signals.after_commit.connect(after_commit, weak=False)
+    def _after_commit(self, session, **kwargs):
+        self.after_commit_called = True
 
     def tearDown(self):
         super(TestSession, self).tearDown()
-        signals.before_flush._clear_state()
-        signals.after_flush._clear_state()
-        signals.before_commit._clear_state()
-        signals.after_commit._clear_state()
+        signals.before_flush.disconnect(self._before_flush)
+        signals.after_flush.disconnect(self._after_flush)
+        signals.before_commit.disconnect(self._before_commit)
+        signals.after_commit.disconnect(self._after_commit)
         Owner.query.delete()
         db.commit()
 
