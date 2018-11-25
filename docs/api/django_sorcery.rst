@@ -24,7 +24,6 @@ Submodules
 
    django_sorcery.compat
    django_sorcery.exceptions
-   django_sorcery.field_mapping
    django_sorcery.fields
    django_sorcery.forms
    django_sorcery.pytest_plugin

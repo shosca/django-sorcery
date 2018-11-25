@@ -12,6 +12,7 @@ Subpackages
 .. toctree::
 
     django_sorcery.db.alembic
+    django_sorcery.db.meta
 
 Submodules
 ----------
@@ -20,7 +21,6 @@ Submodules
 
    django_sorcery.db.composites
    django_sorcery.db.fields
-   django_sorcery.db.meta
    django_sorcery.db.middleware
    django_sorcery.db.mixins
    django_sorcery.db.models

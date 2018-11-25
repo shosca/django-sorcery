@@ -62,7 +62,7 @@ test:  ## run tests
 check:  ## run all tests
 	tox
 
-history:  ## generate HISTORY.rst
+history: docs  ## generate HISTORY.rst
 	gitchangelog > HISTORY.rst
 
 docs:  ## generate docs

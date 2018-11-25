@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.1 (2018-11-24)
+0.7.2 (2018-11-25)
 -----------------------------
+- Add more tests (#100) [Serkan Hosca]
+
+
+0.7.1 (2018-11-24)
+------------------
 - Fix boolean field constraint name (#99) [Serkan Hosca]
 - Meta docs and more meta usage (#98) [Serkan Hosca]
 - Nicer meta reprs (#97) [Serkan Hosca]
