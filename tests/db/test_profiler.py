@@ -2,11 +2,12 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.http import HttpResponse
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, override_settings
 
-from django_sorcery.db.profiler import SQLAlchemyProfilingMiddleware
+from django_sorcery.db.profiler import SQLAlchemyProfiler, SQLAlchemyProfilingMiddleware
 
-from ..testapp.models import Owner, db
+from ..base import TestCase
+from ..testapp.models import Business, Owner, db
 
 
 def get_response(request):
@@ -45,3 +46,31 @@ class TestSQLAlchemyProfilingMiddleware(TestCase):
             self.assertTrue(SQLAlchemyProfilingMiddleware(get_response).log_results)
         with override_settings(DEBUG=False):
             self.assertFalse(SQLAlchemyProfilingMiddleware(get_response).log_results)
+
+
+class TestProfiler(TestCase):
+    def test_profiler(self):
+        profiler = SQLAlchemyProfiler(exclude=["business"])
+
+        with profiler:
+            db.add(Owner(first_name="foo", last_name="bar"))
+            db.flush()
+            Owner.objects.all()
+            Business.objects.all()
+            db.rollback()
+            db.remove()
+
+        self.assertDictEqual(
+            profiler.counts,
+            {
+                "begin": 1,
+                "engine_connect": 1,
+                "execute": 2,
+                "insert": 1,
+                "pool_checkin": 1,
+                "pool_checkout": 1,
+                "pool_reset": 1,
+                "rollback": 1,
+                "select": 1,
+            },
+        )

@@ -39,4 +39,4 @@ class TransactionContext(object):
         [transaction.__exit__(exception_type, value, tb) for transaction in self.transactions]
         self.transactions = None
         if value:
-            six.reraise(exception_type, value, tb or value.__traceback__)
+            six.reraise(exception_type, value, tb)

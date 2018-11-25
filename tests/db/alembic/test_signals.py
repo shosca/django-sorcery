@@ -4,12 +4,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.test import TestCase
 
 from django_sorcery.db import signals
-from django_sorcery.db.alembic.signals import include_object
+from django_sorcery.db.alembic.signals import include_object, process_revision_directives
 
 
-class TestSignals(TestCase):
+class TestIncludeObject(TestCase):
     def tearDown(self):
-        super(TestSignals, self).tearDown()
+        super(TestIncludeObject, self).tearDown()
         signals.alembic_include_object._clear_state()
 
     def test_default(self):
@@ -28,3 +28,25 @@ class TestSignals(TestCase):
             return False
 
         self.assertFalse(include_object(None, None, None, None, None))
+
+
+class TestProcessRevisionDirectives(TestCase):
+    def setUp(self):
+        super(TestProcessRevisionDirectives, self).tearDown()
+        signals.alembic_process_revision_directives.connect(self._handler)
+
+    def tearDown(self):
+        super(TestProcessRevisionDirectives, self).tearDown()
+        signals.alembic_process_revision_directives.disconnect(self._handler)
+
+    def _handler(self, context, revision, directives):
+        self.context = context
+        self.revision = revision
+        self.directives = directives
+
+    def test_process_revision_directives(self):
+        process_revision_directives({}, "abc", ("1234",))
+
+        self.assertEqual(self.context, {})
+        self.assertEqual(self.revision, "abc")
+        self.assertEqual(self.directives, ("1234",))

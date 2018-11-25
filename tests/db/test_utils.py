@@ -66,6 +66,18 @@ class TestDbDict(unittest.TestCase):
 
 
 class TestMultiDbAtomic(unittest.TestCase):
+    def setUp(self):
+        super(TestMultiDbAtomic, self).setUp()
+        Foo.objects.delete()
+        Bar.objects.delete()
+        databases.commit()
+
+    def tearDown(self):
+        super(TestMultiDbAtomic, self).tearDown()
+        Foo.objects.delete()
+        Bar.objects.delete()
+        databases.commit()
+
     def test_multidb(self):
 
         with databases.atomic():
@@ -84,3 +96,20 @@ class TestMultiDbAtomic(unittest.TestCase):
         self.assertEqual(Foo.objects.count(), 0)
         self.assertEqual(Bar.objects.count(), 0)
         databases.rollback()
+
+    def test_multidb_flush(self):
+        default_db.add(Foo(name="1234"))
+        other_db.add(Bar(name="1234"))
+
+        databases.flush()
+
+        self.assertEqual(len(default_db.new) + len(other_db.new), 0)
+
+    def test_multidb_commit(self):
+        default_db_session = default_db()
+        other_db_session = other_db()
+
+        databases.remove()
+
+        self.assertIsNot(default_db(), default_db_session)
+        self.assertIsNot(other_db(), other_db_session)
