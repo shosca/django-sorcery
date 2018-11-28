@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.2 (2018-11-25)
+0.7.3 (2018-11-28)
 -----------------------------
+- Fix event deque mutation (#101) [Serkan Hosca]
+
+
+0.7.2 (2018-11-25)
+------------------
 - Add more tests (#100) [Serkan Hosca]
 
 
