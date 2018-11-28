@@ -344,6 +344,9 @@ class Base(CleanMixin):
         return meta.model_info(self.__class__).relationships
 
 
+_instant_defaults = set()
+
+
 def instant_defaults(cls):
     """
     This function automatically registers attribute events that sets the column defaults to a
@@ -357,25 +360,34 @@ def instant_defaults(cls):
         assert MyModel().default == 1
 
     """
-
     mapper = sa.inspect(cls, raiseerr=False)
     if not mapper:
         return
 
-    @sa.event.listens_for(mapper, "init")
-    def initialize_value_defaults(target, args, kwargs):
-        info = meta.model_info(target.__class__)
-        for prop in info.properties.values():
-            if not prop.column.default or not hasattr(prop.column.default, "arg") or callable(prop.column.default.arg):
-                continue  # pragma: nocover
-
-            if getattr(target, prop.name, None) is None:
-                setattr(target, prop.name, prop.column.default.arg)
-
+    _instant_defaults.add(cls)
     return cls
 
 
 signals.declare_last.connect(instant_defaults)
+
+
+def _set_instant_defaults(target, args, kwargs):
+    info = meta.model_info(target.__class__)
+    for prop in info.properties.values():
+        if not prop.column.default or not hasattr(prop.column.default, "arg") or callable(prop.column.default.arg):
+            continue  # pragma: nocover
+
+        if getattr(target, prop.name, None) is None:
+            setattr(target, prop.name, prop.column.default.arg)
+
+
+@sa.event.listens_for(sa.orm.mapper, "after_configured")
+def _configure_instant_defaults():
+    for cls in _instant_defaults:
+        if not sa.event.contains(cls, "init", _set_instant_defaults):
+            sa.event.listen(cls, "init", _set_instant_defaults)
+
+    _instant_defaults.clear()
 
 
 @signals.before_flush.connect
