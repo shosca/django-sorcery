@@ -4,6 +4,7 @@ from collections import namedtuple
 
 from django.core.exceptions import ValidationError
 
+from django_sorcery.exceptions import NestedValidationError
 from django_sorcery.validators import (
     ValidateCantRemove,
     ValidateEmptyWhen,
@@ -11,10 +12,42 @@ from django_sorcery.validators import (
     ValidateOnlyOneOf,
     ValidateTogetherModelFields,
     ValidateValue,
+    ValidationRunner,
 )
 
 from .base import TestCase
 from .testapp.models import ValidateUniqueModel, db
+
+
+class TestValidatorRunner(TestCase):
+    def test_is_valid(self):
+        runner = ValidationRunner(validators=[bool])
+        self.assertTrue(runner.is_valid(1))
+
+    def test_invalid(self):
+        def invalid(x):
+            raise ValidationError("invalid")
+
+        runner = ValidationRunner(validators=[invalid])
+        self.assertFalse(runner.is_valid(1))
+
+    def test_invalid_nested(self):
+        def invalid(x):
+            raise NestedValidationError({"bad": ["really"]})
+
+        runner = ValidationRunner(validators=[invalid])
+        self.assertFalse(runner.is_valid(1))
+        self.assertEqual(len(runner.errors), 1)
+        self.assertEqual(len(runner.errors["bad"]), 1)
+        self.assertIsInstance(runner.errors["bad"][0], NestedValidationError)
+
+    def test_invalid_raise_error(self):
+        def invalid(x):
+            raise ValidationError("invalid")
+
+        runner = ValidationRunner(validators=[invalid])
+        with self.assertRaises(ValidationError):
+            runner.is_valid(1, raise_exception=True)
 
 
 Node = namedtuple("Node", ["left", "right", "value"])

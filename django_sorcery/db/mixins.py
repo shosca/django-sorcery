@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 
 from ..exceptions import NestedValidationError
 from ..utils import suppress
+from ..validators import ValidationRunner
 from .meta import model_info
 
 
@@ -75,29 +76,13 @@ class CleanMixin(object):
 
             if name not in exclude and not is_skippable:
 
-                for v in field.column.info.get("validators", []):
-                    try:
-                        v(getattr(self, name))
-                    except ValidationError as e:
-                        e = NestedValidationError(e)
-                        try:
-                            e.error_list
-                        except AttributeError:
-                            errors = e.update_error_dict(errors)
-                        else:
-                            errors.setdefault(name, []).extend(e.error_list)
+                validators = field.validators[:]
+                clean_func = getattr(self, "clean_{}".format(name), bool)
+                validators.append(lambda obj: clean_func())
 
-                try:
-                    getattr(self, "clean_{}".format(name), bool)()
-
-                except ValidationError as e:
-                    e = NestedValidationError(e)
-                    try:
-                        e.error_list
-                    except AttributeError:
-                        errors = e.update_error_dict(errors)
-                    else:
-                        errors.setdefault(name, []).extend(e.error_list)
+                runner = ValidationRunner(name=name, validators=validators, errors=errors)
+                runner.is_valid(getattr(self, name))
+                errors = runner.errors
 
         if errors:
             raise NestedValidationError(errors)
@@ -200,17 +185,8 @@ class CleanMixin(object):
         """
         Check all model validators registered on ``validators`` attribute
         """
-        errors = {}
-
-        for v in getattr(self, "validators", []):
-            try:
-                v(self)
-            except ValidationError as e:
-                e = NestedValidationError(e)
-                errors = e.update_error_dict(errors)
-
-        if errors:
-            raise NestedValidationError(errors)
+        runner = ValidationRunner(validators=getattr(self, "validators", []))
+        runner.is_valid(self, raise_exception=True)
 
     def full_clean(self, exclude=None, **kwargs):
         """
