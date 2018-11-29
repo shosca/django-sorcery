@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.3 (2018-11-28)
+0.7.4 (2018-11-29)
 -----------------------------
+- Add validation runner and refactor validation (#102) [Serkan Hosca]
+
+
+0.7.3 (2018-11-28)
+------------------
 - Fix event deque mutation (#101) [Serkan Hosca]
 
 
