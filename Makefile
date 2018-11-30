@@ -2,6 +2,13 @@ PACKAGE=django_sorcery
 FILES=$(shell find $(PACKAGE) -iname '*.py')
 VERSION=$(shell python setup.py --version)
 NEXT=$(shell semver -i $(BUMP) $(VERSION))
+DBS=\
+	default_db \
+	fromdbs \
+	test \
+	minimal \
+	minimal_backpop
+RESETDBS=$(addsuffix -resetdb,$(DBS))
 
 .PHONY: docs $(FILES)
 
@@ -28,17 +35,11 @@ clean-pyc:  ## remove Python file artifacts
 clean-test:  ## remove test and coverage artifacts
 	rm -rf .tox/ .coverage htmlcov/
 
-resetdb:
-	-psql -c "drop database default_db;" -h localhost -U postgres
-	-psql -c "create database default_db;" -h localhost -U postgres
-	-psql -c "drop database fromdbs;" -h localhost -U postgres
-	-psql -c "create database fromdbs;" -h localhost -U postgres
-	-psql -c "drop database test;" -h localhost -U postgres
-	-psql -c "create database test;" -h localhost -U postgres
-	-psql -c "drop database minimal;" -h localhost -U postgres
-	-psql -c "create database minimal;" -h localhost -U postgres
-	-psql -c "drop database minimal_backpop;" -h localhost -U postgres
-	-psql -c "create database minimal_backpop;" -h localhost -U postgres
+%-resetdb:
+	-psql -c "drop database $*;" -h localhost -U postgres
+	-psql -c "create database $*;" -h localhost -U postgres
+
+resetdb: $(RESETDBS)
 
 lint:  ## run pre-commit hooks on all files
 	if python -c "import sys; exit(1) if sys.version_info.major < 3 else exit(0)"; then \
