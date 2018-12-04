@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.7.4 (2018-11-29)
+0.7.5 (2018-12-04)
 -----------------------------
+- Fix field column naming (#105) [Serkan Hosca]
+- Parallel resetdb (#104) [Serkan Hosca]
+- Refactor full_clean validation (#103) [Serkan Hosca]
+
+
+0.7.4 (2018-11-29)
+------------------
 - Add validation runner and refactor validation (#102) [Serkan Hosca]
 
 
