@@ -41,9 +41,10 @@ class Field(sa.Column):
     widget_class = None
 
     def __init__(self, *args, **kwargs):
+        name = None
         args = list(args)
         if args and isinstance(args[0], six.string_types):
-            kwargs["name"] = args.pop(0)
+            name = args.pop(0)
 
         column_type = kwargs.pop("type_", None)
         if args and hasattr(args[0], "_sqla_type"):
@@ -59,6 +60,7 @@ class Field(sa.Column):
             column_type = self.get_type(type_class, type_kwargs)
 
         column_kwargs["type_"] = column_type
+        column_kwargs.setdefault("name", name)
         super(Field, self).__init__(*args, **column_kwargs)
         self.info["validators"] = self.get_validators(validators)
         self.info["required"] = required if required is not None else not self.nullable
@@ -243,6 +245,9 @@ class SmallIntegerField(Field):
 
 class NullBooleanField(BooleanField):
     form_class = djangofields.NullBooleanField
+
+    def __init__(self, *args, **kwargs):
+        super(NullBooleanField, self).__init__(*args, **kwargs)
 
     def get_column_kwargs(self, kwargs):
         kwargs["nullable"] = True
