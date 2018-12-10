@@ -74,3 +74,11 @@ class TestProfiler(TestCase):
                 "select": 1,
             },
         )
+
+        insert_query, select_query = profiler.queries
+
+        self.assertTrue(insert_query.statement.lower().startswith("insert into owner"))
+        self.assertTrue(insert_query.parameters, [{"first_name": "foo", "last_name": "bar"}])
+
+        self.assertTrue(select_query.statement.lower().startswith("select owner.id"))
+        self.assertTrue(select_query.parameters, [{}])
