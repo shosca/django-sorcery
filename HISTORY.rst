@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.5 (2018-12-04)
+0.7.6 (2018-12-10)
 -----------------------------
+- Add query recording to profiler (#106) [Serkan Hosca]
+
+
+0.7.5 (2018-12-04)
+------------------
 - Fix field column naming (#105) [Serkan Hosca]
 - Parallel resetdb (#104) [Serkan Hosca]
 - Refactor full_clean validation (#103) [Serkan Hosca]
