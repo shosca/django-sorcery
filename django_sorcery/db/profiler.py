@@ -2,7 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import logging
 import time
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from functools import partial
 from threading import local
 
@@ -13,6 +13,9 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 STATEMENT_TYPES = {"SELECT": "select", "INSERT INTO": "insert", "UPDATE": "update", "DELETE": "delete"}
+
+
+Query = namedtuple("Query", ["timestamp", "statement", "parameters", "duration"])
 
 
 class SQLAlchemyProfiler(object):
@@ -95,6 +98,10 @@ class SQLAlchemyProfiler(object):
         return self.local.__dict__.setdefault("counts", defaultdict(lambda: 0))
 
     @property
+    def queries(self):
+        return self.local.__dict__.setdefault("queries", [])
+
+    @property
     def stats(self):
         stats = self.counts.copy()
         stats["duration"] = self.duration
@@ -104,14 +111,18 @@ class SQLAlchemyProfiler(object):
         self.local._profiler_query_start_time = time.time()
 
     def _after_cursor_execute(self, conn, cursor, statement, parameters, context, executemany):
+        end_time = time.time()
+        start_time = self.local._profiler_query_start_time
+        duration = end_time - start_time
+
         for e in self.exclude:
             if e in statement:
                 return
 
-        end_time = time.time()
-        start_time = self.local._profiler_query_start_time
+        params = getattr(context, "compiled_parameters", [])
+        self.queries.append(Query(int(round(time.time() * 1000)), statement, params, duration))
 
-        self.duration += end_time - start_time
+        self.duration += duration
         self.counts["execute"] += 1
 
         for start, event in STATEMENT_TYPES.items():
