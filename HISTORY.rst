@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.6 (2018-12-10)
+0.7.7 (2018-12-10)
 -----------------------------
+- Make statement recording optional (#107) [Serkan Hosca]
+
+
+0.7.6 (2018-12-10)
+------------------
 - Add query recording to profiler (#106) [Serkan Hosca]
 
 
