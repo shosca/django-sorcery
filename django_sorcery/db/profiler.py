@@ -19,9 +19,10 @@ Query = namedtuple("Query", ["timestamp", "statement", "parameters", "duration"]
 
 
 class SQLAlchemyProfiler(object):
-    def __init__(self, exclude=None):
+    def __init__(self, exclude=None, record_queries=True):
         self.local = local()
         self.exclude = exclude or []
+        self.record_queries = record_queries
 
         self._events = [
             ("before_cursor_execute", sa.engine.Engine, self._before_cursor_execute),
@@ -120,7 +121,8 @@ class SQLAlchemyProfiler(object):
                 return
 
         params = getattr(context, "compiled_parameters", [])
-        self.queries.append(Query(int(round(time.time() * 1000)), statement, params, duration))
+        if self.record_queries:
+            self.queries.append(Query(int(round(time.time() * 1000)), statement, params, duration))
 
         self.duration += duration
         self.counts["execute"] += 1
@@ -140,7 +142,7 @@ class SQLAlchemyProfilingMiddleware(object):
 
     def __init__(self, get_response=None):
         self.get_response = get_response
-        self.profiler = SQLAlchemyProfiler()
+        self.profiler = SQLAlchemyProfiler(record_queries=False)
 
     @property
     def log_results(self):
