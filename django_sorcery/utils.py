@@ -38,3 +38,20 @@ def make_args(*args, **kwargs):
     Useful for setting table args and mapper args on models and other things
     """
     return tuple(args) + (kwargs,)
+
+
+def lower(value):
+    """
+    Convert value to lowercase if possible
+
+    For example::
+
+        >>> print(lower('HELLO'))
+        hello
+        >>> print(lower(5))
+        5
+    """
+    try:
+        return value.lower()
+    except AttributeError:
+        return value

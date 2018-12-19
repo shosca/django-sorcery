@@ -35,3 +35,7 @@ class TestUtils(TestCase):
         value = utils.make_args("abc", kw="something")
 
         self.assertEqual(value, ("abc", {"kw": "something"}))
+
+    def test_lower(self):
+        self.assertEqual(utils.lower("HELLO"), "hello")
+        self.assertEqual(utils.lower(5), 5)
