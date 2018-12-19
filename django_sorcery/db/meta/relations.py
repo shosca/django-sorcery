@@ -18,6 +18,10 @@ class relation_info(object):
         self.relationship = relationship
 
     @property
+    def attribute(self):
+        return getattr(self.parent_model, self.name)
+
+    @property
     def name(self):
         return self.relationship.key
 

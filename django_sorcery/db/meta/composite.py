@@ -40,13 +40,25 @@ class composite_info(six.with_metaclass(model_info_meta)):
         return self._field_names
 
     @property
+    def name(self):
+        return self.prop.key
+
+    @property
+    def attribute(self):
+        return getattr(self.parent_model, self.name)
+
+    @property
+    def parent_model(self):
+        return self.prop.parent.class_
+
+    @property
     def related_model(self):
         return self.prop.composite_class
 
     def __repr__(self):
         reprs = [
             "<composite_info({!s}, {!s}.{!s})>".format(
-                self.related_model.__name__, self.prop.parent.class_.__name__, self.prop.key
+                self.related_model.__name__, self.parent_model.__name__, self.name
             )
         ]
         reprs.extend("    " + repr(i) for _, i in sorted(self.properties.items()))

@@ -58,7 +58,7 @@ $(FILES):  ## helper target to run coverage tests on a module
 	py.test $(PYTEST_OPTS) --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
-	py.test $(PYTEST_OPTS) --doctest-modules tests django_sorcery
+	py.test $(PYTEST_OPTS) tests django_sorcery
 
 check:  ## run all tests
 	tox

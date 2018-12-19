@@ -6,10 +6,46 @@ from functools import partial
 import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
 
+from django.db.models.constants import LOOKUP_SEP
+
+from ..utils import lower
 from . import meta
 
 
 Operation = namedtuple("Operation", ["name", "args", "kwargs"])
+
+# todo add transforms support - e.g. column__date__gt
+LOOKUP_TO_EXPRESSION = {
+    "contains": lambda column, value: column.contains(value),
+    # "date"
+    # "day"
+    "endswith": lambda column, value: column.endswith(value),
+    "exact": lambda column, value: column == value,
+    "gt": lambda column, value: column > value,
+    "gte": lambda column, value: column >= value,
+    # "hour"
+    "icontains": lambda column, value: sa.func.lower(column).contains(lower(value)),
+    "iendswith": lambda column, value: sa.func.lower(column).endswith(lower(value)),
+    "iexact": lambda column, value: sa.func.lower(column) == lower(value),
+    "iin": lambda column, value: sa.func.lower(column).in_(lower(i) for i in value),
+    "in": lambda column, value: column.in_(value),
+    # "iregex"
+    "isnull": lambda column, value: column == None if value else column != None,  # noqa
+    "istartswith": lambda column, value: sa.func.lower(column).startswith(lower(value)),
+    "lt": lambda column, value: column < value,
+    "lte": lambda column, value: column <= value,
+    # "minute"
+    # "month"
+    # "quarter"
+    "range": lambda column, value: column.between(*value),
+    # "regex"
+    # "second"
+    "startswith": lambda column, value: column.startswith(value),
+    # "time"
+    # "week"
+    # "week_day"
+    # "year"
+}
 
 
 class Query(sa.orm.Query):
@@ -32,6 +68,58 @@ class Query(sa.orm.Query):
             return None
 
         return super(Query, self).get(*args, **kwargs)
+
+    def filter(self, *args, **kwargs):
+        """
+        Standard SQLAlchemy filtering plus django-like expressions can be provided:
+
+        For example::
+
+            MyModel.objects.filter(MyModel.id == 5)
+            MyModel.objects.filter(id=5)
+            MyModel.objects.filter(id__gte=5)
+            MyModel.objects.filter(relation__id__gte=5)
+        """
+        args = args + tuple(self._lookup_to_expression(k, v) for k, v in kwargs.items())
+        return super(Query, self).filter(*args)
+
+    def _lookup_to_expression(self, lookup, value):
+        parts = lookup.split(LOOKUP_SEP)
+        info = meta.model_info(self._only_full_mapper_zero("get"))
+
+        props = dict(info.column_properties)
+        lhs = None
+
+        for i, part in enumerate(parts, 1):
+            is_last = i == len(parts)
+
+            if part in LOOKUP_TO_EXPRESSION:
+                return LOOKUP_TO_EXPRESSION[part](lhs, value)
+
+            elif part in info.relationships:
+                rel = info.relationships[part]
+
+                # directly comparing to model
+                # e.g. .filter(relation=instance)
+                if is_last:
+                    return rel.attribute == value
+
+                lhs = rel.related_model
+                props = dict(meta.model_info(lhs).column_properties)
+
+            elif part in info.composites:
+                comp = info.composites[part]
+                props = comp.properties
+
+                # directly comparing to composite
+                # e.g. .filter(composite=instance)
+                if is_last:
+                    return comp.attribute == value
+
+            else:
+                lhs = props[part].attribute
+
+        return lhs == value
 
 
 class QueryProperty(object):

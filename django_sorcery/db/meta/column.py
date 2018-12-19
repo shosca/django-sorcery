@@ -72,6 +72,10 @@ class column_info(object):
         )
 
     @property
+    def attribute(self):
+        return getattr(self.parent_model, self.name) if self.parent_model else None
+
+    @property
     def validators(self):
         return self.column.info.get("validators") or []
 

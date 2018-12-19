@@ -4,17 +4,23 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django_sorcery.db.query import QueryProperty
 
 from ..base import TestCase
-from ..testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
+from ..testapp.models import CompositePkModel, Owner, Point, Vehicle, VehicleType, Vertex, db
 
 
 class TestQuery(TestCase):
     def setUp(self):
         super(TestQuery, self).setUp()
         owner = Owner(first_name="Test 1", last_name="Owner 1")
+        vehicle = Vehicle(name="used", is_used=True, type=VehicleType.car, owner=owner)
+        vertex = Vertex(start=Point(x=1, y=2), end=Point(x=3, y=4))
         db.add(owner)
+        db.add(vehicle)
+        db.add(vertex)
         db.add(CompositePkModel(id=1, pk=1, active=True, name="Test-1-1"))
         db.flush()
         self.owner_id = owner.id
+        self.vehicle_id = vehicle.id
+        self.vertex_id = vertex.pk
         db.expire_all()
 
     def tearDown(self):
@@ -40,6 +46,30 @@ class TestQuery(TestCase):
 
     def test_query_kwarg_none(self):
         self.assertIsNone(CompositePkModel.query.get(id=1))
+
+    def test_query_filter_default_equality(self):
+        obj = Owner.query.filter(first_name="Test 1").first()
+        self.assertEqual(obj.id, self.owner_id)
+
+    def test_query_filter_lookup(self):
+        obj = Owner.query.filter(first_name__istartswith="test").first()
+        self.assertEqual(obj.id, self.owner_id)
+
+    def test_query_filter_relation_with_lookup(self):
+        obj = Vehicle.query.filter(owner__first_name__istartswith="test").first()
+        self.assertEqual(obj.id, self.vehicle_id)
+
+    def test_query_filter_relation_with_instance(self):
+        obj = Vehicle.query.filter(owner=Owner.objects.get(id=self.owner_id)).first()
+        self.assertEqual(obj.id, self.vehicle_id)
+
+    def test_query_filter_composite_with_lookup(self):
+        obj = Vertex.query.filter(start__x__gte=1).first()
+        self.assertEqual(obj.pk, self.vertex_id)
+
+    def test_query_filter_composite_with_instance(self):
+        obj = Vertex.query.filter(start=Vertex.query.get(self.vertex_id).start).first()
+        self.assertEqual(obj.pk, self.vertex_id)
 
 
 class TestQueryProperty(TestCase):
