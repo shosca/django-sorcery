@@ -9,8 +9,8 @@ from itertools import chain
 import six
 
 from django.core.exceptions import NON_FIELD_ERRORS, ImproperlyConfigured, ValidationError
-from django.forms import ALL_FIELDS
-from django.forms.forms import BaseForm, DeclarativeFieldsMetaclass
+from django.forms import ALL_FIELDS, BaseModelForm as DjangoBaseModelForm
+from django.forms.forms import DeclarativeFieldsMetaclass
 from django.forms.models import ModelFormOptions
 from django.forms.utils import ErrorList
 
@@ -240,7 +240,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
         return mcs
 
 
-class BaseModelForm(BaseForm):
+class BaseModelForm(DjangoBaseModelForm):
     def __init__(
         self,
         data=None,
@@ -257,10 +257,10 @@ class BaseModelForm(BaseForm):
         session=None,
     ):
         opts = self._meta
-        opts.session = opts.session or session
         if opts.model is None:
             raise ValueError("ModelForm has no model class specified.")
 
+        opts.session = opts.session or session or getattr(opts.model, "session", None)
         if opts.session is None:
             raise ValueError("ModelForm has no session specified.")
 

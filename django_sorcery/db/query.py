@@ -48,10 +48,21 @@ LOOKUP_TO_EXPRESSION = {
 }
 
 
+class DjangoCompiledQuery(object):
+    def __init__(self, query):
+        self.query = query
+        self.order_by = []
+        self.select_related = True
+
+
 class Query(sa.orm.Query):
     """
     A customized sqlalchemy query
     """
+
+    @property
+    def model(self):
+        return self._only_full_mapper_zero("get").class_
 
     def get(self, *args, **kwargs):
         """
@@ -59,8 +70,7 @@ class Query(sa.orm.Query):
         kwargs for composite keys. If no instance is found, returns ``None``.
         """
         if kwargs:
-            mapper = self._only_full_mapper_zero("get")
-            pk = meta.model_info(mapper).primary_keys_from_dict(kwargs)
+            pk = meta.model_info(self.model).primary_keys_from_dict(kwargs)
 
             if pk is not None:
                 return super(Query, self).get(pk)
@@ -83,9 +93,22 @@ class Query(sa.orm.Query):
         args = args + tuple(self._lookup_to_expression(k, v) for k, v in kwargs.items())
         return super(Query, self).filter(*args)
 
+    def get_queryset(self):
+        """
+        Necessary to comply with Django API
+        """
+        return self
+
+    @property
+    def query(self):
+        """
+        Necessary to comply with Django API
+        """
+        return DjangoCompiledQuery(self)
+
     def _lookup_to_expression(self, lookup, value):
         parts = lookup.split(LOOKUP_SEP)
-        info = meta.model_info(self._only_full_mapper_zero("get"))
+        info = meta.model_info(self.model)
 
         props = dict(info.column_properties)
         lhs = None
@@ -120,6 +143,13 @@ class Query(sa.orm.Query):
                 lhs = props[part].attribute
 
         return lhs == value
+
+    # todo need to make len(query) == len(cl.result_list.all()) without recursion
+    # currently requires patch in django/contrib/admin/options.py
+    # 1792 - 'selection_note': _('0 of %(cnt)s selected') % {'cnt': len(cl.result_list)},
+    # 1792 + 'selection_note': _('0 of %(cnt)s selected') % {'cnt': len(cl.result_list.all())},
+    # def __len__(self):
+    #     return self.count()
 
 
 class QueryProperty(object):
