@@ -10,9 +10,11 @@ import sqlalchemy as sa
 import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
 from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
+from sqlalchemy.orm.exc import NoResultFound
 
+from django.apps import apps
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.forms.fields import DateField
 from django.utils.text import camel_case_to_spaces
 
@@ -268,6 +270,46 @@ def clone(instance, *rels, **kwargs):
     return cloned
 
 
+class Options(object):
+    def __init__(self, model, options, app_label=None):
+        self.model = model
+        self.meta = options
+
+        self.apps = apps
+        self.app_label = app_label or apps.get_containing_app_config(self.model.__module__).label
+
+        self.db_table = model.__tablename__
+        self.pk = next(iter(meta.model_info(model).primary_keys.values()))
+
+        self.object_name = model.__name__
+        self.model_name = self.object_name.lower()
+        self.verbose_name = getattr(meta, "verbose_name", camel_case_to_spaces(self.object_name))
+        self.verbose_name_plural = getattr(meta, "verbose_name_plural", "{}s".format(self.verbose_name))
+
+        self.abstract = False
+        self.swapped = False
+        self.ordering = []
+
+    @property
+    def app_config(self):
+        # Don't go through get_app_config to avoid triggering imports.
+        return self.apps.app_configs.get(self.app_label)
+
+    def get_field(self, name):
+        try:
+            return dict(meta.model_info(self.model).column_properties)[name]
+        except KeyError:
+            raise FieldDoesNotExist
+
+    def __repr__(self):
+        return "<{}({})>".format(self.__class__.__name__, self.object_name)
+
+
+class OptionsDescriptor(object):
+    def __get__(self, instance, owner):
+        return Options(owner, getattr(owner, "Meta", None))
+
+
 class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
     """
     Base metaclass for models which registers models to DB model registry
@@ -277,6 +319,7 @@ class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
     def __new__(typ, name, bases, attrs):
         klass = super(BaseMeta, typ).__new__(typ, name, bases, attrs)
         typ.db.models_registry.append(klass)
+        klass.session = typ.db
         return klass
 
 
@@ -342,6 +385,17 @@ class Base(CleanMixin):
         Return all relations to be validated
         """
         return meta.model_info(self.__class__).relationships
+
+    # ----------
+    # Django API
+    # ----------
+
+    _meta = OptionsDescriptor()
+
+    DoesNotExist = NoResultFound
+
+    def serializable_value(self, field_name):
+        return getattr(self, field_name)
 
 
 _instant_defaults = set()

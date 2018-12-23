@@ -18,6 +18,10 @@ class relation_info(object):
         self.relationship = relationship
 
     @property
+    def choices(self):
+        return True
+
+    @property
     def attribute(self):
         return getattr(self.parent_model, self.name)
 

@@ -1,19 +1,22 @@
 -e .
-pytest
-pytest-cov
+attrs
+beautifulsoup4
+coveralls
+django-extensions
 flake8
-simplejson
-sphinx-autobuild
 gitchangelog
-yapf
+mock; python_version <= '2.7'
 pdbpp
 pre_commit
-Sphinx
-sphinx_rtd_theme
-mock; python_version <= '2.7'
-beautifulsoup4
-attrs
-tox
-coveralls
-sqlalchemy_utils
 psycopg2
+ptpython
+pytest
+pytest-cov
+simplejson
+Sphinx
+sphinx-autobuild
+sphinx_rtd_theme
+sqlalchemy_utils
+tox
+Werkzeug
+yapf

@@ -194,10 +194,13 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         # allow to customize things in custom base model
         if not hasattr(base, "query_class"):
             base.query_class = self.query_class
+        prop = self.queryproperty()
         if not hasattr(base, "query"):
-            base.query = self.queryproperty()
+            base.query = prop
         if not hasattr(base, "objects"):
-            base.objects = self.queryproperty()
+            base.objects = prop
+        if not hasattr(base, "_default_manager"):
+            base._default_manager = prop
 
         return base
 

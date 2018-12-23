@@ -91,6 +91,8 @@ class column_info(object):
     def name(self):
         return self.property.key if self.property is not None else self.column.key
 
+    attname = name
+
     @property
     def parent_model(self):
         return self.property.parent.class_ if self.property else None
@@ -145,6 +147,9 @@ class column_info(object):
             kwargs["widget"] = self.widget
 
         return kwargs
+
+    def to_python(self, value):
+        return self.formfield().clean(value)
 
 
 class string_column_info(column_info):

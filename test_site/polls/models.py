@@ -12,6 +12,9 @@ class Question(db.Model):
     question_text = db.Column(db.String(length=200))
     pub_date = db.Column(db.DateTime())
 
+    def __str__(self):
+        return self.question_text
+
 
 class Choice(db.Model):
     pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
@@ -19,6 +22,9 @@ class Choice(db.Model):
     votes = db.Column(db.Integer(), default=0)
 
     question = db.ManyToOne(Question, backref=db.backref("choices", cascade="all, delete-orphan"))
+
+    def __str__(self):
+        return self.choice_text
 
 
 db.configure_mappers()
