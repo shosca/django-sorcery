@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict, namedtuple
+from functools import partial
 from itertools import chain
 
 import six
 
 import sqlalchemy as sa
 
+from django.core.exceptions import ValidationError
+from django.utils.functional import empty
+
+from ...exceptions import NestedValidationError
+from ...validators import ValidationRunner
 from .base import model_info_meta
 from .column import column_info
 from .composite import composite_info
@@ -42,16 +48,19 @@ class model_info(six.with_metaclass(model_info_meta)):
         for col in self.mapper.primary_key:
             attr = self.mapper.get_property_by_column(col)
             if attr.key not in self.primary_keys:
-                self.primary_keys[attr.key] = column_info(col, attr, self)
+                self.primary_keys[attr.key] = column_info(col, attr, self, name=attr.key)
 
         for col in self.mapper.columns:
             attr = self.mapper.get_property_by_column(col)
             if attr.key not in self.primary_keys and attr.key not in self.properties:
-                self.properties[attr.key] = column_info(col, attr, self)
+                self.properties[attr.key] = column_info(col, attr, self, name=attr.key)
 
         for composite in self.mapper.composites:
             if composite.key not in self.composites:
-                self.composites[composite.key] = composite_info(getattr(self.model_class, composite.key))
+                self.composites[composite.key] = composite_info(getattr(self.model_class, composite.key), parent=self)
+                for prop in composite.props:
+                    if prop.key in self.properties:
+                        del self.properties[prop.key]
 
         for relationship in self.mapper.relationships:
             if relationship.key not in self.relationships:
@@ -86,7 +95,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         reprs.extend("    " + repr(i) for _, i in sorted(self.relationships.items()))
         return "\n".join(reprs)
 
-    def state(self, instance):
+    def sa_state(self, instance):
         return sa.inspect(instance)
 
     @property
@@ -164,3 +173,164 @@ class model_info(six.with_metaclass(model_info_meta)):
             return
 
         return Identity(self.model_class, pks if isinstance(pks, tuple) else (pks,))
+
+    def full_clean(self, instance, exclude=None, **kwargs):
+        """
+        Run model's full clean chain
+
+        This will run all of these in this order:
+
+        * will validate all columns by using ``clean_<column>`` methods
+        * will validate all nested objects (e.g. composites) with ``full_clean``
+        * will run through all registered validators on ``validators`` attribute
+        * will run full model validation with ``self.clean()``
+        * if ``recursive`` kwarg is provided, will recursively clean all relations.
+          Useful when all models need to be explicitly cleaned without flushing to DB.
+        """
+        exclude = exclude or []
+
+        validators = [
+            lambda x: getattr(x, "clean_fields", partial(self.clean_fields, instance=instance))(
+                exclude=exclude, **kwargs
+            ),
+            lambda x: getattr(x, "clean_nested_fields", partial(self.clean_nested_fields, instance=instance))(
+                exclude=exclude, **kwargs
+            ),
+            lambda x: getattr(x, "run_validators", partial(self.run_validators, instance=instance))(**kwargs),
+            lambda x: x.clean(**kwargs),
+        ]
+        if kwargs.get("recursive", False):
+            validators.append(
+                lambda x: getattr(x, "clean_relation_fields", partial(self.clean_relation_fields, instance=instance))(
+                    exclude=exclude, **kwargs
+                )
+            )
+
+        runner = ValidationRunner(validators=validators)
+        runner.is_valid(instance, raise_exception=True)
+
+    def clean_fields(self, instance, exclude=None, **kwargs):
+        """
+        Clean all fields on object
+        """
+        errors = {}
+        exclude = exclude or []
+        local_remote_pairs = set()
+        for rel in self.relationships.values():
+            for col in chain(*rel.local_remote_pairs):
+                local_remote_pairs.add(col)
+
+        props = getattr(instance, "_get_properties_for_validation", lambda x: [])()
+        if not props:
+            props = self.properties.values()
+        else:
+            props = [self.properties[prop] for prop in props if prop in self.properties]
+
+        for f in props:
+            raw_value = getattr(instance, f.name)
+            is_blank = not bool(raw_value)
+            is_nullable = f.null
+            is_fk = f.column in local_remote_pairs
+            is_defaulted = f.column.default or f.column.server_default
+            is_required = f.required
+
+            # skip validation if:
+            # - field is blank and either when field is nullable so blank value is valid
+            # - field has either local or server default value since we assume default value will pass validation
+            #   since default values are assigned during flush which as after which validation is verified
+            # - field is blank and is a foreign key in a relation that will be populated by the relation
+            # - field is marked as not required in column info
+            is_skippable = is_blank and (is_nullable or is_defaulted or is_fk or not is_required)
+
+            if f.name in exclude or is_skippable:
+                continue
+
+            try:
+                setattr(instance, f.name, f.clean(raw_value, instance))
+            except ValidationError as ex:
+                errors[f.name] = ex.error_list
+
+        if errors:
+            raise ValidationError(errors)
+
+    def clean_nested_fields(self, instance, exclude=None, **kwargs):
+        """
+        Clean all nested fields which includes composites
+        """
+        errors = {}
+        exclude = exclude or {}
+        props = getattr(instance, "_get_nested_objects_for_validation", lambda x: [])()
+        if not props:
+            props = self.composites.values()
+        else:
+            props = [self.composites[prop] for prop in props if prop in self.composites]
+
+        for f in props:
+            if exclude.get(f.name, empty) is None:
+                continue
+
+            try:
+                f.full_clean(getattr(instance, f.name), exclude=exclude.get(f.name))
+            except ValidationError as ex:
+                errors[f.name] = ex
+
+        if errors:
+            raise NestedValidationError(errors)
+
+    def clean_relation_fields(self, instance, exclude=None, **kwargs):
+        """
+        Clean all relation fields
+        """
+        visited = kwargs.pop("visited", set())
+        visited.add(id(instance))
+        errors = {}
+
+        props = getattr(instance, "_get_relation_objects_for_validation", lambda x: [])() or self.relationships
+
+        for name in props:
+            try:
+                e = exclude.get(name, [])
+            except AttributeError:
+                e = []
+
+            # only exclude when subexclude is not either list or dict
+            # otherwise validate nested object and let it ignore its own subfields
+            is_nestable = e and isinstance(e, (dict, list, tuple))
+            if name not in exclude or is_nestable:
+                value = getattr(instance, name)
+
+                if isinstance(value, (list, tuple)):
+                    _errors = []
+
+                    for i in value:
+                        if id(i) not in visited:
+                            try:
+                                i.full_clean(exclude=e, visited=visited, **kwargs)
+                            except AttributeError:
+                                pass
+                            except ValidationError as e:
+                                e = NestedValidationError(e)
+                                _errors.append(e.update_error_dict({}))
+
+                    if _errors:
+                        errors[name] = _errors
+
+                else:
+                    try:
+                        if id(value) not in visited:
+                            value.full_clean(exclude=e, visited=visited, **kwargs)
+                    except AttributeError:
+                        pass
+                    except ValidationError as e:
+                        e = NestedValidationError(e)
+                        errors[name] = e.update_error_dict({})
+
+        if errors:
+            raise NestedValidationError(errors)
+
+    def run_validators(self, instance, exclude=None, **kwargs):
+        """
+        Check all model validators registered on ``validators`` attribute
+        """
+        runner = ValidationRunner(validators=getattr(instance, "validators", []))
+        runner.is_valid(instance, raise_exception=True)

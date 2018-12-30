@@ -54,7 +54,7 @@ def simple_repr(instance, fields=None):
         list of fields to display on repr
     """
     info = meta.model_info(instance)
-    state = info.state(instance)
+    state = info.sa_state(instance)
     pks = info.primary_keys
     fields = fields or info.properties
 
@@ -105,7 +105,7 @@ def serialize(instance, *rels):
         data[name] = vars(comp) if comp else None
         # since we're copying, remove props from the composite
         for _, prop in composite.properties.items():
-            data.pop(prop.name, None)
+            data.pop(prop.property.key, None)
 
     for name, relation in info.relationships.items():
         attr = getattr(info.model_class, name)
@@ -176,7 +176,7 @@ def _deserialize(model, data, identity_map):
     for prop, composite in info.composites.items():
         if prop in data:
             composite_data = data.get(prop)
-            composite_class = composite.related_model
+            composite_class = composite.model_class
             composite_args = [composite_data.get(i) for i in composite.properties]
             kwargs[prop] = composite_class(*composite_args)
 
@@ -324,8 +324,7 @@ class Base(CleanMixin):
         """
         Return all model columns which can be validated
         """
-        info = meta.model_info(self.__class__)
-        return {k: v for k, v in info.properties.items() if k in info.field_names}
+        return meta.model_info(self.__class__).properties
 
     def _get_nested_objects_for_validation(self):
         """

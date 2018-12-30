@@ -41,7 +41,7 @@ class EnumField(djangofields.ChoiceField):
         with suppress(TypeError, AttributeError):
             return getattr(self.enum_class, value)
 
-        raise ValidationError(self.error_messages["invalid_choice"], code="invalid", params={"value": value})
+        raise ValidationError(self.error_messages["invalid_choice"], code="invalid", params={"value": str(value)})
 
     def valid_value(self, value):
         if value is None:

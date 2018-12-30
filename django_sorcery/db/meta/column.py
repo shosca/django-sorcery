@@ -18,6 +18,7 @@ from django.utils.text import capfirst
 
 from ... import fields as sorceryfields
 from ...utils import suppress
+from ...validators import ValidationRunner
 
 
 def _make_naive(value):
@@ -34,7 +35,7 @@ class column_info(object):
 
     default_form_class = None
 
-    __slots__ = ("property", "column", "parent", "_coercer")
+    __slots__ = ("name", "property", "column", "parent", "_coercer")
 
     def __new__(cls, *args, **kwargs):
         args = list(args)
@@ -65,7 +66,7 @@ class column_info(object):
         instance = super(column_info, cls).__new__(cls)
         return instance
 
-    def __init__(self, column, property=None, parent=None):
+    def __init__(self, column, property=None, parent=None, name=None):
         if not isinstance(column, sa.Column):
             warnings.warn(
                 "Instantiating column_info with property is deprecated, "
@@ -77,12 +78,13 @@ class column_info(object):
         self.column = column
         self.parent = parent
         self._coercer = None
+        self.name = name or (self.property.key if self.property is not None else self.column.key)
 
     def __repr__(self):
         return "<{!s}({!s}.{!s}){!s}>".format(
             self.__class__.__name__,
-            self.parent_model.__name__ if self.parent_model else "<None>",
-            self.name,
+            self.parent.model_class.__name__ if self.parent else "<None>",
+            self.name or "<None>",
             " pk" if self.column.primary_key else "",
         )
 
@@ -94,7 +96,7 @@ class column_info(object):
 
     @property
     def attribute(self):
-        return getattr(self.parent_model, self.name) if self.parent_model else None
+        return getattr(self.parent_model, self.property.key) if self.parent_model else None
 
     @property
     def validators(self):
@@ -107,10 +109,6 @@ class column_info(object):
     @property
     def required(self):
         return self.column.info.get("required", not self.column.nullable)
-
-    @property
-    def name(self):
-        return self.property.key if self.property is not None else self.column.key
 
     @property
     def parent_model(self):
@@ -168,7 +166,20 @@ class column_info(object):
             return form_class(**field_kwargs)
 
     def to_python(self, value):
+        return self.coercer.to_python(value)
+
+    def clean(self, value, instance):
+        value = self.to_python(value)
+        self.validate(value, instance)
+        self.run_validators(value)
         return value
+
+    def validate(self, value, instance):
+        getattr(instance, "clean_" + self.name, bool)()
+
+    def run_validators(self, value):
+        runner = ValidationRunner(name=self.name, validators=self.validators[:])
+        runner.is_valid(value, raise_exception=True)
 
 
 class string_column_info(column_info):
@@ -241,7 +252,7 @@ class enum_column_info(column_info):
         if isinstance(self.choices, (list, set, tuple)):
             parsed = type(next(iter(self.choices)))(value)
             if parsed not in self.choices:
-                raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": value})
+                raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": str(value)})
             return parsed
 
         with suppress(TypeError, KeyError, ValueError):
@@ -251,7 +262,7 @@ class enum_column_info(column_info):
         with suppress(TypeError, AttributeError):
             return getattr(self.choices, value)
 
-        raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": value})
+        raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": str(value)})
 
 
 class numeric_column_info(column_info):
@@ -282,6 +293,8 @@ class numeric_column_info(column_info):
             return value
         if isinstance(value, float):
             return decimal.Context(prec=self.max_digits).create_decimal_from_float(value)
+        if isinstance(value, six.integer_types):
+            return decimal.Decimal(value)
 
         parsed = formats.sanitize_separators(six.text_type(value).strip())
         return self.coercer.to_python(parsed)

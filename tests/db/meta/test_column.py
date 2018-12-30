@@ -26,7 +26,7 @@ class TestColumnMeta(TestCase):
         info = meta.column_info(None, col)
 
         self.assertIs(info.column, col)
-        self.assertEqual(repr(info), "<string_column_info(<None>.None)>")
+        self.assertEqual(repr(info), "<string_column_info(<None>.<None>)>")
 
     def test_column_info(self):
         info = meta.model_info(Vehicle)
@@ -74,12 +74,12 @@ class TestColumnMeta(TestCase):
 
     def test_column_info_enum_from_class_from_info(self):
         col = sa.Column(sa.Enum(VehicleType), info={"form_class": djangofields.IntegerField})
-        info = meta.column_info(col)
+        info = meta.column_info(col, name="test")
         self.assertIsInstance(info, meta.enum_column_info)
         self.assertEqual(info.form_class, djangofields.IntegerField)
 
     def test_column_info_boolean_from_class_from_info(self):
-        info = meta.column_info(sa.Column(sa.Boolean(), info={"form_class": djangofields.IntegerField}))
+        info = meta.column_info(sa.Column(sa.Boolean(), info={"form_class": djangofields.IntegerField}), name="test")
         self.assertIsInstance(info, meta.boolean_column_info)
         self.assertEqual(info.form_class, djangofields.IntegerField)
 
@@ -101,7 +101,7 @@ class TestColumnMeta(TestCase):
         )
 
     def test_column_info_label_and_text(self):
-        column = meta.column_info(dbfields.TextField(label="dummy"))
+        column = meta.column_info(dbfields.TextField(label="dummy"), name="test")
         self.assertDictEqual(
             column.field_kwargs,
             {
@@ -140,38 +140,39 @@ class TestColumnMeta(TestCase):
 
 def _run_tests(test, column_info, tests):
     for value, exp in tests:
+        instance = object()
         if exp is ValidationError:
             with test.assertRaises(ValidationError):
-                column_info.to_python(value)
+                column_info.clean(value, instance)
         else:
-            test.assertEqual(column_info.to_python(value), exp)
+            test.assertEqual(column_info.clean(value, instance), exp)
 
 
 class TestDefaultColumn(TestCase):
     def test_formfield(self):
-        info = meta.column_info(sa.Column(sa.sql.sqltypes.ARRAY(item_type=int)))
+        info = meta.column_info(sa.Column(sa.sql.sqltypes.ARRAY(item_type=int)), name="test")
         formfield = info.formfield()
         self.assertIsNone(formfield)
 
-    def test_default_to_python(self):
-        info = meta.column_info(sa.Column(sa.sql.sqltypes.ARRAY(item_type=int)))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.sql.sqltypes.ARRAY(item_type=int)), name="test")
         tests = [("test", "test"), (1, 1), (None, None)]
         _run_tests(self, info, tests)
 
 
 class TestStringColumn(TestCase):
     def test_formfield(self):
-        info = meta.column_info(sa.Column(sa.String()))
+        info = meta.column_info(sa.Column(sa.String()), name="test")
         formfield = info.formfield()
         self.assertIsInstance(formfield, djangofields.CharField)
 
-        info = meta.column_info(sa.Column(sa.Text()))
+        info = meta.column_info(sa.Column(sa.Text()), name="test")
         formfield = info.formfield()
         self.assertIsInstance(formfield, djangofields.CharField)
         self.assertIsInstance(formfield.widget, widgets.Textarea)
 
-    def test_string_to_python(self):
-        info = meta.column_info(sa.Column(sa.String()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.String()), name="test")
 
         tests = [
             (None, None),
@@ -191,12 +192,12 @@ class TestStringColumn(TestCase):
 
 class TestChoiceColumn(TestCase):
     def test_formfield(self):
-        info = meta.column_info(sa.Column(sa.Enum(*["1", "2", "3"])))
+        info = meta.column_info(sa.Column(sa.Enum(*["1", "2", "3"])), name="test")
         formfield = info.formfield()
         self.assertIsInstance(formfield, djangofields.TypedChoiceField)
 
-    def test_choice_to_python(self):
-        info = meta.column_info(sa.Column(sa.Enum(*["1", "2", "3"])))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Enum(*["1", "2", "3"])), name="test")
         tests = [(None, None), ("", ValidationError), ("1", "1"), (1, "1"), ("4", ValidationError)]
         _run_tests(self, info, tests)
 
@@ -207,30 +208,30 @@ class TestEnumColumn(TestCase):
             one = "1"
             two = "2"
 
-        info = meta.column_info(sa.Column(sa.Enum(Demo)))
+        info = meta.column_info(sa.Column(sa.Enum(Demo)), name="test")
         formfield = info.formfield()
         self.assertIsInstance(formfield, sorceryfields.EnumField)
 
-    def test_enum_to_python(self):
+    def test_clean(self):
         class Demo(enum.Enum):
             one = "1"
             two = "2"
 
-        info = meta.column_info(sa.Column(sa.Enum(Demo)))
+        info = meta.column_info(sa.Column(sa.Enum(Demo)), name="test")
         tests = [(None, None), ("one", Demo.one), ("1", Demo.one), (Demo.one, Demo.one), (1, ValidationError)]
         _run_tests(self, info, tests)
 
 
 class TestNumericColumn(TestCase):
     def test_formfield(self):
-        info = meta.column_info(sa.Column(sa.Numeric(precision=14, scale=2, asdecimal=True)))
+        info = meta.column_info(sa.Column(sa.Numeric(precision=14, scale=2, asdecimal=True)), name="test")
         formfield = info.formfield()
         self.assertIsInstance(formfield, djangofields.DecimalField)
         self.assertEqual(formfield.max_digits, 14)
         self.assertEqual(formfield.decimal_places, 2)
 
-    def test_numeric_to_python(self):
-        info = meta.column_info(sa.Column(sa.Numeric(precision=14, scale=2, asdecimal=True)))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Numeric(precision=14, scale=2, asdecimal=True)), name="test")
         tests = [
             (None, None),
             ("", None),
@@ -253,16 +254,16 @@ class TestNumericColumn(TestCase):
 
 class TestBooleanColumn(TestCase):
     def test_formfield(self):
-        info = meta.column_info(sa.Column(sa.Boolean()))
+        info = meta.column_info(sa.Column(sa.Boolean()), name="test")
         formfield = info.formfield()
         self.assertIsInstance(formfield, djangofields.NullBooleanField)
 
-        info = meta.column_info(sa.Column(sa.Boolean(), nullable=False))
+        info = meta.column_info(sa.Column(sa.Boolean(), nullable=False), name="test")
         formfield = info.formfield()
         self.assertIsInstance(formfield, djangofields.BooleanField)
 
-    def test_boolean_to_python(self):
-        info = meta.column_info(sa.Column(sa.Boolean()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Boolean()), name="test")
         tests = [
             (None, None),
             ("", None),
@@ -282,8 +283,8 @@ class TestBooleanColumn(TestCase):
 
 
 class TestDateColumn(TestCase):
-    def test_date_to_python(self):
-        info = meta.column_info(sa.Column(sa.Date()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Date()), name="test")
         tests = [
             (None, None),
             ("Hello", ValidationError),
@@ -306,8 +307,8 @@ class TestDateColumn(TestCase):
 
 
 class TestDateTimeColumn(TestCase):
-    def test_datetime_to_python(self):
-        info = meta.column_info(sa.Column(sa.DateTime()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.DateTime()), name="test")
         tests = [
             (None, None),
             (
@@ -345,8 +346,8 @@ class TestDateTimeColumn(TestCase):
 
 
 class TestFloatColumn(TestCase):
-    def test_float_to_python(self):
-        info = meta.column_info(sa.Column(sa.Float()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Float()), name="test")
         tests = [
             (None, None),
             ("", None),
@@ -366,8 +367,8 @@ class TestFloatColumn(TestCase):
 
 
 class TestIntegerColumn(TestCase):
-    def test_integer_to_python(self):
-        info = meta.column_info(sa.Column(sa.Integer()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Integer()), name="test")
         tests = [
             (None, None),
             ("", None),
@@ -388,8 +389,8 @@ class TestIntegerColumn(TestCase):
 
 
 class TestIntervalColumn(TestCase):
-    def test_interval_to_python(self):
-        info = meta.column_info(sa.Column(sa.Interval()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Interval()), name="test")
         tests = [
             (None, None),
             ("", None),
@@ -405,8 +406,8 @@ class TestIntervalColumn(TestCase):
 
 
 class TestTimeColumn(TestCase):
-    def test_time_to_python(self):
-        info = meta.column_info(sa.Column(sa.Time()))
+    def test_clean(self):
+        info = meta.column_info(sa.Column(sa.Time()), name="test")
         tests = [
             (None, None),
             ("", None),

@@ -380,20 +380,13 @@ class TestBaseModel(TestCase):
 
     def test_get_properties_for_validation(self):
         instance = Owner(id=1, first_name="Morty", last_name="McFly")
-        info = meta.model_info(instance)
 
-        self.assertDictEqual(
-            instance._get_properties_for_validation(), {"first_name": info.first_name, "last_name": info.last_name}
-        )
+        self.assertEqual(set(instance._get_properties_for_validation()), {"first_name", "last_name"})
 
     def test_get_nested_objects_for_validation(self):
         instance = Business()
-        info = meta.model_info(instance)
 
-        self.assertDictEqual(
-            instance._get_nested_objects_for_validation(),
-            {"location": info.location, "other_location": info.other_location},
-        )
+        self.assertEqual(set(instance._get_nested_objects_for_validation()), {"location", "other_location"})
 
     def test_get_relation_objects_for_validation(self):
         instance = Vehicle()
@@ -615,11 +608,11 @@ class TestInstantDefaults(TestCase):
     def test(self):
         instance = Business()
 
-        self.assertEquals(instance.employees, 5)
+        self.assertEqual(instance.employees, 5)
 
         instance = Business(employees=1)
 
-        self.assertEquals(instance.employees, 1)
+        self.assertEqual(instance.employees, 1)
 
     def test_non_model(self):
         self.assertIsNone(models.instant_defaults(list))

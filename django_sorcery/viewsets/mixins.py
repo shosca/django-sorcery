@@ -5,7 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormMixin
 
-from ..db.meta import model_info
+from ..db import meta
 from ..forms import modelform_factory
 from ..views.base import BaseMultipleObjectMixin, BaseSingleObjectMixin
 
@@ -49,7 +49,7 @@ class RetrieveModelMixin(BaseSingleObjectMixin):
         return self.render_to_response(context)
 
     def get_url_kwargs(self, obj):
-        info = model_info(type(obj))
+        info = meta.model_info(type(obj))
         return {key: getattr(obj, key) for key in info.primary_keys}
 
     def get_detail_context_object_name(self, obj):
