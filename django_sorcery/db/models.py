@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 import warnings
-from functools import partial
 from itertools import chain
 
 import six
@@ -11,9 +10,6 @@ import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
 from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
-from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.forms.fields import DateField
 from django.utils.text import camel_case_to_spaces
 
 from . import meta, signals
@@ -58,7 +54,7 @@ def simple_repr(instance, fields=None):
         list of fields to display on repr
     """
     info = meta.model_info(instance)
-    state = info.state(instance)
+    state = info.sa_state(instance)
     pks = info.primary_keys
     fields = fields or info.properties
 
@@ -109,7 +105,7 @@ def serialize(instance, *rels):
         data[name] = vars(comp) if comp else None
         # since we're copying, remove props from the composite
         for _, prop in composite.properties.items():
-            data.pop(prop.name, None)
+            data.pop(prop.property.key, None)
 
     for name, relation in info.relationships.items():
         attr = getattr(info.model_class, name)
@@ -180,7 +176,7 @@ def _deserialize(model, data, identity_map):
     for prop, composite in info.composites.items():
         if prop in data:
             composite_data = data.get(prop)
-            composite_class = composite.related_model
+            composite_class = composite.model_class
             composite_args = [composite_data.get(i) for i in composite.properties]
             kwargs[prop] = composite_class(*composite_args)
 
@@ -328,8 +324,7 @@ class Base(CleanMixin):
         """
         Return all model columns which can be validated
         """
-        info = meta.model_info(self.__class__)
-        return {k: v for k, v in info.properties.items() if k in info.field_names}
+        return meta.model_info(self.__class__).properties
 
     def _get_nested_objects_for_validation(self):
         """
@@ -401,21 +396,6 @@ def full_clean_flush_handler(session, **kwargs):
             i.full_clean()
 
 
-def _coerce(target, value, oldvalue, initiator, form_field):
-    value = value.strip() if isinstance(value, six.string_types) else value
-    try:
-        form_field.required = False
-
-        if isinstance(form_field, DateField):
-            # somehow input_formats is missing some formats and has to be reset like this
-            form_field.input_formats = settings.DATE_INPUT_FORMATS
-
-        return form_field.clean(value)
-    except ValidationError as e:
-        raise ValidationError({initiator.key: e})
-
-
-_coercer_memo = {}
 _autocoerce_attrs = set()
 
 
@@ -463,23 +443,16 @@ def autocoerce(cls):
     return cls
 
 
+def _coerce(target, value, oldvalue, initiator):
+    minfo = meta.model_info(target)
+    cinfo = minfo.properties.get(initiator.key) or minfo.primary_keys.get(initiator.key)
+    return cinfo.to_python(value) if cinfo else value
+
+
 @sa.event.listens_for(sa.orm.mapper, "after_configured")
 def _configure_coercers():
     for target in _autocoerce_attrs:
-        info = meta.model_info(target.parent)
-        form_field = None
-
-        column_info = getattr(info, target.key, None)
-
-        if column_info:
-            form_field = column_info.formfield(required=False, localize=True)
-
-        if form_field is None:
-            continue
-
-        handler = _coercer_memo.setdefault(target, partial(_coerce, form_field=form_field))
-
-        if not sa.event.contains(target, "set", handler):
-            sa.event.listen(target, "set", handler, retval=True)
+        if not sa.event.contains(target, "set", _coerce):
+            sa.event.listen(target, "set", _coerce, retval=True)
 
     _autocoerce_attrs.clear()

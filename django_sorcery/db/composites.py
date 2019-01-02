@@ -6,9 +6,6 @@ import sqlalchemy as sa
 from sqlalchemy.orm import CompositeProperty
 from sqlalchemy.util.langhelpers import classproperty
 
-from .meta.column import column_info
-from .mixins import CleanMixin
-
 
 class CompositeField(CompositeProperty):
     """
@@ -45,7 +42,7 @@ class CompositeField(CompositeProperty):
         return super(CompositeField, self).instrument_class(mapper)
 
 
-class BaseComposite(CleanMixin):
+class BaseComposite(object):
     """
     Base class for creating composite classes which :py:class:`.CompositeField` will understand
 
@@ -75,12 +72,6 @@ class BaseComposite(CleanMixin):
 
     def __composite_values__(self):
         return tuple(getattr(self, i) for i in self._columns)
-
-    def _get_properties_for_validation(self):
-        """
-        Return all composite attributes
-        """
-        return {k: column_info(v) for k, v in self._columns.items()}
 
     def as_dict(self):
         """

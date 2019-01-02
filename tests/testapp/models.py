@@ -2,6 +2,8 @@
 from __future__ import absolute_import, print_function, unicode_literals
 from enum import Enum
 
+import six
+
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
@@ -44,7 +46,7 @@ class Address(db.BaseComposite):
     validators = [ValidateTogetherModelFields(["street", "state", "zip"])]
 
     def clean_state(self):
-        if self.state != self.state.upper():
+        if isinstance(self.state, six.text_type) and self.state != self.state.upper():
             raise ValidationError({"state": "State must be uppercase."})
 
     def clean_zip(self):
@@ -61,7 +63,7 @@ class Business(db.Model):
     location = db.CompositeField(Address)
     other_location = db.CompositeField(Address, prefix="foo")
 
-    def clean(self):
+    def clean(self, **kwargs):
         if self.other_location and not self.location:
             raise ValidationError({"location": "Primary key is required when other location is provided."})
 
@@ -256,7 +258,7 @@ class ModelFullCleanFail(db.Model):
     pk = db.IntegerField(autoincrement=True, primary_key=True)
     name = db.CharField()
 
-    def clean(self):
+    def clean(self, **kwargs):
         raise ValidationError("bad model")
 
 

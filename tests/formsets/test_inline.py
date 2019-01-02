@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django_sorcery.db.meta import model_info
+from django_sorcery.db import meta
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import inlineformset_factory
 
@@ -17,13 +17,13 @@ class TestInlineFormSet(TestCase):
         db.flush()
 
     def test_factory(self):
-        info = model_info(Owner)
+        info = meta.model_info(Owner)
         formset_class = inlineformset_factory(Owner, Vehicle, fields=ALL_FIELDS, session=db)
 
         self.assertEqual(formset_class.fk, info.relationships["vehicles"])
 
     def test_factory_with_relation(self):
-        info = model_info(Owner)
+        info = meta.model_info(Owner)
         formset_class = inlineformset_factory(relation=Owner.vehicles, fields=ALL_FIELDS, session=db)
 
         self.assertEqual(formset_class.fk, info.relationships["vehicles"])

@@ -14,17 +14,26 @@ class TestEnumField(TestCase):
     def test_field(self):
         field = fields.EnumField(enum_class=VehicleType)
 
-        value = field.to_python(None)
-        self.assertIsNone(value)
+        with self.assertRaises(ValidationError) as ctx:
+            value = field.clean(None)
+        self.assertEqual(ctx.exception.code, "required")
 
-        value = field.to_python("car")
+        with self.assertRaises(ValidationError) as ctx:
+            value = field.clean("")
+        self.assertEqual(ctx.exception.code, "required")
+        value = field.to_python("")
+
+        value = field.clean("car")
+        self.assertEqual(value, VehicleType.car)
+
+        value = field.clean("Car")
         self.assertEqual(value, VehicleType.car)
 
         value = field.to_python(VehicleType.car)
         self.assertEqual(value, VehicleType.car)
 
         with self.assertRaises(ValidationError):
-            field.to_python("blue")
+            field.clean("blue")
 
         value = field.valid_value(None)
         self.assertFalse(value)
@@ -47,23 +56,20 @@ class TestEnumField(TestCase):
     def test_field_not_required(self):
         field = fields.EnumField(enum_class=VehicleType, required=False)
 
-        value = field.valid_value(None)
-        self.assertTrue(value)
+        value = field.clean(None)
+        self.assertIsNone(value)
 
-        value = field.valid_value("car")
-        self.assertFalse(value)
+        value = field.clean("")
+        self.assertIsNone(value)
 
-        value = field.valid_value("Car")
-        self.assertFalse(value)
+        value = field.clean("car")
+        self.assertEqual(value, VehicleType.car)
+
+        value = field.clean("Car")
+        self.assertEqual(value, VehicleType.car)
 
         with self.assertRaises(ValidationError):
             field.to_python("blue")
-
-        value = field.valid_value(VehicleType.car)
-        self.assertTrue(value)
-
-        value = field.valid_value(VehicleType.car)
-        self.assertTrue(value)
 
         value = field.bound_data(VehicleType.car, None)
         self.assertEqual(value, "car")

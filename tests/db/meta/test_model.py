@@ -30,10 +30,14 @@ class TestModelMeta(TestCase):
             [
                 "_configure",
                 "_field_names",
+                "clean_fields",
+                "clean_nested_fields",
+                "clean_relation_fields",
                 "column_properties",
                 "composites",
                 "field_names",
                 "first_name",
+                "full_clean",
                 "get_key",
                 "id",
                 "identity_key_from_dict",
@@ -46,7 +50,8 @@ class TestModelMeta(TestCase):
                 "primary_keys_from_instance",
                 "properties",
                 "relationships",
-                "state",
+                "run_validators",
+                "sa_state",
                 "vehicles",
             ],
         )
@@ -103,29 +108,23 @@ class TestModelMeta(TestCase):
                 [
                     "<model_info(Business)>",
                     "    <integer_column_info(Business.id) pk>",
-                    "    <enum_column_info(Business._foo_state)>",
-                    "    <string_column_info(Business._foo_street)>",
-                    "    <string_column_info(Business._foo_zip)>",
-                    "    <enum_column_info(Business._location_state)>",
-                    "    <string_column_info(Business._location_street)>",
-                    "    <string_column_info(Business._location_zip)>",
                     "    <integer_column_info(Business.employees)>",
                     "    <string_column_info(Business.name)>",
                     "    <composite_info(Address, Business.location)>",
-                    "        <enum_column_info(Business._location_state)>",
-                    "        <string_column_info(Business._location_street)>",
-                    "        <string_column_info(Business._location_zip)>",
+                    "        <enum_column_info(Address.state)>",
+                    "        <string_column_info(Address.street)>",
+                    "        <string_column_info(Address.zip)>",
                     "    <composite_info(Address, Business.other_location)>",
-                    "        <enum_column_info(Business._foo_state)>",
-                    "        <string_column_info(Business._foo_street)>",
-                    "        <string_column_info(Business._foo_zip)>",
+                    "        <enum_column_info(Address.state)>",
+                    "        <string_column_info(Address.street)>",
+                    "        <string_column_info(Address.zip)>",
                 ]
             ),
         )
 
     def test_inspect(self):
         info = meta.model_info(Owner)
-        self.assertIsInstance(info.state(Owner()), sa.orm.state.InstanceState)
+        self.assertIsInstance(info.sa_state(Owner()), sa.orm.state.InstanceState)
 
     def test_column_properties(self):
         info = meta.model_info(Owner)

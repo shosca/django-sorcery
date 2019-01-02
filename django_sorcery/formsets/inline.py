@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from ..db.meta import model_info
+from ..db import meta
 from ..forms import ModelForm
 from .base import BaseModelFormSet, modelformset_factory
 
@@ -34,7 +34,7 @@ class BaseInlineFormSet(BaseModelFormSet):
 
 
 def _get_relation_info(relation):
-    info = model_info(relation.parent)
+    info = meta.model_info(relation.parent)
     rel = info.relationships[relation.key]
     if rel.uselist:
         return rel
@@ -43,7 +43,7 @@ def _get_relation_info(relation):
 
 
 def _get_foreign_key(relation, parent_model, model, fk_name=None):
-    info = model_info(parent_model)
+    info = meta.model_info(parent_model)
     if fk_name is None:
         relations = [
             relation for relation in info.relationships.values() if relation.related_model == model and relation.uselist

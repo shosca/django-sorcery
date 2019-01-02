@@ -3,8 +3,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 from decimal import Decimal
 
-import pytz
-
 from django.core.exceptions import ValidationError
 
 from django_sorcery.db import meta, models
@@ -382,20 +380,13 @@ class TestBaseModel(TestCase):
 
     def test_get_properties_for_validation(self):
         instance = Owner(id=1, first_name="Morty", last_name="McFly")
-        info = meta.model_info(instance)
 
-        self.assertDictEqual(
-            instance._get_properties_for_validation(), {"first_name": info.first_name, "last_name": info.last_name}
-        )
+        self.assertEqual(set(instance._get_properties_for_validation()), {"first_name", "last_name"})
 
     def test_get_nested_objects_for_validation(self):
         instance = Business()
-        info = meta.model_info(instance)
 
-        self.assertDictEqual(
-            instance._get_nested_objects_for_validation(),
-            {"location": info.location, "other_location": info.other_location},
-        )
+        self.assertEqual(set(instance._get_nested_objects_for_validation()), {"location", "other_location"})
 
     def test_get_relation_objects_for_validation(self):
         instance = Vehicle()
@@ -462,7 +453,7 @@ class TestAutoCoerce(TestCase):
             ("", ""),
             ("é", "é"),
             (Decimal("1234.44"), "1234.44"),
-            (None, ""),
+            (None, None),
             # excess whitespace tests
             ("\t\t\t\t\n", ""),
             ("\t\tabc\t\t\n", "abc"),
@@ -552,22 +543,29 @@ class TestAutoCoerce(TestCase):
 
     def test_datetime(self):
         tests = [
-            ("2006-10-25 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
-            ("2006-10-25 14:30:45.0002", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
-            ("2006-10-25 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45, tzinfo=pytz.utc)),
-            ("2006-10-25 14:30:00", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
-            ("2006-10-25 14:30", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
-            ("2006-10-25", datetime.datetime(2006, 10, 25, 0, 0, tzinfo=pytz.utc)),
-            ("10/25/2006 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
-            ("10/25/2006 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45, tzinfo=pytz.utc)),
-            ("10/25/2006 14:30:00", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
-            ("10/25/2006 14:30", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
-            ("10/25/2006", datetime.datetime(2006, 10, 25, 0, 0, tzinfo=pytz.utc)),
-            ("10/25/06 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200, tzinfo=pytz.utc)),
-            ("10/25/06 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45, tzinfo=pytz.utc)),
-            ("10/25/06 14:30:00", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
-            ("10/25/06 14:30", datetime.datetime(2006, 10, 25, 14, 30, tzinfo=pytz.utc)),
-            ("10/25/06", datetime.datetime(2006, 10, 25, 0, 0, tzinfo=pytz.utc)),
+            ("2006-10-25 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200)),
+            ("2006-10-25 14:30:45.0002", datetime.datetime(2006, 10, 25, 14, 30, 45, 200)),
+            ("2006-10-25 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45)),
+            ("2006-10-25 14:30:00", datetime.datetime(2006, 10, 25, 14, 30)),
+            ("2006-10-25 14:30", datetime.datetime(2006, 10, 25, 14, 30)),
+            ("2006-10-25", datetime.datetime(2006, 10, 25, 0, 0)),
+            ("10/25/2006 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200)),
+            ("10/25/2006 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45)),
+            ("10/25/2006 14:30:00", datetime.datetime(2006, 10, 25, 14, 30)),
+            ("10/25/2006 14:30", datetime.datetime(2006, 10, 25, 14, 30)),
+            ("10/25/2006", datetime.datetime(2006, 10, 25, 0, 0)),
+            ("10/25/06 14:30:45.000200", datetime.datetime(2006, 10, 25, 14, 30, 45, 200)),
+            ("10/25/06 14:30:45", datetime.datetime(2006, 10, 25, 14, 30, 45)),
+            ("10/25/06 14:30:00", datetime.datetime(2006, 10, 25, 14, 30)),
+            ("10/25/06 14:30", datetime.datetime(2006, 10, 25, 14, 30)),
+            ("10/25/06", datetime.datetime(2006, 10, 25, 0, 0)),
+            ("2012-04-23T09:15:00", datetime.datetime(2012, 4, 23, 9, 15)),
+            ("2012-4-9 4:8:16", datetime.datetime(2012, 4, 9, 4, 8, 16)),
+            ("2012-04-23T09:15:00Z", datetime.datetime(2012, 4, 23, 9, 15, 0, 0)),
+            ("2012-4-9 4:8:16-0320", datetime.datetime(2012, 4, 9, 7, 28, 16, 0)),
+            ("2012-04-23T10:20:30.400+02:30", datetime.datetime(2012, 4, 23, 7, 50, 30, 400000)),
+            ("2012-04-23T10:20:30.400+02", datetime.datetime(2012, 4, 23, 8, 20, 30, 400000)),
+            ("2012-04-23T10:20:30.400-02", datetime.datetime(2012, 4, 23, 12, 20, 30, 400000)),
             ("Hello", ValidationError),
         ]
         self._run_tests("datetime", tests)
@@ -610,11 +608,11 @@ class TestInstantDefaults(TestCase):
     def test(self):
         instance = Business()
 
-        self.assertEquals(instance.employees, 5)
+        self.assertEqual(instance.employees, 5)
 
         instance = Business(employees=1)
 
-        self.assertEquals(instance.employees, 1)
+        self.assertEqual(instance.employees, 1)
 
     def test_non_model(self):
         self.assertIsNone(models.instant_defaults(list))

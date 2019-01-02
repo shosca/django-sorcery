@@ -6,7 +6,7 @@ from collections import namedtuple
 from django.conf.urls import url
 from django.core.exceptions import ImproperlyConfigured
 
-from .db.meta import model_info
+from .db import meta
 
 
 Route = namedtuple("Route", ["url", "mapping", "name", "detail", "initkwargs"])
@@ -242,7 +242,7 @@ class SimpleRouter(BaseRouter):
 
         model = getattr(viewset, "get_model", lambda: None)()
         if model:
-            info = model_info(model)
+            info = meta.model_info(model)
 
             regexes = []
             for key, _ in info.primary_keys.items():
