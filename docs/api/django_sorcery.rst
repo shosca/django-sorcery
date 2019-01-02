@@ -14,6 +14,7 @@ Subpackages
     django_sorcery.db
     django_sorcery.formsets
     django_sorcery.management
+    django_sorcery.validators
     django_sorcery.views
     django_sorcery.viewsets
 
@@ -30,5 +31,4 @@ Submodules
    django_sorcery.routers
    django_sorcery.shortcuts
    django_sorcery.utils
-   django_sorcery.validators
 

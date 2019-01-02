@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.7.7 (2018-12-10)
+0.8.0 (2019-01-02)
 -----------------------------
+- Refactor coercers (#110) [Serkan Hosca]
+- Added django-like filtering support to Query (#108) [Miroslav
+  Shubernetskiy]
+
+
+0.7.7 (2018-12-11)
+------------------
 - Make statement recording optional (#107) [Serkan Hosca]
 
 
