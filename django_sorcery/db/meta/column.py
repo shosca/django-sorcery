@@ -14,11 +14,11 @@ from django import forms as djangoforms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import fields as djangofields
-from django.utils import formats, timezone
+from django.utils import timezone
 from django.utils.text import capfirst
 
 from ... import fields as sorceryfields
-from ...utils import suppress
+from ...utils import sanitize_separators, suppress
 from ...validators import ValidationRunner
 
 
@@ -318,7 +318,7 @@ class numeric_column_info(column_info):
         if isinstance(value, six.integer_types):
             return decimal.Decimal(value)
 
-        parsed = formats.sanitize_separators(six.text_type(value).strip())
+        parsed = sanitize_separators(six.text_type(value).strip())
         return self.coercer.to_python(parsed)
 
 
