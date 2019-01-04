@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.8.0 (2019-01-02)
+0.8.1 (2019-01-04)
 -----------------------------
+- Split choice from enum column info (#111) [Serkan Hosca]
+- Regenerate docs. [Serkan Hosca]
+
+
+0.8.0 (2019-01-02)
+------------------
 - Refactor coercers (#110) [Serkan Hosca]
 - Added django-like filtering support to Query (#108) [Miroslav
   Shubernetskiy]
