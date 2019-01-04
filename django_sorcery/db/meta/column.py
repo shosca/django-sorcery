@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
+import enum
 import warnings
 
 import six
@@ -60,6 +61,14 @@ class column_info(object):
         for base in column.type.__class__.mro():
             if base in column_info_mapping:
                 override_cls = column_info_mapping.get(base, cls)
+
+            enum_class = getattr(column.type, "enum_class", object) or object
+            for sub in enum_class.mro():
+                if (base, sub) in column_info_mapping:
+                    override_cls = column_info_mapping.get((base, sub), cls)
+                    break
+
+            if override_cls:
                 break
 
         cls = override_cls or cls
@@ -203,25 +212,11 @@ class text_column_info(string_column_info):
         return super(text_column_info, self).widget or djangoforms.Textarea
 
 
-class enum_column_info(column_info):
-    @property
-    def form_class(self):
-        form_class = super(enum_column_info, self).form_class
-        if form_class:
-            return form_class
-
-        return (
-            djangofields.TypedChoiceField if isinstance(self.choices, (list, set, tuple)) else sorceryfields.EnumField
-        )
-
+class base_choice_info(column_info):
     @property
     def field_kwargs(self):
-        kwargs = super(enum_column_info, self).field_kwargs
-
-        if isinstance(self.choices, (list, set, tuple)):
-            kwargs["choices"] = [(x, x) for x in self.choices]
-        else:
-            kwargs["choices"] = self.choices
+        kwargs = super(base_choice_info, self).field_kwargs
+        kwargs["choices"] = self.form_choices
 
         # Many of the subclass-specific formfield arguments (min_value,
         # max_value) don't apply for choice fields, so be sure to only pass
@@ -246,14 +241,41 @@ class enum_column_info(column_info):
 
         return kwargs
 
+
+class choice_column_info(base_choice_info):
+    default_form_class = djangofields.TypedChoiceField
+
+    @property
+    def form_choices(self):
+        return [(x, x) for x in self.choices]
+
     def to_python(self, value):
         if value is None:
             return value
-        if isinstance(self.choices, (list, set, tuple)):
+
+        with suppress(TypeError, ValueError):
             parsed = type(next(iter(self.choices)))(value)
-            if parsed not in self.choices:
-                raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": str(value)})
-            return parsed
+            if parsed in self.choices:
+                return parsed
+
+        parsed = six.text_type(value).strip()
+        parsed = self.coercer.to_python(parsed)
+        if parsed in self.coercer.empty_values:
+            return None
+
+        raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": str(value)})
+
+
+class enum_column_info(base_choice_info):
+    default_form_class = sorceryfields.EnumField
+
+    @property
+    def form_choices(self):
+        return self.choices
+
+    def to_python(self, value):
+        if value is None:
+            return value
 
         with suppress(TypeError, KeyError, ValueError):
             return self.choices[value]
@@ -262,7 +284,7 @@ class enum_column_info(column_info):
         with suppress(TypeError, AttributeError):
             return getattr(self.choices, value)
 
-        raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": str(value)})
+        return self.coercer.to_python(value)
 
 
 class numeric_column_info(column_info):
@@ -429,7 +451,8 @@ class time_column_info(column_info):
 
 
 COLUMN_INFO_MAPPING = {
-    sa.sql.sqltypes.Enum: enum_column_info,
+    (sa.sql.sqltypes.Enum, enum.Enum): enum_column_info,
+    (sa.sql.sqltypes.Enum, object): choice_column_info,
     sa.sql.sqltypes.String: string_column_info,
     sa.sql.sqltypes.Text: text_column_info,
     sa.sql.sqltypes.Numeric: numeric_column_info,

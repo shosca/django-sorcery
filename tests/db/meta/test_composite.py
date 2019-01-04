@@ -56,7 +56,7 @@ class TestCompositeMeta(TestCase):
             {
                 "location": ["Primary key is required when other location is provided."],
                 "other_location": {
-                    "state": ["'ny' is not a valid choice."],
+                    "state": ["Select a valid choice. ny is not one of the available choices."],
                     "street": ["Street should be at least 2 characters."],
                     "zip": ["Zip cannot start with 0."],
                 },
@@ -76,7 +76,7 @@ class TestCompositeMeta(TestCase):
                 "location": ["Primary key is required when other location is provided."],
                 "other_location": {
                     "street": ["Street should be at least 2 characters."],
-                    "state": ["'ny' is not a valid choice."],
+                    "state": ["Select a valid choice. ny is not one of the available choices."],
                 },
             },
         )
