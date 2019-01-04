@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.8.1 (2019-01-04)
+0.8.2 (2019-01-04)
 -----------------------------
+- Fix decimal cleaning with thousand separator (#113) [Serkan Hosca]
+
+
+0.8.1 (2019-01-04)
+------------------
 - Split choice from enum column info (#111) [Serkan Hosca]
 - Regenerate docs. [Serkan Hosca]
 
