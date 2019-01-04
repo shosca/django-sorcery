@@ -7,6 +7,8 @@ from sqlalchemy import inspect
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from ..db import meta
+
 
 class ValidateTogetherModelFields(object):
     """
@@ -66,8 +68,6 @@ class ValidateUnique(object):
 
     def __call__(self, m):
         clauses = [getattr(m.__class__, attr) == getattr(m, attr) for attr in self.attrs]
-
-        from ..db import meta
 
         info = meta.model_info(m)
         state = info.sa_state(m)

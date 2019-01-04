@@ -9,6 +9,8 @@ from django import forms as djangoforms
 from django.core import validators as django_validators
 from django.forms import fields as djangofields
 
+from .. import fields as sorceryfields
+
 
 __all__ = [
     "BigIntegerField",
@@ -208,9 +210,7 @@ class EnumField(Field):
 
     def get_form_class(self, kwargs):
         if self.type.enum_class:
-            from ..fields import EnumField
-
-            return EnumField
+            return sorceryfields.EnumField
 
         return djangofields.TypedChoiceField
 

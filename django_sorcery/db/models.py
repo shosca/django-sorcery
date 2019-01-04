@@ -12,6 +12,7 @@ from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
 from django.utils.text import camel_case_to_spaces
 
+from ..forms import model_to_dict as real_model_to_dict
 from . import meta, signals
 from .mixins import CleanMixin
 
@@ -39,9 +40,7 @@ def get_identity_key(model, kwargs):
 
 def model_to_dict(instance, fields=None, exclude=None):
     warnings.warn("Deprecated, use django_sorcery.forms.model_to_dict instead.", DeprecationWarning)
-    from ..forms import model_to_dict
-
-    return model_to_dict(instance, fields=fields, exclude=exclude)
+    return real_model_to_dict(instance, fields=fields, exclude=exclude)
 
 
 def simple_repr(instance, fields=None):

@@ -6,6 +6,8 @@ import sqlalchemy as sa
 
 from django.core.exceptions import ImproperlyConfigured
 
+from ...fields import ModelChoiceField, ModelMultipleChoiceField
+
 
 class relation_info(object):
     """
@@ -114,8 +116,6 @@ class relation_info(object):
             return form_class(self.related_model, **field_kwargs)
 
     def get_form_class(self):
-        from ...fields import ModelChoiceField, ModelMultipleChoiceField
-
         if self.uselist:
             return ModelMultipleChoiceField
 

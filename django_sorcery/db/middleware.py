@@ -2,7 +2,6 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import logging
 
-from . import databases
 from .signals import all_signals
 
 
@@ -78,8 +77,3 @@ class SQLAlchemyDBMiddleware(BaseMiddleware):
 
     def remove(self, request, response):
         self.db.remove()
-
-
-class SQLAlchemyMiddleware(SQLAlchemyDBMiddleware):
-
-    db = databases
