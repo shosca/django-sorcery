@@ -128,7 +128,7 @@ class TestColumnMeta(TestCase):
             col.field_kwargs,
         )
         self.assertEqual(col.parent_model, Vehicle)
-        self.assertEqual(repr(col), "<enum_column_info(Vehicle.paint)>")
+        self.assertEqual(repr(col), "<choice_column_info(Vehicle.paint)>")
 
     def test_plain_sqla(self):
         info = meta.model_info(AllKindsOfFields)
@@ -198,7 +198,7 @@ class TestChoiceColumn(TestCase):
 
     def test_clean(self):
         info = meta.column_info(sa.Column(sa.Enum(*["1", "2", "3"])), name="test")
-        tests = [(None, None), ("", ValidationError), ("1", "1"), (1, "1"), ("4", ValidationError)]
+        tests = [(None, None), ("", None), ("1", "1"), (1, "1"), ("4", ValidationError), (5, ValidationError)]
         _run_tests(self, info, tests)
 
 
@@ -218,7 +218,14 @@ class TestEnumColumn(TestCase):
             two = "2"
 
         info = meta.column_info(sa.Column(sa.Enum(Demo)), name="test")
-        tests = [(None, None), ("one", Demo.one), ("1", Demo.one), (Demo.one, Demo.one), (1, ValidationError)]
+        tests = [
+            (None, None),
+            ("", None),
+            ("one", Demo.one),
+            ("1", Demo.one),
+            (Demo.one, Demo.one),
+            (1, ValidationError),
+        ]
         _run_tests(self, info, tests)
 
 

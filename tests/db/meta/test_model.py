@@ -93,7 +93,7 @@ class TestModelMeta(TestCase):
                     "    <boolean_column_info(Vehicle.is_used)>",
                     "    <numeric_column_info(Vehicle.msrp)>",
                     "    <string_column_info(Vehicle.name)>",
-                    "    <enum_column_info(Vehicle.paint)>",
+                    "    <choice_column_info(Vehicle.paint)>",
                     "    <enum_column_info(Vehicle.type)>",
                     "    <relation_info(Vehicle.options)>",
                     "    <relation_info(Vehicle.owner)>",
