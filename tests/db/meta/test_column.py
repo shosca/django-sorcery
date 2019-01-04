@@ -258,6 +258,10 @@ class TestNumericColumn(TestCase):
         ]
         _run_tests(self, info, tests)
 
+        with self.settings(THOUSAND_SEPARATOR=".", DECIMAL_SEPARATOR=","):
+            tests = [("20.000", Decimal("20000")), ("20,000", Decimal("20.000"))]
+            _run_tests(self, info, tests)
+
 
 class TestBooleanColumn(TestCase):
     def test_formfield(self):

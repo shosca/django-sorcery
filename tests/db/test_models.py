@@ -469,6 +469,7 @@ class TestAutoCoerce(TestCase):
             ("1", Decimal("1")),
             ("abc", ValidationError),
             (1, Decimal("1")),
+            ("20000", Decimal("20000")),
             ("20,000", Decimal("20000")),
             ("1.e-8", Decimal("1E-8")),
             ("1.-8", ValidationError),
@@ -481,6 +482,10 @@ class TestAutoCoerce(TestCase):
             ("  \t 23\t", Decimal("23")),
         ]
         for attr in ["decimal", "numeric"]:
+            self._run_tests(attr, tests)
+
+        with self.settings(THOUSAND_SEPARATOR=".", DECIMAL_SEPARATOR=","):
+            tests = [("20.000", Decimal("20000")), ("20,000", Decimal("20.000"))]
             self._run_tests(attr, tests)
 
     def test_float(self):
