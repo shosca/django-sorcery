@@ -47,6 +47,7 @@ docs/_build
 # IDEs
 /.idea
 .venv
+.env*
 .pytest_cache
 db.sqlite3
 .mypy_cache
