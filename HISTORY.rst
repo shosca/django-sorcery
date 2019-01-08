@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.8.2 (2019-01-04)
+0.8.3 (2019-01-08)
 -----------------------------
+- Validate only pre-loaded models (#114) [Miroslav Shubernetskiy]
+
+
+0.8.2 (2019-01-04)
+------------------
 - Fix decimal cleaning with thousand separator (#113) [Serkan Hosca]
 
 
