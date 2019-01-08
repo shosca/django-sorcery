@@ -296,7 +296,14 @@ class model_info(six.with_metaclass(model_info_meta)):
             # only exclude when subexclude is not either list or dict
             # otherwise validate nested object and let it ignore its own subfields
             is_nestable = e and isinstance(e, (dict, list, tuple))
-            if name not in exclude or is_nestable:
+
+            # only validate relation if it is preloaded on the instance
+            # otherwise full clean will explode to the complete model tree
+            # which is not necessary as unloaded models cannot possibly
+            # be in violating
+            is_loaded = name in instance.__dict__
+
+            if is_loaded and (name not in exclude or is_nestable):
                 value = getattr(instance, name)
 
                 if isinstance(value, (list, tuple)):
