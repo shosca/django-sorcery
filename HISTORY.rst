@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.8.3 (2019-01-08)
+0.8.4 (2019-01-09)
 -----------------------------
+- Adding OneToOne relationship shortcut (#115) [Miroslav Shubernetskiy]
+
+
+0.8.3 (2019-01-08)
+------------------
 - Validate only pre-loaded models (#114) [Miroslav Shubernetskiy]
 
 
