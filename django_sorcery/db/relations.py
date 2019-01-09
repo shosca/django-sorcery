@@ -10,6 +10,50 @@ from .signals import declare_first
 
 
 class RelationsMixin(object):
+    def _one_relation(self, remote_cls, direction, backref_uselist, kwargs):
+        @declared_attr
+        def o2m(cls):
+            rels = setdefaultattr(cls, "_relationships", set())
+            kwargs.setdefault("info", {}).update(self._get_kwargs_for_relation(kwargs))
+            backref = kwargs.get("backref")
+            if backref:
+                backref_kwargs = None
+                if isinstance(backref, tuple):
+                    with suppress(Exception):
+                        backref, backref_kwargs = backref
+
+                backref_kwargs = backref_kwargs or {}
+                backref_kwargs["uselist"] = backref_uselist
+
+                kwargs["backref"] = self.backref(backref, **backref_kwargs)
+
+            rel = self.relationship(remote_cls, **kwargs)
+            rel.direction = direction
+            rels.add(rel)
+            return rel
+
+        return o2m
+
+    def OneToOne(self, remote_cls, **kwargs):
+        """
+        Use an event to build one-to-many relationship on a model and auto generates foreign key relationship from the
+        remote table::
+
+            class ModelOne(db.Model):
+                pk = db.Column(.., primary_key=True)
+                m2 = db.OneToOne("ModelTwo", ...)
+
+            class ModelTwo(db.Model):
+                pk = db.Column(.., primary_key=True)
+                ...
+
+            will create ModelTwo.m1_pk automatically for the relationship
+        """
+        kwargs["uselist"] = False
+        return self._one_relation(
+            remote_cls, direction=sa.orm.interfaces.MANYTOONE, backref_uselist=False, kwargs=kwargs
+        )
+
     def OneToMany(self, remote_cls, **kwargs):
         """
         Use an event to build one-to-many relationship on a model and auto generates foreign key relationship from the
@@ -25,33 +69,10 @@ class RelationsMixin(object):
 
             will create ModelTwo.m1_pk automatically for the relationship
         """
-
-        @declared_attr
-        def o2m(cls):
-            """
-            one to many relationship attribute for declarative
-            """
-            rels = setdefaultattr(cls, "_relationships", set())
-            kwargs.setdefault("info", {}).update(self._get_kwargs_for_relation(kwargs))
-            kwargs["uselist"] = True
-            backref = kwargs.get("backref")
-            backref_kwargs = None
-            if backref:
-                if isinstance(backref, tuple):
-                    with suppress(Exception):
-                        backref, backref_kwargs = backref
-
-                backref_kwargs = backref_kwargs or {}
-
-                backref_kwargs["uselist"] = False
-                kwargs["backref"] = (backref, backref_kwargs)
-
-            rel = self.relationship(remote_cls, **kwargs)
-            rel.direction = sa.orm.interfaces.ONETOMANY
-            rels.add(rel)
-            return rel
-
-        return o2m
+        kwargs["uselist"] = True
+        return self._one_relation(
+            remote_cls, direction=sa.orm.interfaces.ONETOMANY, backref_uselist=False, kwargs=kwargs
+        )
 
     def ManyToOne(self, remote_cls, **kwargs):
         """
@@ -68,33 +89,10 @@ class RelationsMixin(object):
 
         will create ModelOne.m2_pk automatically for the relationship
         """
-
-        @declared_attr
-        def m2o(cls):
-            """
-            many to one relationship attribute for declarative
-            """
-            rels = setdefaultattr(cls, "_relationships", set())
-            kwargs.setdefault("info", {}).update(self._get_kwargs_for_relation(kwargs))
-            kwargs["uselist"] = False
-            backref = kwargs.get("backref")
-            if backref:
-                backref_kwargs = None
-                if isinstance(backref, tuple):
-                    with suppress(Exception):
-                        backref, backref_kwargs = backref
-
-                backref_kwargs = backref_kwargs or {}
-
-                backref_kwargs["uselist"] = True
-                kwargs["backref"] = self.backref(backref, **backref_kwargs)
-
-            rel = self.relationship(remote_cls, **kwargs)
-            rel.direction = sa.orm.interfaces.MANYTOONE
-            rels.add(rel)
-            return rel
-
-        return m2o
+        kwargs["uselist"] = False
+        return self._one_relation(
+            remote_cls, direction=sa.orm.interfaces.MANYTOONE, backref_uselist=True, kwargs=kwargs
+        )
 
     def ManyToMany(self, remote_cls, table_name=None, **kwargs):
         """

@@ -23,6 +23,12 @@ class Customer(db.Model):
     name = db.Column(db.String(length=5))
 
 
+class Profile(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String(length=20))
+    customer = db.OneToOne(Customer, backref="profile")
+
+
 class Contact(db.Model):
     pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
     name = db.Column(db.String(length=5))
