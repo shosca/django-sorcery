@@ -27,6 +27,14 @@ class Customer(db.Model):
 
     orders = db.OneToMany("Order", back_populates="applicant")
     coapp_orders = db.OneToMany("Order", back_populates="coapplicant")
+    profile = db.relationship("Profile", back_populates="customer", uselist=False)
+
+
+class Profile(db.Model):
+    pk = db.Column(db.Integer(), autoincrement=True, primary_key=True)
+    name = db.Column(db.String(length=20))
+
+    customer = db.OneToOne("Customer", back_populates="profile")
 
 
 class Contact(db.Model):
