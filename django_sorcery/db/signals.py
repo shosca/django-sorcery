@@ -87,6 +87,12 @@ after_middleware_response = all_signals.signal("after_middleware_response")
 declare_first = all_signals.signal("declare_first")
 declare_last = all_signals.signal("declare_last")
 
+before_create_all = all_signals.signal("before_create_all")
+after_create_all = all_signals.signal("after_create_all")
+
+before_drop_all = all_signals.signal("before_drop_all")
+after_drop_all = all_signals.signal("after_drop_all")
+
 alembic_app_created = all_signals.signal("alembic_app_created")
 alembic_config_created = all_signals.signal("alembic_config_created")
 alembic_include_object = all_signals.signal("alembic_include_object")

@@ -12,13 +12,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from django.db import DEFAULT_DB_ALIAS
 
 from ..utils import make_args
-from . import fields
+from . import fields, signals
 from .composites import BaseComposite, CompositeField
 from .models import Base, BaseMeta
 from .query import Query, QueryProperty
 from .relations import RelationsMixin
 from .session import SignallingSession
-from .signals import all_signals, engine_created
 from .transaction import TransactionContext
 from .url import make_url
 
@@ -168,7 +167,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
 
     def _create_engine(self, url, **kwargs):
         engine = sa.create_engine(url, **kwargs)
-        engine_created.send(engine)
+        signals.engine_created.send(engine)
         return engine
 
     def _make_url(self, alias):
@@ -256,17 +255,23 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         if self.registry.has():
             self.registry().close()
         self.registry.clear()
-        for signal in all_signals.scoped_signals:
+        for signal in signals.all_signals.scoped_signals:
             signal.cleanup()
 
     def create_all(self):
         """
         Create the schema in db
         """
-        self.metadata.create_all(bind=self.engine)
+        result = signals.before_create_all.send(db=self, bind=self.engine)
+        if all(i[1] in [True, None] for i in result):
+            self.metadata.create_all(bind=self.engine)
+            signals.after_create_all.send(self, db=self, bind=self.engine)
 
     def drop_all(self):
         """
         Drop the schema in db
         """
-        self.metadata.drop_all(bind=self.engine)
+        result = signals.before_drop_all.send(db=self, bind=self.engine)
+        if all(i[1] in [True, None] for i in result):
+            self.metadata.drop_all(bind=self.engine)
+            signals.after_drop_all.send(self, db=self, bind=self.engine)
