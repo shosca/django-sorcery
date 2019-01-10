@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.8.4 (2019-01-09)
+0.8.5 (2019-01-10)
 -----------------------------
+- Fixing composite field validation (#116) [Miroslav Shubernetskiy]
+
+
+0.8.4 (2019-01-09)
+------------------
 - Adding OneToOne relationship shortcut (#115) [Miroslav Shubernetskiy]
 
 
