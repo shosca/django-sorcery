@@ -65,7 +65,7 @@ class Business(db.Model):
 
     def clean(self, **kwargs):
         if self.other_location and not self.location:
-            raise ValidationError({"location": "Primary key is required when other location is provided."})
+            raise ValidationError({"location": "Primary location is required when other location is provided."})
 
 
 class Owner(db.Model):
