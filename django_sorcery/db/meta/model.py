@@ -9,7 +9,6 @@ import six
 import sqlalchemy as sa
 
 from django.core.exceptions import ValidationError
-from django.utils.functional import empty
 
 from ...exceptions import NestedValidationError
 from ...validators import ValidationRunner
@@ -220,11 +219,11 @@ class model_info(six.with_metaclass(model_info_meta)):
             for col in chain(*rel.local_remote_pairs):
                 local_remote_pairs.add(col)
 
-        props = getattr(instance, "_get_properties_for_validation", lambda x: [])()
-        if not props:
-            props = self.properties.values()
-        else:
-            props = [self.properties[prop] for prop in props if prop in self.properties]
+        props = [
+            self.properties[prop]
+            for prop in getattr(instance, "_get_properties_for_validation", lambda x: self.properties.values())()
+            if prop in self.properties
+        ]
 
         for f in props:
             raw_value = getattr(instance, f.name)
@@ -247,32 +246,40 @@ class model_info(six.with_metaclass(model_info_meta)):
 
             try:
                 setattr(instance, f.name, f.clean(raw_value, instance))
-            except ValidationError as ex:
-                errors[f.name] = ex.error_list
+            except ValidationError as e:
+                errors[f.name] = e.error_list
 
         if errors:
-            raise ValidationError(errors)
+            raise NestedValidationError(errors)
 
     def clean_nested_fields(self, instance, exclude=None, **kwargs):
         """
         Clean all nested fields which includes composites
         """
         errors = {}
-        exclude = exclude or {}
-        props = getattr(instance, "_get_nested_objects_for_validation", lambda x: [])()
-        if not props:
-            props = self.composites.values()
-        else:
-            props = [self.composites[prop] for prop in props if prop in self.composites]
+        exclude = exclude or []
+        props = [
+            self.composites[prop]
+            for prop in getattr(instance, "_get_nested_objects_for_validation", lambda x: self.composites.values())()
+            if prop in self.composites
+        ]
 
         for f in props:
-            if exclude.get(f.name, empty) is None:
-                continue
-
             try:
-                f.full_clean(getattr(instance, f.name), exclude=exclude.get(f.name))
-            except ValidationError as ex:
-                errors[f.name] = ex
+                e = exclude.get(f.name, [])
+            except AttributeError:
+                e = []
+
+            # only exclude when subexclude is not either list or dict
+            # otherwise validate nested object and let it ignore its own subfields
+            is_nestable = e and isinstance(e, (dict, list, tuple))
+
+            if f.name not in exclude or is_nestable:
+                try:
+                    f.full_clean(getattr(instance, f.name), exclude=e)
+                except ValidationError as ex:
+                    ex = NestedValidationError(ex)
+                    errors[f.name] = ex.update_error_dict({})
 
         if errors:
             raise NestedValidationError(errors)
@@ -281,6 +288,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         """
         Clean all relation fields
         """
+        exclude = exclude or []
         visited = kwargs.pop("visited", set())
         visited.add(id(instance))
         errors = {}

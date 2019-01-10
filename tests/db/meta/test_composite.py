@@ -54,7 +54,7 @@ class TestCompositeMeta(TestCase):
         self.assertEqual(
             e.exception.message_dict,
             {
-                "location": ["Primary key is required when other location is provided."],
+                "location": ["Primary location is required when other location is provided."],
                 "other_location": {
                     "state": ["Select a valid choice. ny is not one of the available choices."],
                     "street": ["Street should be at least 2 characters."],
@@ -73,7 +73,7 @@ class TestCompositeMeta(TestCase):
         self.assertEqual(
             e.exception.message_dict,
             {
-                "location": ["Primary key is required when other location is provided."],
+                "location": ["Primary location is required when other location is provided."],
                 "other_location": {
                     "street": ["Street should be at least 2 characters."],
                     "state": ["Select a valid choice. ny is not one of the available choices."],
