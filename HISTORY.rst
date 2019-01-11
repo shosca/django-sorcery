@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.8.5 (2019-01-10)
+0.8.6 (2019-01-11)
 -----------------------------
+- Added signals for create_all and drop_all (#117) [Miroslav
+  Shubernetskiy]
+
+
+0.8.5 (2019-01-10)
+------------------
 - Fixing composite field validation (#116) [Miroslav Shubernetskiy]
 
 
