@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+import sqlalchemy as sa
+
 from django.db import DEFAULT_DB_ALIAS
 from django.utils.module_loading import import_string
 
@@ -78,3 +80,23 @@ class dbdict(dict):
 
     def atomic(self, savepoint=True):
         return TransactionContext(*self.values(), savepoint=True)
+
+
+def _index_foreign_keys(tbl):
+    indexes = {tuple(sorted([col.name for col in ix.columns])) for ix in tbl.indexes}
+    for fk in tbl.foreign_key_constraints:
+        key = tuple(sorted([col.name for col in fk.columns]))
+        if key not in indexes:
+            sa.Index(None, *list(fk.columns), use_alter=True)
+
+
+def index_foreign_keys(*args):
+    """
+    Generates indexes for all foreign keys for a table or metadata tables
+    """
+    for arg in args:
+        if isinstance(arg, sa.Table):
+            _index_foreign_keys(arg)
+        elif isinstance(arg, sa.MetaData):
+            for table in arg.tables.values():
+                _index_foreign_keys(table)
