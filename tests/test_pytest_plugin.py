@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django_sorcery.pytest_plugin import sqlalchemy_profiler  # noqa
+import pytest
+
+from django_sorcery.pytest_plugin import sqlalchemy_profiler, transact  # noqa
+from django_sorcery.testing import CommitException
 
 from .testapp.models import Business, Owner, db
 
@@ -35,3 +38,17 @@ def test_profiler(sqlalchemy_profiler):  # noqa
 
     db.rollback()
     db.remove()
+
+
+def test_transact(transact):  # noqa
+    db.add(Owner(first_name="foo", last_name="bar"))
+    db.flush()
+
+    assert Owner.objects.count() == 1
+
+    with pytest.raises(CommitException):
+        db.commit()
+
+    transact.stop()
+
+    assert Owner.objects.count() == 0
