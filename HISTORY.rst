@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.8.6 (2019-01-11)
+0.8.7 (2019-01-25)
 -----------------------------
+- Add autogenerate foreign key indexes (#118) [Serkan Hosca]
+- Adding Transact testing utility with transact pytest fixture (#119)
+  [Miroslav Shubernetskiy]
+
+
+0.8.6 (2019-01-11)
+------------------
 - Added signals for create_all and drop_all (#117) [Miroslav
   Shubernetskiy]
 

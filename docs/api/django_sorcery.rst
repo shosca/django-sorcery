@@ -30,5 +30,6 @@ Submodules
    django_sorcery.pytest_plugin
    django_sorcery.routers
    django_sorcery.shortcuts
+   django_sorcery.testing
    django_sorcery.utils
 
