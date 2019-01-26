@@ -7,13 +7,30 @@ import six
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
-from django_sorcery.db import databases
+from django_sorcery.db import FromCache, databases
 from django_sorcery.db.models import autocoerce, autocoerce_properties
 from django_sorcery.db.query import Query
 from django_sorcery.validators import ValidateTogetherModelFields, ValidateUnique
 
 
 db = databases.get("test")
+
+
+class DummyCache(object):
+    def __init__(self):
+        self.cache = {}
+
+    def get_or_create(self, key, func, **kwargs):
+        if key not in self.cache:
+            self.cache[key] = func()
+
+        return self.cache[key]
+
+    def delete(self, key):
+        del self.cache[key]
+
+
+cache = DummyCache()
 
 
 COLORS = ["", "red", "green", "blue", "silver", "pink"]
@@ -260,6 +277,36 @@ class ModelFullCleanFail(db.Model):
 
     def clean(self, **kwargs):
         raise ValidationError("bad model")
+
+
+class CachedModel(db.Model):
+    __caching_option__ = FromCache(cache)
+
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
+
+
+class OtherCachedModel(db.Model):
+    __caching_option__ = FromCache(cache)
+
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
+
+
+class CachedReference(db.Model):
+    __caching_option__ = FromCache(cache)
+
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
+
+
+class UnCachedModel(db.Model):
+    pk = db.IntegerField(autoincrement=True, primary_key=True)
+    name = db.CharField()
+
+    cached = db.ManyToOne(CachedModel, backref=db.backref("uncached"))
+    other_cached = db.OneToMany(OtherCachedModel, backref=db.backref("uncached"))
+    references = db.ManyToMany(CachedReference, table_name="uncached_refs", backref=db.backref("uncached"))
 
 
 class ValidateUniqueModel(db.Model):

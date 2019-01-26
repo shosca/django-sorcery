@@ -144,6 +144,7 @@ for the used session within the request::
 from __future__ import absolute_import, print_function, unicode_literals
 
 from .sqlalchemy import SQLAlchemy  # noqa
+from .strategy_options import FromCache  # noqa
 from .utils import dbdict
 
 
