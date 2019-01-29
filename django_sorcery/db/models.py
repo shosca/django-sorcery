@@ -10,6 +10,7 @@ import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
 from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
+from django.core.exceptions import ValidationError
 from django.utils.text import camel_case_to_spaces
 
 from . import meta, signals
@@ -446,7 +447,10 @@ def autocoerce(cls):
 def _coerce(target, value, oldvalue, initiator):
     minfo = meta.model_info(target)
     cinfo = minfo.properties.get(initiator.key) or minfo.primary_keys.get(initiator.key)
-    return cinfo.to_python(value) if cinfo else value
+    try:
+        return cinfo.to_python(value) if cinfo else value
+    except ValidationError as ex:
+        raise ValidationError({initiator.key: ex})
 
 
 @sa.event.listens_for(sa.orm.mapper, "after_configured")
