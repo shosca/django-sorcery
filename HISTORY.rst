@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.8.7 (2019-01-25)
+0.8.8 (2019-01-29)
 -----------------------------
+- Raise validation error with field name on coersion (#121) [Serkan
+  Hosca]
+- Add docs for testing. [Serkan Hosca]
+
+
+0.8.7 (2019-01-26)
+------------------
 - Add autogenerate foreign key indexes (#118) [Serkan Hosca]
 - Adding Transact testing utility with transact pytest fixture (#119)
   [Miroslav Shubernetskiy]
