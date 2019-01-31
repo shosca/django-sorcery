@@ -37,6 +37,7 @@ setup(
     author=about["__author__"],
     author_email=about["__author_email__"],
     description=about["__description__"],
+    include_package_data=True,
     install_requires=["alembic", "blinker", "six", 'Django<2;python_version<"3"', "Django", "SQLAlchemy"],
     license="MIT",
     long_description=read("README.rst"),
