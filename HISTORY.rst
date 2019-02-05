@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.8.8 (2019-01-29)
+0.8.9 (2019-02-05)
 -----------------------------
+- Adding default maxlength/min/maxvalue validators to CharField/IntField
+  (#124) [Miroslav Shubernetskiy]
+- Include migration mako script (#123) [Serkan Hosca]
+
+
+0.8.8 (2019-01-29)
+------------------
 - Raise validation error with field name on coersion (#121) [Serkan
   Hosca]
 - Add docs for testing. [Serkan Hosca]
