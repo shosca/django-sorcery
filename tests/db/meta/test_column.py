@@ -16,13 +16,13 @@ from django.forms import fields as djangofields, widgets
 from django_sorcery import fields as sorceryfields
 from django_sorcery.db import fields as dbfields, meta  # noqa
 
-from ...base import TestCase
+from ...base import TestCase, mock
 from ...testapp.models import COLORS, AllKindsOfFields, Business, Vehicle, VehicleType
 
 
 class TestColumnMeta(TestCase):
     def test_deprecated_init(self):
-        col = dbfields.CharField()
+        col = dbfields.CharField(length=25)
         info = meta.column_info(None, col)
 
         self.assertIs(info.column, col)
@@ -39,7 +39,7 @@ class TestColumnMeta(TestCase):
                 "help_text": "The primary key",
                 "label": "Id",
                 "required": True,
-                "validators": [django_validators.validate_integer],
+                "validators": [django_validators.validate_integer, mock.ANY, mock.ANY],
             },
             col.field_kwargs,
         )
@@ -57,7 +57,7 @@ class TestColumnMeta(TestCase):
                 "initial": 5,
                 "label": "Employees",
                 "required": True,
-                "validators": [django_validators.validate_integer],
+                "validators": [django_validators.validate_integer, mock.ANY, mock.ANY],
             },
             col.field_kwargs,
         )

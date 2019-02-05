@@ -19,6 +19,7 @@ DIALECT_MAP = {
     "django.db.backends.oracle": "oracle",
     "sqlserver_ado": "mssql",
 }
+DIALECT_MAP_TO_DJANGO = {v: k for k, v in DIALECT_MAP.items()}
 
 
 def boolean(x):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
+from importlib import import_module
 
 import six
 
@@ -7,7 +8,10 @@ import sqlalchemy as sa
 
 from django import forms as djangoforms
 from django.core import validators as django_validators
+from django.db.backends.base import operations
 from django.forms import fields as djangofields
+
+from .url import DIALECT_MAP_TO_DJANGO
 
 
 __all__ = [
@@ -41,6 +45,8 @@ class Field(sa.Column):
     widget_class = None
 
     def __init__(self, *args, **kwargs):
+        self.db = kwargs.pop("db", None)
+
         name = None
         args = list(args)
         if args and isinstance(args[0], six.string_types):
@@ -108,7 +114,7 @@ class Field(sa.Column):
         return self.type_class
 
     def get_validators(self, validators):
-        return self.default_validators + validators
+        return self.default_validators[:] + validators
 
     def get_type(self, type_class, type_kwargs):
         return type_class(**type_kwargs)
@@ -132,12 +138,21 @@ class BooleanField(Field):
 
 class CharField(Field):
     type_class = sa.String
+    length_is_required = True
     form_class = djangofields.CharField
 
     def get_type_kwargs(self, type_class, kwargs):
         type_kwargs = super(CharField, self).get_type_kwargs(type_class, kwargs)
         type_kwargs["length"] = type_kwargs.get("length") or kwargs.get("max_length")
+        if not type_kwargs["length"] and self.length_is_required:
+            raise TypeError('Missing length parameter. Must provide either "max_length" or "length" parameter')
         return type_kwargs
+
+    def get_validators(self, validators):
+        validators = super(CharField, self).get_validators(validators)
+        if self.type.length and not any(isinstance(i, django_validators.MaxLengthValidator) for i in validators):
+            validators.append(django_validators.MaxLengthValidator(self.type.length))
+        return validators
 
 
 class DateField(Field):
@@ -225,19 +240,43 @@ class FloatField(Field):
         return type_kwargs
 
 
-class IntegerField(Field):
+class ValidateIntegerFieldMixin(object):
+    def get_django_dialect_ranges(self):
+        module = (
+            import_module(
+                DIALECT_MAP_TO_DJANGO.get(self.db.url.get_dialect().name, "django.db.backends.base") + ".operations"
+            )
+            if self.db
+            else operations
+        )
+        return getattr(module, "DatabaseOperations", operations.BaseDatabaseOperations).integer_field_ranges
+
+    def get_dialect_range(self):
+        return self.get_django_dialect_ranges()[self.__class__.__name__]
+
+    def get_validators(self, validators):
+        validators = super(ValidateIntegerFieldMixin, self).get_validators(validators)
+        min_int, max_int = self.get_dialect_range()
+        if not any(isinstance(i, django_validators.MinValueValidator) for i in validators):
+            validators.append(django_validators.MinValueValidator(min_int))
+        if not any(isinstance(i, django_validators.MaxValueValidator) for i in validators):
+            validators.append(django_validators.MaxValueValidator(max_int))
+        return validators
+
+
+class IntegerField(ValidateIntegerFieldMixin, Field):
     default_validators = [django_validators.validate_integer]
     type_class = sa.Integer
     form_class = djangofields.IntegerField
 
 
-class BigIntegerField(Field):
+class BigIntegerField(ValidateIntegerFieldMixin, Field):
     default_validators = [django_validators.validate_integer]
     type_class = sa.BigInteger
     form_class = djangofields.IntegerField
 
 
-class SmallIntegerField(Field):
+class SmallIntegerField(ValidateIntegerFieldMixin, Field):
     default_validators = [django_validators.validate_integer]
     type_class = sa.SmallInteger
     form_class = djangofields.IntegerField
@@ -261,6 +300,7 @@ class SlugField(CharField):
 
 class TextField(CharField):
     type_class = sa.Text
+    length_is_required = False
     form_class = djangofields.CharField
     widget_class = djangoforms.Textarea
 
@@ -281,3 +321,4 @@ class URLField(CharField):
 
 class BinaryField(Field):
     type_class = sa.Binary
+    length_is_required = False

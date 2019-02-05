@@ -57,7 +57,7 @@ class Address(db.BaseComposite):
 class Business(db.Model):
 
     id = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
     employees = db.IntegerField(default=5, nullable=False)
 
     location = db.CompositeField(Address)
@@ -72,8 +72,8 @@ class Owner(db.Model):
     query_class = OwnerQuery
 
     id = db.IntegerField(autoincrement=True, primary_key=True)
-    first_name = db.CharField()
-    last_name = db.CharField()
+    first_name = db.CharField(length=50)
+    last_name = db.CharField(length=50)
 
     def clean_first_name(self):
         if self.first_name == "invalid":
@@ -82,7 +82,7 @@ class Owner(db.Model):
 
 class Vehicle(db.Model):
     id = db.IntegerField(autoincrement=True, primary_key=True, doc="The primary key")
-    name = db.CharField(doc="The name of the vehicle", label="Name")
+    name = db.CharField(doc="The name of the vehicle", label="Name", length=50)
     type = db.EnumField(choices=VehicleType, constraint_name="ck_vehicle_type", nullable=False)
     created_at = db.DateTimeField()
     paint = db.EnumField(choices=COLORS, constraint_name="ck_colors")
@@ -109,14 +109,14 @@ class Vehicle(db.Model):
 
 class Part(db.Model):
     id = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
 
     vehicles = db.ManyToMany(Vehicle, backref="parts", table_name="vehicle_parts")
 
 
 class Option(db.Model):
     id = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
 
     vehicles = db.ManyToMany(Vehicle, backref=db.backref("options"), table_name="vehicle_options")
 
@@ -126,7 +126,7 @@ class CompositePkModel(db.Model):
 
     id = db.IntegerField(primary_key=True)
     pk = db.IntegerField(primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
 
     is_active = db.BooleanField()
 
@@ -223,12 +223,12 @@ class Vertex(db.Model):
 
 class ModelTwo(db.Model):
     pk = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
 
 
 class ModelOne(db.Model):
     pk = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
 
     _model_twos = db.OneToMany(ModelTwo, backref="_model_one")
 
@@ -249,14 +249,14 @@ class ModelThree(db.Model):
 
 class ModelFour(db.Model):
     pk = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
 
     _model_twos = db.OneToMany(ModelTwo, backref=db.backref("_model_four"))
 
 
 class ModelFullCleanFail(db.Model):
     pk = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
+    name = db.CharField(length=50)
 
     def clean(self, **kwargs):
         raise ValidationError("bad model")
@@ -264,9 +264,9 @@ class ModelFullCleanFail(db.Model):
 
 class ValidateUniqueModel(db.Model):
     pk = db.IntegerField(autoincrement=True, primary_key=True)
-    name = db.CharField()
-    foo = db.CharField()
-    bar = db.CharField()
+    name = db.CharField(length=50)
+    foo = db.CharField(length=50)
+    bar = db.CharField(length=50)
 
     validators = [ValidateUnique(db, "name"), ValidateUnique(db, "foo", "bar")]
 
