@@ -76,10 +76,13 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         self.metadata = self.metadata_class(**self.kwargs.get("metadata_kwargs", {}))
         self.Model = self._make_declarative(self.model_class)
 
-        for module in sa, sa.sql, sa.orm, fields:
+        for module, is_partial in [(sa, False), (sa.sql, False), (sa.orm, False), (fields, True)]:
             for key in module.__all__:
                 if not hasattr(self, key):
-                    setattr(self, key, getattr(module, key))
+                    value = getattr(module, key)
+                    setattr(
+                        self, key, functools.wraps(value)(functools.partial(value, db=self)) if is_partial else value
+                    )
 
         self.collections = sa.orm.collections
         self.event = sa.event
