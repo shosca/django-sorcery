@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.8.9 (2019-02-05)
+0.8.10 (2019-02-05)
 -----------------------------
+- Fixing test_site to allow to create test migrations (#125) [Miroslav
+  Shubernetskiy]
+
+
+0.8.9 (2019-02-05)
+------------------
 - Adding default maxlength/min/maxvalue validators to CharField/IntField
   (#124) [Miroslav Shubernetskiy]
 - Include migration mako script (#123) [Serkan Hosca]
