@@ -34,7 +34,9 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "test_site",
     "django_extensions",
+    "django_sorcery",
     "polls.apps.PollsConfig",
     "django.contrib.admin",
     "django.contrib.auth",

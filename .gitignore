@@ -1,5 +1,6 @@
 *.py[cod]
 *.swp
+test_site/polls/migrations/*.py
 
 # C extensions
 *.so

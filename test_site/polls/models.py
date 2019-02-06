@@ -19,7 +19,3 @@ class Choice(db.Model):
     votes = db.Column(db.Integer(), default=0)
 
     question = db.ManyToOne(Question, backref=db.backref("choices", cascade="all, delete-orphan"))
-
-
-db.configure_mappers()
-db.create_all()
