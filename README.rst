@@ -2,7 +2,7 @@
 Django Sorcery - Django Framework integration with SQLAlchemy
 #############################################################
 
-|Build Status| |Read The Docs| |PyPI version| |Coveralls Status|
+|Build Status| |Read The Docs| |PyPI version| |Coveralls Status| |Black|
 
 * Free software: MIT license
 * GitHub: https://github.com/shosca/django-sorcery
@@ -524,3 +524,5 @@ And add ``choice_formset`` in the ``polls/templates/question_edit.html`` and ``p
    :target: https://badge.fury.io/py/django-sorcery
 .. |Coveralls Status| image:: https://coveralls.io/repos/github/shosca/django-sorcery/badge.svg?branch=master
    :target: https://coveralls.io/github/shosca/django-sorcery?branch=master
+.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
