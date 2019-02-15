@@ -2,8 +2,15 @@ Changelog
 =========
 
 
-0.8.10 (2019-02-05)
+0.8.11 (2019-02-15)
 -----------------------------
+- Fix db operations import from django for db ranges (#127) [Serkan
+  Hosca]
+- Adding black badge (#126) [Miroslav Shubernetskiy]
+
+
+0.8.10 (2019-02-06)
+-------------------
 - Fixing test_site to allow to create test migrations (#125) [Miroslav
   Shubernetskiy]
 
