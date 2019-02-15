@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
-from importlib import import_module
 
 import six
 
@@ -10,7 +9,9 @@ from django import forms as djangoforms
 from django.core import validators as django_validators
 from django.db.backends.base import operations
 from django.forms import fields as djangofields
+from django.utils.module_loading import import_string
 
+from ..utils import suppress
 from .url import DIALECT_MAP_TO_DJANGO
 
 
@@ -242,14 +243,15 @@ class FloatField(Field):
 
 class ValidateIntegerFieldMixin(object):
     def get_django_dialect_ranges(self):
-        module = (
-            import_module(
-                DIALECT_MAP_TO_DJANGO.get(self.db.url.get_dialect().name, "django.db.backends.base") + ".operations"
+        ops = operations.BaseDatabaseOperations
+        with suppress(ImportError):
+            ops = (
+                import_string(DIALECT_MAP_TO_DJANGO.get(self.db.url.get_dialect().name) + ".base.DatabaseOperations")
+                if self.db
+                else operations.BaseDatabaseOperations
             )
-            if self.db
-            else operations
-        )
-        return getattr(module, "DatabaseOperations", operations.BaseDatabaseOperations).integer_field_ranges
+
+        return ops.integer_field_ranges
 
     def get_dialect_range(self):
         return self.get_django_dialect_ranges()[self.__class__.__name__]
