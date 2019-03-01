@@ -14,6 +14,8 @@ from django.utils.module_loading import import_string
 from ..utils import suppress
 from .url import DIALECT_MAP_TO_DJANGO
 
+from .. import fields as sorceryfields
+
 
 __all__ = [
     "BigIntegerField",
@@ -224,9 +226,7 @@ class EnumField(Field):
 
     def get_form_class(self, kwargs):
         if self.type.enum_class:
-            from ..fields import EnumField
-
-            return EnumField
+            return sorceryfields.EnumField
 
         return djangofields.TypedChoiceField
 

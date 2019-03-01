@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.forms import fields as djangofields
 from django.utils.translation import gettext_lazy
 
+from .db import meta
 from .utils import suppress
 
 
@@ -110,7 +111,6 @@ class ModelChoiceField(djangofields.ChoiceField):
 
         self._choices = None
         self.model = model
-        from .db import meta
 
         self.model_info = meta.model_info(model)
         self.session = session

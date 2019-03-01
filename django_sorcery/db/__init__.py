@@ -143,8 +143,18 @@ for the used session within the request::
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+from . import middleware
 from .sqlalchemy import SQLAlchemy  # noqa
 from .utils import dbdict
 
 
 databases = dbdict()
+
+
+class SQLAlchemyMiddleware(middleware.SQLAlchemyDBMiddleware):
+
+    db = databases
+
+
+# For backwards compat, we set it back to the middleware module
+middleware.SQLAlchemyMiddleware = SQLAlchemyMiddleware

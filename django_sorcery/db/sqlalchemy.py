@@ -14,6 +14,7 @@ from django.db import DEFAULT_DB_ALIAS
 from ..utils import make_args
 from . import fields, signals
 from .composites import BaseComposite, CompositeField
+from .middleware import SQLAlchemyDBMiddleware
 from .models import Base, BaseMeta
 from .query import Query, QueryProperty
 from .relations import RelationsMixin
@@ -241,8 +242,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         """
         Creates a middleware to be used in a django application
         """
-        from .middleware import SQLAlchemyDBMiddleware
-
         return type(str("{}SQLAlchemyMiddleware".format(self.alias)), (SQLAlchemyDBMiddleware,), {"db": self})
 
     def args(self, *args, **kwargs):

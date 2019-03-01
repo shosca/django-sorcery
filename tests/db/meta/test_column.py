@@ -75,12 +75,12 @@ class TestColumnMeta(TestCase):
     def test_column_info_enum_from_class_from_info(self):
         col = sa.Column(sa.Enum(VehicleType), info={"form_class": djangofields.IntegerField})
         info = meta.column_info(col, name="test")
-        self.assertIsInstance(info, meta.enum_column_info)
+        self.assertIsInstance(info, meta.column.enum_column_info)
         self.assertEqual(info.form_class, djangofields.IntegerField)
 
     def test_column_info_boolean_from_class_from_info(self):
         info = meta.column_info(sa.Column(sa.Boolean(), info={"form_class": djangofields.IntegerField}), name="test")
-        self.assertIsInstance(info, meta.boolean_column_info)
+        self.assertIsInstance(info, meta.column.boolean_column_info)
         self.assertEqual(info.form_class, djangofields.IntegerField)
 
     def test_column_info_validators(self):
