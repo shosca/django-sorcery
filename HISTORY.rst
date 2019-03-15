@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.8.11 (2019-02-15)
+0.8.12 (2019-03-15)
 -----------------------------
+- Fix field run_validator (#128) [Serkan Hosca]
+
+
+0.8.11 (2019-02-15)
+-------------------
 - Fix db operations import from django for db ranges (#127) [Serkan
   Hosca]
 - Adding black badge (#126) [Miroslav Shubernetskiy]
