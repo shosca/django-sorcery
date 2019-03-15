@@ -19,7 +19,6 @@ from django.utils.text import capfirst
 
 from ... import fields as sorceryfields
 from ...utils import sanitize_separators, suppress
-from ...validators import ValidationRunner
 
 
 def _make_naive(value):
@@ -128,6 +127,10 @@ class column_info(object):
         return self.column.doc
 
     @property
+    def empty_values(self):
+        return self.column.info.get("empty_values") or self.coercer.empty_values
+
+    @property
     def default(self):
         return getattr(self.column.default, "arg", None)
 
@@ -187,8 +190,18 @@ class column_info(object):
         getattr(instance, "clean_" + self.name, bool)()
 
     def run_validators(self, value):
-        runner = ValidationRunner(name=self.name, validators=self.validators[:])
-        runner.is_valid(value, raise_exception=True)
+        if value in self.empty_values:
+            return
+
+        errors = []
+        for v in self.validators:
+            try:
+                v(value)
+            except ValidationError as e:
+                errors.extend(e.error_list)
+
+        if errors:
+            raise ValidationError(errors)
 
 
 class string_column_info(column_info):

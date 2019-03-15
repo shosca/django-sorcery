@@ -83,10 +83,8 @@ class composite_info(six.with_metaclass(model_info_meta)):
                 continue
             try:
                 setattr(instance, name, f.clean(raw_value, instance))
-            except NestedValidationError as ex:
-                errors[name] = ex.error_dict[name]
-            except ValidationError as ex:
-                errors[name] = ex.error_list
+            except ValidationError as e:
+                errors[name] = e.error_list
         if errors:
             raise NestedValidationError(errors)
 

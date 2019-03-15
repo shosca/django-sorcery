@@ -35,7 +35,7 @@ class OwnerQuery(Query):
 
 def street_validator(value):
     if len(value) < 3:
-        raise ValidationError({"street": "Street should be at least 2 characters."})
+        raise ValidationError("Street should be at least 2 characters.")
 
 
 class Address(db.BaseComposite):
