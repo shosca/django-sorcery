@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+CreateAll command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.management.base import BaseCommand
@@ -7,6 +10,10 @@ from ...db import databases
 
 
 class CreateAll(BaseCommand):
+    """
+    Creates db schema using metadata.create_all
+    """
+
     help = "Creates SQLAlchemy database schemas"
 
     def add_arguments(self, parser):

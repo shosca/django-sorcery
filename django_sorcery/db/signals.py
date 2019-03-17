@@ -32,6 +32,9 @@ class ScopedSignal(blinker.NamedSignal):
 
     @property
     def receivers(self):
+        """
+        Return all thread scoped receivers
+        """
         return self.local.__dict__.setdefault("receivers", {})
 
     @property
@@ -47,11 +50,21 @@ class ScopedSignal(blinker.NamedSignal):
         return self.local.__dict__.setdefault("_weak_senders", {})
 
     def cleanup(self):
+        """
+        Cleans up signal for the current thread scope
+        """
         self._clear_state()
 
 
 class Namespace(blinker.Namespace):
+    """
+    A signal namespace that also manages scoped signals
+    """
+
     def scopedsignal(self, name, doc=None):
+        """
+        Returns the scoped signal for a given name
+        """
         try:
             return self[name]
 
@@ -60,6 +73,9 @@ class Namespace(blinker.Namespace):
 
     @property
     def scoped_signals(self):
+        """
+        Returns all scoped signals
+        """
         for signal in self.values():
             if isinstance(signal, ScopedSignal):
                 yield signal

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Django list view things for sqlalchemy
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
@@ -40,6 +43,9 @@ class BaseListView(MultipleObjectMixin, View):
     """A base view for displaying a list of objects."""
 
     def get(self, request, *args, **kwargs):
+        """
+        Handle GET request on list view
+        """
         self.object_list = self.get_queryset()
         context = self.get_context_data()
         return self.render_to_response(context)

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+DropAll command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.management.base import BaseCommand
@@ -7,6 +10,10 @@ from ...db import databases
 
 
 class DropAll(BaseCommand):
+    """
+    Drops database schemas using metadata.drop_all
+    """
+
     help = "Drops SQLAlchemy database schemas"
 
     def add_arguments(self, parser):

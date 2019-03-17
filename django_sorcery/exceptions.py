@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Exceptions
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ValidationError

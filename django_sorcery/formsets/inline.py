@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+InlineFormSet for sqlalchemy
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from ..db import meta
@@ -8,6 +10,8 @@ from .base import BaseModelFormSet, modelformset_factory
 
 
 class BaseInlineFormSet(BaseModelFormSet):
+    """A formset for child objects related to a parent."""
+
     def __init__(self, data=None, files=None, instance=None, save_as_new=False, prefix=None, queryset=None, **kwargs):
 
         self.instance = self.fk.parent_model() if instance is None else instance

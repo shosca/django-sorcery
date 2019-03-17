@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Sorcery command namespace
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from .. import NamespacedCommand
@@ -14,6 +17,10 @@ from .sorcery_upgrade import Upgrade
 
 
 class Command(NamespacedCommand):
+    """
+    Namespaced commands for sorcery
+    """
+
     help = "django-sorcery management commands"
 
     createall = CreateAll

@@ -13,6 +13,10 @@ from .url import get_settings
 
 
 class dbdict(dict):
+    """
+    Holds all configured :py:class:`..sqlalchemy.SQLAlchemy` instances
+    """
+
     def get(self, alias=None, cls=SQLAlchemy, **kwargs):
         """
         Returns a :py:class:`..sqlalchemy.SQLAlchemy` instance from configuration and registers it. Can return a custom
@@ -79,6 +83,10 @@ class dbdict(dict):
             db.remove()
 
     def atomic(self, savepoint=True):
+        """
+        Returns a context manager/decorator that guarantee atomic execution of a given block
+        or function across all configured and initialized SQLAlchemy instances
+        """
         return TransactionContext(*self.values(), savepoint=True)
 
 

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Metadata for sqlalchemy models
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict, namedtuple
 from functools import partial
@@ -95,14 +98,23 @@ class model_info(six.with_metaclass(model_info_meta)):
         return "\n".join(reprs)
 
     def sa_state(self, instance):
+        """
+        Returns sqlalchemy instance state
+        """
         return sa.inspect(instance)
 
     @property
     def column_properties(self):
+        """
+        Returns column properties
+        """
         return chain(self.primary_keys.items(), sorted(self.properties.items()))
 
     @property
     def field_names(self):
+        """
+        Returns field names for the model
+        """
         if not self._field_names:
             self._field_names = [
                 attr

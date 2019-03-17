@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Alembic Django command things
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 import os
 from collections import OrderedDict, namedtuple
@@ -22,8 +25,15 @@ AlembicAppConfig = namedtuple("AlembicAppConfig", ["name", "config", "script", "
 
 
 class AlembicCommand(BaseCommand):
+    """
+    Base alembic django command
+    """
+
     @cached_property
     def sorcery_apps(self):
+        """
+        All sorcery apps and their alembic configs
+        """
         configs = OrderedDict()
         for db in databases.values():
             table_class_map = {model.__table__: model for model in db.models_registry if hasattr(model, "__table__")}
@@ -51,6 +61,9 @@ class AlembicCommand(BaseCommand):
         return configs
 
     def get_app_config(self, app, db):
+        """
+        Return alembic config for an app
+        """
         # TODO: read these from django db settings
         version_table = (
             getattr(app, "version_table", None)
@@ -78,18 +91,30 @@ class AlembicCommand(BaseCommand):
         return config
 
     def get_config_script(self, config):
+        """
+        Returns the alembic script directory for the config
+        """
         return alembic.script.ScriptDirectory.from_config(config)
 
     def lookup_app(self, app_label):
+        """
+        Looks up an app's alembic config
+        """
         if app_label not in self.sorcery_apps:
             raise CommandError("App '%s' could not be found. Is it in INSTALLED_APPS?" % app_label)
 
         return self.sorcery_apps[app_label]
 
     def get_app_version_path(self, app):
+        """
+        Returns the default migration directory location of al app
+        """
         return os.path.join(app.path, "migrations")
 
     def get_common_config(self, context):
+        """
+        Common alembic configuration
+        """
         config = context.config
         return dict(
             include_object=include_object,
@@ -99,6 +124,9 @@ class AlembicCommand(BaseCommand):
         )
 
     def run_env(self, context, appconfig):
+        """
+        Executes an alembic context, just like the env.py file of alembic
+        """
         try:
             if context.is_offline_mode():
                 self.run_migrations_offline(context, appconfig)
@@ -108,6 +136,9 @@ class AlembicCommand(BaseCommand):
             raise CommandError(six.text_type(e))
 
     def run_migrations_online(self, context, appconfig):
+        """
+        Executes an online alembic context
+        """
         with appconfig.db.engine.connect() as connection:
             context.configure(
                 connection=connection, target_metadata=appconfig.db.metadata, **self.get_common_config(context)
@@ -117,6 +148,9 @@ class AlembicCommand(BaseCommand):
                 context.run_migrations()
 
     def run_migrations_offline(self, context, appconfig):
+        """
+        Executes an offline alembic context
+        """
         context.configure(
             url=appconfig.db.url,
             literal_binds=True,

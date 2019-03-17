@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+sqlalchemy transaction related things
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 import functools
 
@@ -36,7 +39,8 @@ class TransactionContext(object):
                 exception_type = ex.__class__
                 value = ex
                 tb = getattr(ex, "__traceback__", None)
-        [transaction.__exit__(exception_type, value, tb) for transaction in self.transactions]
+        for transaction in self.transactions:
+            transaction.__exit__(exception_type, value, tb)
         self.transactions = None
         if value:
             six.reraise(exception_type, value, tb)

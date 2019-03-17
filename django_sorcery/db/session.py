@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+sqlalchemy session related things
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy import event, orm
@@ -14,13 +17,15 @@ class SignallingSession(orm.Session):
     def __init__(self, *args, **kwargs):
         super(SignallingSession, self).__init__(*args, **kwargs)
 
-        @event.listens_for(self, "before_flush")
         def before_flush(session, flush_context, instances):
             signals.before_flush.send(session, flush_context=flush_context, instances=instances)
 
-        @event.listens_for(self, "after_flush")
+        event.listen(self, "before_flush", before_flush)
+
         def after_flush(session, flush_context):
             signals.after_flush.send(session, flush_context=flush_context)
+
+        event.listen(self, "after_flush", after_flush)
 
     def query(self, *args, **kwargs):
         """

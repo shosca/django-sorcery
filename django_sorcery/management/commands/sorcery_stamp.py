@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Stamp command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from functools import partial
 
@@ -10,6 +13,10 @@ from ..alembic import AlembicCommand
 
 
 class Stamp(AlembicCommand):
+    """
+    Stamp the revision table with migration revisions, doesn't run any migrations
+    """
+
     help = "Stamp the revision table with migration revisions, doesn't run any migrations"
 
     def add_arguments(self, parser):
@@ -41,6 +48,9 @@ class Stamp(AlembicCommand):
             self.run_env(context, appconfig)
 
     def stamp(self, rev, context, appconfig, revision):
+        """
+        Stamp the alembic revision
+        """
         return appconfig.script._stamp_revs(revision, rev)
 
 

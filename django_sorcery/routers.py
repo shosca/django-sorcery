@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Django REST Framework like router for viewsets
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 import itertools
 from collections import namedtuple
@@ -46,10 +49,17 @@ def action(methods=None, detail=None, url_path=None, url_name=None, **kwargs):
 
 
 class BaseRouter(object):
+    """
+    Base router
+    """
+
     def __init__(self):
         self.registry = []
 
     def register(self, prefix, viewset, base_name=None):
+        """
+        Registers a viewset for route generation
+        """
         if base_name is None:
             base_name = self.get_default_base_name(viewset)
         self.registry.append((prefix, viewset, base_name))
@@ -69,6 +79,9 @@ class BaseRouter(object):
 
     @property
     def urls(self):
+        """
+        URL's routed
+        """
         if not hasattr(self, "_urls"):
             self._urls = self.get_urls()
         return self._urls

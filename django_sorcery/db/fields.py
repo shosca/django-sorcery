@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Django-esque declarative fields for sqlalchemy
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
@@ -40,6 +43,10 @@ __all__ = [
 
 
 class Field(sa.Column):
+    """
+    Base django-esque field
+    """
+
     default_validators = []
     type_class = None
     form_class = None
@@ -79,13 +86,22 @@ class Field(sa.Column):
             self.info["widget_class"] = self.widget_class
 
     def get_form_class(self, kwargs):
+        """
+        Returns form field class
+        """
         return self.form_class
 
     def get_type_kwargs(self, type_class, kwargs):
+        """
+        Returns sqlalchemy type kwargs
+        """
         type_args = sa.util.get_cls_kwargs(type_class)
         return {k: kwargs.pop(k) for k in type_args if not k.startswith("*") and k in kwargs}
 
     def get_column_kwargs(self, kwargs):
+        """
+        Returns sqlalchemy column kwargs
+        """
         column_args = [
             "autoincrement",
             "comment",
@@ -112,16 +128,29 @@ class Field(sa.Column):
         return column_kwargs
 
     def get_type_class(self, kwargs):
+        """
+        Returns sqlalchemy column type
+        """
         return self.type_class
 
     def get_validators(self, validators):
+        """
+        Returns django validators for the field
+        """
         return self.default_validators[:] + validators
 
     def get_type(self, type_class, type_kwargs):
+        """
+        Returns sqlalchemy column type instance for the field
+        """
         return type_class(**type_kwargs)
 
 
 class BooleanField(Field):
+    """
+    Django like boolean field
+    """
+
     type_class = sa.Boolean
     form_class = djangofields.BooleanField
 
@@ -138,6 +167,10 @@ class BooleanField(Field):
 
 
 class CharField(Field):
+    """
+    Django like char field
+    """
+
     type_class = sa.String
     length_is_required = True
     form_class = djangofields.CharField
@@ -157,21 +190,37 @@ class CharField(Field):
 
 
 class DateField(Field):
+    """
+    Django like date field
+    """
+
     type_class = sa.Date
     form_class = djangofields.DateField
 
 
 class DateTimeField(Field):
+    """
+    Django like datetime field
+    """
+
     type_class = sa.DateTime
     form_class = djangofields.DateTimeField
 
 
 class DurationField(Field):
+    """
+    Django like duration field
+    """
+
     type_class = sa.Interval
     form_class = djangofields.DurationField
 
 
 class DecimalField(Field):
+    """
+    Django like decimal field
+    """
+
     type_class = sa.Numeric
     form_class = djangofields.DecimalField
 
@@ -189,11 +238,19 @@ class DecimalField(Field):
 
 
 class EmailField(CharField):
+    """
+    Django like email field
+    """
+
     default_validators = [django_validators.validate_email]
     form_class = djangofields.EmailField
 
 
 class EnumField(Field):
+    """
+    Django like choice field that uses an enum sqlalchemy type
+    """
+
     type_class = sa.Enum
 
     def get_type_kwargs(self, type_class, kwargs):
@@ -224,14 +281,18 @@ class EnumField(Field):
 
     def get_form_class(self, kwargs):
         if self.type.enum_class:
-            from ..fields import EnumField
+            from ..fields import EnumField as EnumFormField
 
-            return EnumField
+            return EnumFormField
 
         return djangofields.TypedChoiceField
 
 
 class FloatField(Field):
+    """
+    Django like float field
+    """
+
     type_class = sa.Float
     form_class = djangofields.FloatField
 
@@ -242,7 +303,14 @@ class FloatField(Field):
 
 
 class ValidateIntegerFieldMixin(object):
+    """
+    A mixin that provides default min/max validators for integer types
+    """
+
     def get_django_dialect_ranges(self):
+        """
+        Returns django min/max ranges using current dialect
+        """
         ops = operations.BaseDatabaseOperations
         with suppress(ImportError):
             ops = (
@@ -254,9 +322,15 @@ class ValidateIntegerFieldMixin(object):
         return ops.integer_field_ranges
 
     def get_dialect_range(self):
+        """
+        Returns the min/max ranges supported by dialect
+        """
         return self.get_django_dialect_ranges()[self.__class__.__name__]
 
     def get_validators(self, validators):
+        """
+        Returns django integer min/max validators supported by the database
+        """
         validators = super(ValidateIntegerFieldMixin, self).get_validators(validators)
         min_int, max_int = self.get_dialect_range()
         if not any(isinstance(i, django_validators.MinValueValidator) for i in validators):
@@ -267,28 +341,41 @@ class ValidateIntegerFieldMixin(object):
 
 
 class IntegerField(ValidateIntegerFieldMixin, Field):
+    """
+    Django like integer field
+    """
+
     default_validators = [django_validators.validate_integer]
     type_class = sa.Integer
     form_class = djangofields.IntegerField
 
 
 class BigIntegerField(ValidateIntegerFieldMixin, Field):
+    """
+    Django like big integer field
+    """
+
     default_validators = [django_validators.validate_integer]
     type_class = sa.BigInteger
     form_class = djangofields.IntegerField
 
 
 class SmallIntegerField(ValidateIntegerFieldMixin, Field):
+    """
+    Django like small integer field
+    """
+
     default_validators = [django_validators.validate_integer]
     type_class = sa.SmallInteger
     form_class = djangofields.IntegerField
 
 
 class NullBooleanField(BooleanField):
-    form_class = djangofields.NullBooleanField
+    """
+    Django like nullable boolean field
+    """
 
-    def __init__(self, *args, **kwargs):
-        super(NullBooleanField, self).__init__(*args, **kwargs)
+    form_class = djangofields.NullBooleanField
 
     def get_column_kwargs(self, kwargs):
         kwargs["nullable"] = True
@@ -296,11 +383,19 @@ class NullBooleanField(BooleanField):
 
 
 class SlugField(CharField):
+    """
+    Django like slug field
+    """
+
     default_validators = [django_validators.validate_slug]
     form_class = djangofields.SlugField
 
 
 class TextField(CharField):
+    """
+    Django like text field
+    """
+
     type_class = sa.Text
     length_is_required = False
     form_class = djangofields.CharField
@@ -308,19 +403,35 @@ class TextField(CharField):
 
 
 class TimeField(Field):
+    """
+    Django like time field
+    """
+
     type_class = sa.Time
     form_class = djangofields.TimeField
 
 
 class TimestampField(DateTimeField):
+    """
+    Django like datetime field that uses timestamp sqlalchemy type
+    """
+
     type_class = sa.TIMESTAMP
 
 
 class URLField(CharField):
+    """
+    Django like url field
+    """
+
     default_validators = [django_validators.URLValidator()]
     form_class = djangofields.URLField
 
 
 class BinaryField(Field):
+    """
+    Django like binary field
+    """
+
     type_class = sa.Binary
     length_is_required = False

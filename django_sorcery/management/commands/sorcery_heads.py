@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
+"""
+Heads command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from ..alembic import AlembicCommand
 
 
 class ShowHeads(AlembicCommand):
+    """
+    Display alembic revision heads
+    """
+
     help = "Display revision heads"
 
     def add_arguments(self, parser):

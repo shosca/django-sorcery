@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+sqlalchemy model related things
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 import warnings
 from itertools import chain
@@ -18,6 +21,9 @@ from .mixins import CleanMixin
 
 
 def get_primary_keys(model, kwargs):
+    """
+    Returns primary key object or tuple from a dictionary for the given model
+    """
     warnings.warn(
         "Deprecated, use django_sorcery.db.meta.model_info.primary_keys_from_dict instead.", DeprecationWarning
     )
@@ -25,6 +31,9 @@ def get_primary_keys(model, kwargs):
 
 
 def get_primary_keys_from_instance(instance):
+    """
+    Returns identity key from a model instance
+    """
     warnings.warn(
         "Deprecated, use django_sorcery.db.meta.model_info.primary_keys_from_instance instead.", DeprecationWarning
     )
@@ -32,6 +41,9 @@ def get_primary_keys_from_instance(instance):
 
 
 def get_identity_key(model, kwargs):
+    """
+    Returns identity key from a dictionary for the given model
+    """
     warnings.warn(
         "Deprecated, use django_sorcery.db.meta.model_info.identity_key_from_dict instead.", DeprecationWarning
     )
@@ -39,10 +51,21 @@ def get_identity_key(model, kwargs):
 
 
 def model_to_dict(instance, fields=None, exclude=None):
-    warnings.warn("Deprecated, use django_sorcery.forms.model_to_dict instead.", DeprecationWarning)
-    from ..forms import model_to_dict
+    """
+    Return a dict containing the data in ``instance`` suitable for passing as
+    a Form's ``initial`` keyword argument.
 
-    return model_to_dict(instance, fields=fields, exclude=exclude)
+    ``fields`` is an optional list of field names. If provided, return only the
+    named.
+
+    ``exclude`` is an optional list of field names. If provided, exclude the
+    named from the returned dict, even if they are listed in the ``fields``
+    argument.
+    """
+    warnings.warn("Deprecated, use django_sorcery.forms.model_to_dict instead.", DeprecationWarning)
+    from ..forms import model_to_dict as form_model_to_dict
+
+    return form_model_to_dict(instance, fields=fields, exclude=exclude)
 
 
 def simple_repr(instance, fields=None):
@@ -108,7 +131,7 @@ def serialize(instance, *rels):
         for _, prop in composite.properties.items():
             data.pop(prop.property.key, None)
 
-    for name, relation in info.relationships.items():
+    for name in info.relationships:
         attr = getattr(info.model_class, name)
         if attr in rels:
             sub_instance = getattr(instance, name, None)
@@ -271,9 +294,9 @@ class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
     when models are created.
     """
 
-    def __new__(typ, name, bases, attrs):
-        klass = super(BaseMeta, typ).__new__(typ, name, bases, attrs)
-        typ.db.models_registry.append(klass)
+    def __new__(mcs, name, bases, attrs):
+        klass = super(BaseMeta, mcs).__new__(mcs, name, bases, attrs)
+        mcs.db.models_registry.append(klass)
         return klass
 
 

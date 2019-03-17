@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Downgrade command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from functools import partial
 
@@ -10,6 +13,10 @@ from ..alembic import AlembicCommand
 
 
 class Downgrade(AlembicCommand):
+    """
+    Apply downgrade migration revisions
+    """
+
     help = "Apply migration revisions"
 
     def add_arguments(self, parser):
@@ -56,6 +63,9 @@ class Downgrade(AlembicCommand):
                 self.run_env(context, appconfig)
 
     def downgrade(self, rev, context, appconfig, revision):
+        """
+        Executes alembic downgrade revisions to the given revision
+        """
         return appconfig.script._downgrade_revs(revision, rev)
 
 

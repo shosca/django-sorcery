@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+Default alembic config things
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from ...db import signals
@@ -7,6 +9,9 @@ from ...db import signals
 
 @signals.alembic_config_created.connect
 def setup_config(config):
+    """
+    The default alembic config created handler
+    """
     config.set_section_option("loggers", "keys", "root,sqlalchemy,alembic")
     config.set_section_option("handlers", "keys", "console")
     config.set_section_option("formatters", "keys", "generic")

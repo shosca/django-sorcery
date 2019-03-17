@@ -13,6 +13,9 @@ from .utils import suppress
 
 
 class EnumField(djangofields.ChoiceField):
+    """
+    Form field for using an Enum as choices
+    """
 
     empty_value = None
 
@@ -58,6 +61,10 @@ class EnumField(djangofields.ChoiceField):
 
 
 class ModelChoiceIterator(object):
+    """
+    Iterator for sqlalchemy query for model choice fields
+    """
+
     def __init__(self, field):
         self.field = field
 
@@ -73,6 +80,9 @@ class ModelChoiceIterator(object):
         return self.field.queryset.count() + (1 if self.field.empty_label is not None else 0)
 
     def choice(self, obj):
+        """
+        Returns choice item for django choice field
+        """
         return (self.field.prepare_value(obj), self.field.label_from_instance(obj))
 
 
@@ -132,6 +142,9 @@ class ModelChoiceField(djangofields.ChoiceField):
     choices = property(_get_choices, djangofields.ChoiceField._set_choices)
 
     def get_object(self, value):
+        """
+        Returns model instance
+        """
         if value in self.empty_values:
             return None
 
@@ -151,9 +164,15 @@ class ModelChoiceField(djangofields.ChoiceField):
         return self.get_object(value)
 
     def label_from_instance(self, obj):
+        """
+        Returns label from model instance
+        """
         return str(obj)
 
     def prepare_instance_value(self, obj):
+        """
+        Returns primary key from instance
+        """
         return self.model_info.primary_keys_from_instance(obj)
 
     def prepare_value(self, obj):
@@ -170,6 +189,9 @@ class ModelChoiceField(djangofields.ChoiceField):
         return super(ModelChoiceField, self).get_bound_field(form, field_name)
 
     def get_limit_choices_to(self):
+        """
+        Returns limit_choices_to for this model
+        """
         return self.limit_choices_to
 
 

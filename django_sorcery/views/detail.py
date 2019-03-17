@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Django detail view things for sqlalchemy
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
@@ -35,9 +38,14 @@ class SingleObjectMixin(BaseSingleObjectMixin):
 
 
 class BaseDetailView(SingleObjectMixin, View):
-    """A base view for displaying a single object."""
+    """
+    A base view for displaying a single object.
+    """
 
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET on detail view
+        """
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -53,6 +61,7 @@ class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
 
     def get_template_names(self):
         """
+        Returns template names for detail view
         """
         try:
             names = super(SingleObjectTemplateResponseMixin, self).get_template_names()
