@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Some Django like shortcuts that support sqlalchemy models
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy.exc import InvalidRequestError

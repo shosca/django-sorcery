@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Django REST Framework like model viewsets
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from functools import update_wrapper
 from inspect import getmembers
@@ -11,6 +14,10 @@ from . import mixins
 
 
 class GenericViewSet(TemplateResponseMixin, View):
+    """
+    Base class for all sqlalchemy model generic viewsets.
+    """
+
     def get_template_names(self):
 
         self.template_name_suffix = "_" + self.action
@@ -108,8 +115,40 @@ class GenericViewSet(TemplateResponseMixin, View):
 
 
 class ReadOnlyModelViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    pass
+    """
+    A viewset that provides default `list()` and `retrieve()` actions.
+
+    When used with router, it will map the following operations to actions on the viewset
+
+    ====== ======================== =============== ======================
+    Method Path                     Action          Route Name
+    ====== ======================== =============== ======================
+    GET    /                        list            <resource name>-list
+    GET    /<pk>/                   retrieve        <resource name>-detail
+    ====== ======================== =============== ======================
+    """
 
 
 class ModelViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DeleteModelMixin, ReadOnlyModelViewSet):
-    pass
+    """
+    A viewset that provides default `new()`, `create()`, `retrieve()`, `edit()`, update()`,
+    `confirm_destroy())`, `destroy()` and `list()` actions.
+
+    When used with router, it will map the following operations to actions on the viewset
+
+    ====== ======================== =============== ======================
+    Method Path                     Action          Route Name
+    ====== ======================== =============== ======================
+    GET    /                        list            <resource name>-list
+    POST   /                        create          <resource name>-list
+    GET    /new/                    new             <resource name>-new
+    GET    /<pk>/                   retrieve        <resource name>-detail
+    POST   /<pk>/                   update          <resource name>-detail
+    PUT    /<pk>/                   update          <resource name>-detail
+    PATCH  /<pk>/                   update          <resource name>-detail
+    DELETE /<pk>/                   destroy         <resource name>-detail
+    GET    /<pk>/edit/              edit            <resource name>-edit
+    GET    /<pk>/delete/            confirm_destoy  <resource name>-delete
+    POST   /<pk>/delete/            destroy         <resource name>-delete
+    ====== ======================== =============== ======================
+    """

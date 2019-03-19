@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Revision command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from functools import partial
 
@@ -9,6 +12,10 @@ from ..alembic import AlembicCommand
 
 
 class Revision(AlembicCommand):
+    """
+    Creates an alembic migration revision
+    """
+
     help = "Create a migration revision"
 
     def add_arguments(self, parser):
@@ -102,16 +109,20 @@ class Revision(AlembicCommand):
         with alembic.context.EnvironmentContext(
             appconfig.config,
             appconfig.script,
-            fn=partial(self.retrieve_migrations, appconfig=appconfig),
+            fn=partial(self.generate_migration, appconfig=appconfig),
             as_sql=False,
             template_args=self.revision_context.template_args,
             revision_context=self.revision_context,
         ) as context:
             self.run_env(context, appconfig)
 
-        [script for script in self.revision_context.generate_scripts()]
+        for _ in self.revision_context.generate_scripts():
+            pass  # iterate over to generate the migration scripts
 
-    def retrieve_migrations(self, rev, context, appconfig=None):
+    def generate_migration(self, rev, context, appconfig=None):
+        """
+        Generate alembic migration
+        """
         self.revision_context.run_autogenerate(rev, context)
         return []
 

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Validation runner
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -7,12 +10,19 @@ from ..exceptions import NestedValidationError
 
 
 class ValidationRunner(object):
+    """
+    Helper class that can execute a bunch of validators on a given object
+    """
+
     def __init__(self, name=None, validators=None, errors=None):
         self.name = name or NON_FIELD_ERRORS
         self.validators = validators or []
         self.errors = errors or {}
 
     def is_valid(self, value, raise_exception=False):
+        """
+        Runs all validators on given value and collect validation errors
+        """
         for v in self.validators:
             try:
                 v(value)

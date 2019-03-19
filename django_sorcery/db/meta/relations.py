@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Metadata for sqlalchemy model relationships
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from itertools import chain
 
@@ -19,10 +22,16 @@ class relation_info(object):
 
     @property
     def attribute(self):
+        """
+        Returns the relationship instrumented attribute on the model
+        """
         return getattr(self.parent_model, self.name)
 
     @property
     def name(self):
+        """
+        Returns the name of the attribute
+        """
         return self.relationship.key
 
     @property

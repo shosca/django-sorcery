@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Upgrade command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from functools import partial
 
@@ -10,6 +13,10 @@ from ..alembic import AlembicCommand
 
 
 class Upgrade(AlembicCommand):
+    """
+    Apply upgrade migration revisions
+    """
+
     help = "Apply migration revisions"
 
     def add_arguments(self, parser):
@@ -57,6 +64,9 @@ class Upgrade(AlembicCommand):
                 self.run_env(context, appconfig)
 
     def upgrade(self, rev, context, appconfig, revision):
+        """
+        Executes alembic upgrade revisions to the given revision
+        """
         return appconfig.script._upgrade_revs(revision, rev)
 
 

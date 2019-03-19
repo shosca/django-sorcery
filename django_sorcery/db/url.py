@@ -121,9 +121,9 @@ def make_url(alias_or_url):
     alias_or_url: str
         name of the alias or url as string
     """
-    settings_url, settings_kwargs = None, {}
+    settings_kwargs = {}
     try:
-        settings_url, settings_kwargs = make_url_from_settings(alias_or_url)
+        _, settings_kwargs = make_url_from_settings(alias_or_url)
     except KeyError:
         pass
 

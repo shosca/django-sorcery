@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Base model view things with sqlalchemy
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy import literal
@@ -16,6 +19,10 @@ from ..utils import suppress
 
 
 class SQLAlchemyMixin(ContextMixin):
+    """
+    Provides sqlalchemy model view support like query, model, session, etc..
+    """
+
     queryset = None
     model = None
     session = None
@@ -62,19 +69,25 @@ class SQLAlchemyMixin(ContextMixin):
         if not query:
 
             raise ImproperlyConfigured(
-                "%(cls)s is missing a QuerySet. Define %(cls)s.model and %(cls)s.session, %(cls)s.queryset, or override "
-                "%(cls)s.get_queryset()." % {"cls": self.__class__.__name__}
+                "%(cls)s is missing a QuerySet. Define %(cls)s.model and %(cls)s.session, %(cls)s.queryset, "
+                "or override %(cls)s.get_queryset()." % {"cls": self.__class__.__name__}
             )
 
         return query
 
     def get_session(self):
+        """
+        Returns the sqlalchemy session
+        """
         if self.session is None:
             self.session = self.get_queryset().session
 
         return self.session
 
     def get_query_options(self):
+        """
+        Returns sqlalchemy query options
+        """
         return self.query_options or []
 
     def get_model_template_name(self):
@@ -91,6 +104,9 @@ class SQLAlchemyMixin(ContextMixin):
 
 
 class BaseMultipleObjectMixin(SQLAlchemyMixin):
+    """
+    Provides sqlalchemy support for list views
+    """
 
     allow_empty = True
     paginate_by = None
@@ -193,6 +209,9 @@ class BaseMultipleObjectMixin(SQLAlchemyMixin):
 
 
 class BaseSingleObjectMixin(SQLAlchemyMixin):
+    """
+    Provides sqlalchemy support for detail views
+    """
 
     object = None
     slug_field = "slug"

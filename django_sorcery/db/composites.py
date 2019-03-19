@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Support for reusable sqlalchemy composite fields
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict
 

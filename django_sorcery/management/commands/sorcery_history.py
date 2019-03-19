@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+History command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.management import CommandError
@@ -7,6 +10,10 @@ from ..alembic import AlembicCommand
 
 
 class History(AlembicCommand):
+    """
+    Display alembic revisions
+    """
+
     help = "Display alembic revisions"
 
     def add_arguments(self, parser):
@@ -37,6 +44,9 @@ class History(AlembicCommand):
         self.print_history(appconfigs, verbose, base, head)
 
     def print_history(self, appconfigs, verbose, base, head):
+        """
+        Prints alembic revision history
+        """
         for appconfig in appconfigs:
             self.stdout.write(
                 self.style.SUCCESS("Migrations for %s on database %s" % (appconfig.name, appconfig.db.alias))

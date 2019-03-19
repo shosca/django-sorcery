@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Django edit view things for sqlalchemy
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
@@ -11,6 +14,10 @@ from .detail import BaseDetailView, SingleObjectMixin, SingleObjectTemplateRespo
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):
+    """
+    Provide a way to show and handle a ModelForm in a request.
+    """
+
     fields = None
 
     def get_form_class(self):
@@ -142,9 +149,15 @@ class DeletionMixin:
     # Add support for browsers which only accept GET and POST for now.
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST request on deleve view
+        """
         return self.delete(request, *args, **kwargs)
 
     def get_success_url(self):
+        """
+        Returns the URL to redirect to after processing deletion.
+        """
         if self.success_url:
             return self.success_url.format(**self.object.__dict__)
 

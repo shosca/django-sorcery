@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Django-esque field metadata and interface providers.
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
@@ -13,6 +16,7 @@ import sqlalchemy as sa
 from django import forms as djangoforms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db.models import fields as djangomodelfields
 from django.forms import fields as djangofields
 from django.utils import timezone
 from django.utils.text import capfirst
@@ -34,25 +38,26 @@ class column_info(object):
     """
 
     default_form_class = None
+    default_error_messages = djangomodelfields.Field.default_error_messages
 
-    __slots__ = ("name", "property", "column", "parent", "_coercer")
+    __slots__ = ("name", "property", "column", "parent", "_coercer", "error_messages")
 
     def __new__(cls, *args, **kwargs):
         args = list(args)
         column = kwargs.pop("column", None)
-        property = kwargs.pop("property", None)
+        prop = kwargs.pop("property", None)
 
         if args:
             column = args.pop(0)
         if args:
-            property = args.pop(0)
+            prop = args.pop(0)
 
         if not isinstance(column, sa.Column):
             warnings.warn(
                 "Instantiating column_info with property is deprecated, "
                 "a column instance is now required and its the first argument"
             )
-            column = property
+            column = prop
 
         column_info_mapping = getattr(settings, "DJANGO_SORCERY", {}).get("column_info_mapping", COLUMN_INFO_MAPPING)
 
@@ -70,23 +75,28 @@ class column_info(object):
             if override_cls:
                 break
 
-        cls = override_cls or cls
-        instance = super(column_info, cls).__new__(cls)
+        _cls = override_cls or cls
+        instance = super(column_info, _cls).__new__(_cls)
         return instance
 
-    def __init__(self, column, property=None, parent=None, name=None):
+    def __init__(self, column, prop=None, parent=None, name=None):
         if not isinstance(column, sa.Column):
             warnings.warn(
                 "Instantiating column_info with property is deprecated, "
                 "a column instance is now required and its the first argument"
             )
-            column, property = property, column
+            column, prop = prop, column
 
-        self.property = property
+        self.property = prop
         self.column = column
         self.parent = parent
         self._coercer = None
         self.name = name or (self.property.key if self.property is not None else self.column.key)
+
+        self.error_messages = {}
+        for c in reversed(self.__class__.mro()):
+            self.error_messages.update(getattr(c, "default_error_messages", {}))
+        self.error_messages.update(column.info.get("error_messages") or {})
 
     def __repr__(self):
         return "<{!s}({!s}.{!s}){!s}>".format(
@@ -98,52 +108,88 @@ class column_info(object):
 
     @property
     def coercer(self):
+        """
+        Form field to be used to coerce data types
+        """
         if not self._coercer:
             self._coercer = self.formfield(localize=True) or djangofields.Field(localize=True)
         return self._coercer
 
     @property
     def attribute(self):
+        """
+        Returns the instrumented attribute itself for buiding query expressions
+        """
         return getattr(self.parent_model, self.property.key) if self.parent_model else None
 
     @property
     def validators(self):
+        """
+        Returns validators of the field
+        """
         return self.column.info.get("validators") or []
 
     @property
     def null(self):
+        """
+        Returns if field allows null
+        """
         return not self.column.primary_key and self.column.nullable
 
     @property
     def required(self):
+        """
+        Returns if the field is required
+        """
         return self.column.info.get("required", not self.column.nullable)
 
     @property
     def parent_model(self):
+        """
+        Returns the model class the field belongs to
+        """
         return self.property.parent.class_ if self.property else None
 
     @property
     def help_text(self):
+        """
+        Returns field help text
+        """
         return self.column.doc
 
     @property
     def empty_values(self):
+        """
+        Returns field empty values
+        """
         return self.column.info.get("empty_values") or self.coercer.empty_values
 
     @property
     def default(self):
+        """
+        Returns the default for the field
+        """
         return getattr(self.column.default, "arg", None)
 
     @property
     def choices(self):
+        """
+        Returns the choices for the field, only used in sqlalchemy enum typed columns
+        """
         return getattr(self.column.type, "enum_class", None) or getattr(self.column.type, "enums", None)
 
     @property
     def widget(self):
+        """
+        Returns the form ui widget for the field
+        """
         return self.column.info.get("widget_class")
 
     @property
     def label(self):
+        """
+        Returns the ui label for the field
+        """
         label = self.column.info.get("label")
         if label:
             return label
@@ -152,10 +198,16 @@ class column_info(object):
 
     @property
     def form_class(self):
+        """
+        Returns the form class to be used for the field
+        """
         return self.column.info.get("form_class") or self.default_form_class
 
     @property
     def field_kwargs(self):
+        """
+        Returns form field kwargs for the field
+        """
         kwargs = {"required": self.required, "validators": self.validators, "help_text": self.help_text}
         if self.default:
             if not callable(self.default):
@@ -170,6 +222,9 @@ class column_info(object):
         return kwargs
 
     def formfield(self, form_class=None, **kwargs):
+        """
+        Returns the form field for the field.
+        """
         form_class = form_class or self.form_class
 
         if form_class is not None:
@@ -178,18 +233,32 @@ class column_info(object):
             return form_class(**field_kwargs)
 
     def to_python(self, value):
+        """
+        Convert input value to appropriate python object
+        """
         return self.coercer.to_python(value)
 
     def clean(self, value, instance):
+        """
+        Convert the value's type and run validation. Validation errors
+        from to_python() and validate() are propagated. Return the correct
+        value if no error is raised.
+        """
         value = self.to_python(value)
         self.validate(value, instance)
         self.run_validators(value)
         return value
 
     def validate(self, value, instance):
+        """
+        Validate value and raise ValidationError if necessary
+        """
         getattr(instance, "clean_" + self.name, bool)()
 
     def run_validators(self, value):
+        """
+        Run field's validators and raise ValidationError if necessary
+        """
         if value in self.empty_values:
             return
 
@@ -205,6 +274,10 @@ class column_info(object):
 
 
 class string_column_info(column_info):
+    """
+    Provides meta info for string columns
+    """
+
     default_form_class = djangofields.CharField
 
     @property
@@ -220,15 +293,32 @@ class string_column_info(column_info):
 
 
 class text_column_info(string_column_info):
+    """
+    Provides meta info for text columns
+    """
+
     @property
     def widget(self):
         return super(text_column_info, self).widget or djangoforms.Textarea
 
 
-class base_choice_info(column_info):
+class choice_column_info(column_info):
+    """
+    Provides meta info for enum columns with simple choices
+    """
+
+    default_form_class = djangofields.TypedChoiceField
+
+    @property
+    def form_choices(self):
+        """
+        Returns choices for form field
+        """
+        return [(x, x) for x in self.choices]
+
     @property
     def field_kwargs(self):
-        kwargs = super(base_choice_info, self).field_kwargs
+        kwargs = super(choice_column_info, self).field_kwargs
         kwargs["choices"] = self.form_choices
 
         # Many of the subclass-specific formfield arguments (min_value,
@@ -254,14 +344,6 @@ class base_choice_info(column_info):
 
         return kwargs
 
-
-class choice_column_info(base_choice_info):
-    default_form_class = djangofields.TypedChoiceField
-
-    @property
-    def form_choices(self):
-        return [(x, x) for x in self.choices]
-
     def to_python(self, value):
         if value is None:
             return value
@@ -279,7 +361,11 @@ class choice_column_info(base_choice_info):
         raise ValidationError("%(value)r is not a valid choice.", code="invalid", params={"value": str(value)})
 
 
-class enum_column_info(base_choice_info):
+class enum_column_info(choice_column_info):
+    """
+    Provides meta info for enum columns with Enum choices
+    """
+
     default_form_class = sorceryfields.EnumField
 
     @property
@@ -301,6 +387,10 @@ class enum_column_info(base_choice_info):
 
 
 class numeric_column_info(column_info):
+    """
+    Provides meta info for numeric columns
+    """
+
     default_form_class = djangofields.DecimalField
 
     @property
@@ -315,10 +405,16 @@ class numeric_column_info(column_info):
 
     @property
     def max_digits(self):
+        """
+        Return max digits for the column
+        """
         return self.column.type.precision
 
     @property
     def decimal_places(self):
+        """
+        Return decimal places for the column
+        """
         return self.column.type.scale
 
     def to_python(self, value):
@@ -336,6 +432,10 @@ class numeric_column_info(column_info):
 
 
 class boolean_column_info(column_info):
+    """
+    Provides meta info for boolean columns
+    """
+
     @property
     def form_class(self):
         form_class = super(boolean_column_info, self).form_class
@@ -357,6 +457,10 @@ class boolean_column_info(column_info):
 
 
 class date_column_info(column_info):
+    """
+    Provides meta info for date columns
+    """
+
     default_form_class = djangofields.DateField
 
     @property
@@ -383,6 +487,10 @@ class date_column_info(column_info):
 
 
 class datetime_column_info(column_info):
+    """
+    Provides meta info for datetime columns
+    """
+
     default_form_class = djangofields.DateTimeField
 
     @property
@@ -410,6 +518,10 @@ class datetime_column_info(column_info):
 
 
 class float_column_info(column_info):
+    """
+    Provides meta info for float columns
+    """
+
     default_form_class = djangofields.FloatField
 
     def to_python(self, value):
@@ -423,6 +535,10 @@ class float_column_info(column_info):
 
 
 class integer_column_info(column_info):
+    """
+    Provides meta info for integer columns
+    """
+
     default_form_class = djangofields.IntegerField
 
     def to_python(self, value):
@@ -436,6 +552,10 @@ class integer_column_info(column_info):
 
 
 class interval_column_info(column_info):
+    """
+    Provides meta info for interval columns
+    """
+
     default_form_class = djangofields.DurationField
 
     def to_python(self, value):
@@ -449,6 +569,10 @@ class interval_column_info(column_info):
 
 
 class time_column_info(column_info):
+    """
+    Provides meta info for time columns
+    """
+
     default_form_class = djangofields.TimeField
 
     def to_python(self, value):

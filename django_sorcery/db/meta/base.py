@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
+"""
+Base model metadata things
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 
 import sqlalchemy as sa
 
 
 class model_info_meta(type):
+    """
+    Model metadata singleton
+    """
+
     _registry = {}
 
     def __call__(cls, model, *args, **kwargs):

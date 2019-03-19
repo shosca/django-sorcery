@@ -71,6 +71,9 @@ def fields_for_model(
     apply_limit_choices_to=True,
     **kwargs
 ):
+    """
+    Returns a dictionary containing form fields for a given model
+    """
 
     field_list = []
     info = meta.model_info(model)
@@ -114,6 +117,7 @@ def fields_for_model(
 
 
 def apply_limit_choices_to_form_field(formfield):
+    """Apply limit_choices_to to the formfield's query if needed."""
     if hasattr(formfield, "queryset") and hasattr(formfield, "get_limit_choices_to"):
         limit_choices_to = formfield.get_limit_choices_to()
         if limit_choices_to is not None:
@@ -179,14 +183,22 @@ def model_to_dict(instance, fields=None, exclude=None):
 
 
 class SQLAModelFormOptions(ModelFormOptions):
+    """
+    Model form options for sqlalchemy
+    """
+
     def __init__(self, options=None):
         super(SQLAModelFormOptions, self).__init__(options=options)
         self.session = getattr(options, "session", None)
 
 
 class ModelFormMetaclass(DeclarativeFieldsMetaclass):
-    def __new__(cls, name, bases, attrs):
-        mcs = super(ModelFormMetaclass, cls).__new__(cls, name, bases, attrs)
+    """
+    ModelForm metaclass for sqlalchemy models
+    """
+
+    def __new__(mcs, name, bases, attrs):
+        cls = super(ModelFormMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
         base_formfield_callback = None
         for base in bases:
@@ -197,16 +209,16 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
         formfield_callback = attrs.pop("formfield_callback", base_formfield_callback)
 
         if bases == (BaseModelForm,):
-            return mcs
+            return cls
 
-        opts = mcs._meta = SQLAModelFormOptions(getattr(mcs, "Meta", None))
+        opts = cls._meta = SQLAModelFormOptions(getattr(cls, "Meta", None))
 
         for opt in ["fields", "exclude", "localized_fields"]:
             value = getattr(opts, opt)
             if isinstance(value, six.string_types) and value != ALL_FIELDS:
                 raise TypeError(
                     "%(model)s.Meta.%(opt)s cannot be a string. Did you mean to type: ('%(value)s',)?"
-                    % {"model": mcs.__name__, "opt": opt, "value": value}
+                    % {"model": cls.__name__, "opt": opt, "value": value}
                 )
 
         if opts.model:
@@ -219,7 +231,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
             if opts.fields == ALL_FIELDS:
                 opts.fields = None
 
-            mcs.base_fields = fields_for_model(
+            cls.base_fields = fields_for_model(
                 opts.model,
                 opts.session,
                 error_messages=opts.error_messages,
@@ -233,14 +245,18 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
                 formfield_callback=formfield_callback,
                 apply_limit_choices_to=False,
             )
-            mcs.base_fields.update(mcs.declared_fields)
+            cls.base_fields.update(cls.declared_fields)
         else:
-            mcs.base_fields = mcs.declared_fields
+            cls.base_fields = cls.declared_fields
 
-        return mcs
+        return cls
 
 
 class BaseModelForm(BaseForm):
+    """
+    Base ModelForm for sqlalchemy models
+    """
+
     def __init__(
         self,
         data=None,
@@ -284,6 +300,9 @@ class BaseModelForm(BaseForm):
             apply_limit_choices_to_form_field(field)
 
     def model_to_dict(self):
+        """
+        Returns a dict containing the data in ``instance`` suitable for passing as forms ``initial`` keyword argument.
+        """
         opts = self._meta
         return model_to_dict(self.instance, opts.fields, opts.exclude)
 
@@ -374,12 +393,14 @@ class BaseModelForm(BaseForm):
 
 
 class ModelForm(six.with_metaclass(ModelFormMetaclass, BaseModelForm)):
-    pass
+    """
+    ModelForm base class for sqlalchemy models
+    """
 
 
 def modelform_factory(model, form=ModelForm, formfield_callback=None, **kwargs):
     """
-    Return a ModelForm containing form fields for the given model.
+    Return a ModelForm class containing form fields for the given model.
     """
     defaults = [
         "fields",

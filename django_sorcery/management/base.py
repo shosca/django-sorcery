@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Namespaced Django command
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 import inspect
 import os
@@ -9,8 +12,15 @@ from django.core.management.base import BaseCommand, CommandParser
 
 
 class NamespacedCommand(BaseCommand):
+    """
+    Namespaced django command implementation
+    """
+
     @property
     def commands(self):
+        """
+        Returns the subcommands in the namespace
+        """
         if not hasattr(self, "_commands"):
             self._commands = {}
             for cls in reversed(self.__class__.mro()):
@@ -25,6 +35,9 @@ class NamespacedCommand(BaseCommand):
         return self._commands
 
     def run_command_from_argv(self, command, argv):
+        """
+        Runs the subcommand with namespace adjusted argv
+        """
         command.style = self.style
 
         cmd_args = argv[:]

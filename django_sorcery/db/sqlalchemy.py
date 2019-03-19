@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+SQLAlchemy goodies that provides a nice interface to using sqlalchemy with django
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 import functools
 import inspect
@@ -23,8 +26,8 @@ from .url import make_url
 
 
 class _sqla_meta(type):
-    def __new__(cls, name, bases, attrs):
-        typ = super(_sqla_meta, cls).__new__(cls, name, bases, attrs)
+    def __new__(mcs, name, bases, attrs):
+        typ = super(_sqla_meta, mcs).__new__(mcs, name, bases, attrs)
 
         # figure out all props to be proxied
         dummy = sa.orm.Session()
@@ -89,13 +92,17 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         self.relationship = self._wrap(self.relationship)
         self.relation = self._wrap(self.relation)
         self.dynamic_loader = self._wrap(self.dynamic_loader)
+        self._registry = None
 
     def __call__(self, **kwargs):
         return self.session(**kwargs)
 
     @property
     def registry(self):
-        if not hasattr(self, "_registry"):
+        """
+        Returns scoped registry instance
+        """
+        if not self._registry:
             engine = self._create_engine(self.url, **self.engine_options)
             self._registry = self.registry_class(sa.orm.sessionmaker(bind=engine, **self.session_options))
 
@@ -103,7 +110,10 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
 
     @property
     def inspector(self):
-        return self.inspect(self.engine)
+        """
+        Returns engine inspector. Useful for querying for db schema info.
+        """
+        return sa.inspect(self.engine)
 
     def session(self, **kwargs):
         """
@@ -126,8 +136,11 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
             return self.registry()
 
     def Table(self, name, *args, **kwargs):
+        """
+        Returns a sqlalchemy table that is automatically added to metadata
+        """
         assert name is not None, "Table requires `name` argument"
-        assert len(args) > 0, "Table at least takes one column argument"
+        assert args, "Table at least takes one column argument"
         for arg in args:
             assert not isinstance(arg, sa.MetaData), "Passing a `metadata` is not allowed"
 

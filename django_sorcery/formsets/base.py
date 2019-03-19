@@ -88,6 +88,9 @@ class BaseModelFormSet(BaseFormSet):
         super(BaseModelFormSet, self).add_fields(form, index)
 
     def get_queryset(self):
+        """
+        Returns a query for the model
+        """
         if not hasattr(self, "_queryset"):
             if self.queryset is not None:
                 qs = self.queryset
@@ -165,9 +168,10 @@ def modelformset_factory(
     field_classes=None,
     session=None,
 ):
-    meta = getattr(form, "Meta", None)
-    fields = getattr(meta, "fields", fields)
-    exclude = getattr(meta, "exclude", exclude)
+    """Return a FormSet class for the given sqlalchemy model class."""
+    _meta = getattr(form, "Meta", None)
+    fields = getattr(_meta, "fields", fields)
+    exclude = getattr(_meta, "exclude", exclude)
     if fields is None and exclude is None:
         raise ImproperlyConfigured(
             "Calling modelformset_factory without defining 'fields' or " "'exclude' explicitly is prohibited."

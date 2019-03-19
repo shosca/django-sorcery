@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+sqlalchemy query related things
+"""
 from __future__ import absolute_import, print_function, unicode_literals
 from collections import namedtuple
 from functools import partial
@@ -123,6 +126,60 @@ class Query(sa.orm.Query):
 
 
 class QueryProperty(object):
+    """
+    A property class that returns a session scoped query object against the class when called.
+    Used by the ``SQLAlchemy.queryproperty``
+
+    For example::
+
+        >>> class MyView(object):
+        ...     queryset = db.queryproperty(FooModel)
+
+    You can even pass default filtering criteria if needed::
+
+        >>> class MyView(object):
+        ...     queryset = db.queryproperty(FooModel, to_be_deleted=False)
+
+    In addition this pattern can be used to implement Django's ORM style model managers::
+
+        >>> class UserModel(db.Model):
+        ...     id = db.Column(db.Integer(), primary_key=True)
+        ...     username = db.Column(db.String())
+        ...     is_active = db.Column(db.Boolean())
+        ...
+        ...     active = db.queryproperty(is_active=True)
+
+    That can be used directly::
+
+        >>> UserModel.metadata.create_all(bind=db.engine)
+        >>> db.add_all([
+        ...     UserModel(id=1, username='foo', is_active=False),
+        ...     UserModel(id=2, username='bar', is_active=True),
+        ... ])
+        >>> db.flush()
+
+        >>> UserModel.objects.all()
+        [UserModel(id=1, is_active=False, username='foo'), UserModel(id=2, is_active=True, username='bar')]
+        >>> UserModel.active.all()
+        [UserModel(id=2, is_active=True, username='bar')]
+
+    This pattern is very useful when combined with Django style views::
+
+        >>> class MyView(object):
+        ...     queryset = UserModel.active
+
+        >>> MyView().queryset.all()
+        [UserModel(id=2, is_active=True, username='bar')]
+
+    Additional filters/options can be applied as well::
+
+        >>> class MyView(object):
+        ...     queryset = UserModel.active.filter(UserModel.username == 'test')
+
+        >>> MyView().queryset.all()
+        []
+    """
+
     def __init__(self, db, model=None, *args, **kwargs):
         self.db = db
         self.model = model
