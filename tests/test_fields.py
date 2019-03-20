@@ -87,9 +87,17 @@ class TestModelChoiceField(TestCase):
         db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
         db.flush()
 
-    def test_apply_limit(self):
+    def test_apply_limit_value(self):
 
         field = fields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.first_name == "first_name 1"])
+        apply_limit_choices_to_form_field(field)
+        self.assertEqual(field.queryset.count(), 1)
+
+    def test_apply_limit_callable(self):
+        def limit_choices_to():
+            return [Owner.first_name == "first_name 1"]
+
+        field = fields.ModelChoiceField(Owner, db, required=True, limit_choices_to=limit_choices_to)
         apply_limit_choices_to_form_field(field)
         self.assertEqual(field.queryset.count(), 1)
 

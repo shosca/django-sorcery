@@ -191,7 +191,11 @@ class ModelChoiceField(djangofields.ChoiceField):
     def get_limit_choices_to(self):
         """
         Returns limit_choices_to for this model
+
+        If it is a callable, invoke it and return the result
         """
+        if callable(self.limit_choices_to):
+            return self.limit_choices_to()
         return self.limit_choices_to
 
 
