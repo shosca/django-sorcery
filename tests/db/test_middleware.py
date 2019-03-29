@@ -89,7 +89,8 @@ class TestBaseMiddleware(unittest.TestCase):
 
     def test_flush_error(self):
         self.middleware.flush_error = RuntimeError
-        self.middleware(Request(status_code=200))
+        with self.assertRaises(RuntimeError):
+            self.middleware(Request(status_code=200))
         self.assertTrue(self.middleware.rollback_called)
         self.assertTrue(self.middleware.flush_called)
         self.assertFalse(self.middleware.commit_called)

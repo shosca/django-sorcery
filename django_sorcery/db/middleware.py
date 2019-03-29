@@ -31,8 +31,7 @@ class BaseMiddleware(object):
             return self.return_response(request, response)
 
         response = self.get_response(request)
-        response = self.process_response(request, response)
-        return self.return_response(request, response)
+        return self.process_response(request, response)
 
     def process_request(self, request):
         """
@@ -46,20 +45,21 @@ class BaseMiddleware(object):
         """
         if response.status_code >= 400:
             self.rollback(request=request, response=response)
+            return self.return_response(request, response)
 
-        else:
-            if request.method in {"PUT", "POST", "PATCH", "GET", "DELETE"}:
-                try:
-                    self.flush(request=request, response=response)
-                    self.commit(request=request, response=response)
-                except Exception:
-                    self.logger.error("Error during flush or commit")
-                    self.rollback(request=request, response=response)
+        if request.method not in {"PUT", "POST", "PATCH", "GET", "DELETE"}:
+            self.rollback(request=request, response=response)
+            return self.return_response(request, response)
 
-            else:
-                self.rollback(request=request, response=response)
-
-        return self.return_response(request, response)
+        try:
+            self.flush(request=request, response=response)
+            self.commit(request=request, response=response)
+        except Exception:
+            self.logger.error("Error during flush or commit")
+            self.rollback(request=request, response=response)
+            raise
+        finally:
+            self.return_response(request, response)
 
     def return_response(self, request, response):
         """
