@@ -2,10 +2,10 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django_sorcery.db import SQLAlchemy
+from django_sorcery.db import databases
 
 
-db = db = SQLAlchemy("minimal")
+db = databases.get("minimal")
 
 
 class Asset(db.Model):

@@ -12,8 +12,6 @@ import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
 from sqlalchemy.ext.declarative import declarative_base
 
-from django.db import DEFAULT_DB_ALIAS
-
 from ..utils import make_args
 from . import fields, signals
 from .composites import BaseComposite, CompositeField
@@ -22,7 +20,6 @@ from .query import Query, QueryProperty
 from .relations import RelationsMixin
 from .session import SignallingSession
 from .transaction import TransactionContext
-from .url import make_url
 
 
 class _sqla_meta(type):
@@ -59,10 +56,9 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
     BaseComposite = BaseComposite
     CompositeField = CompositeField
 
-    def __init__(self, alias=None, **kwargs):
-        self.alias = alias or DEFAULT_DB_ALIAS
-        self.url, self.kwargs = self._make_url(alias)
-        self.kwargs.update(kwargs)
+    def __init__(self, url, **kwargs):
+        self.url, self.kwargs = url, kwargs
+        self.alias = kwargs.get("alias")
         self.session_class = self.kwargs.get("session_class", None) or self.session_class
         self.query_class = self.kwargs.get("query_class", None) or self.query_class
         self.registry_class = self.kwargs.get("registry_class", None) or self.registry_class
@@ -186,15 +182,6 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         signals.engine_created.send(engine)
         return engine
 
-    def _make_url(self, alias):
-        """
-        Makes a url out of alias or url string
-        ----------------------------------------------------------
-        alias: str
-            a config alias or url string
-        """
-        return make_url(alias)
-
     def _make_declarative(self, model):
         """
         Creates the base class that the models should inherit from
@@ -256,7 +243,7 @@ class SQLAlchemy(six.with_metaclass(_sqla_meta, RelationsMixin)):
         """
         from .middleware import SQLAlchemyDBMiddleware
 
-        return type(str("{}SQLAlchemyMiddleware".format(self.alias)), (SQLAlchemyDBMiddleware,), {"db": self})
+        return type(str("SQLAlchemyMiddleware"), (SQLAlchemyDBMiddleware,), {"db": self})
 
     def args(self, *args, **kwargs):
         """

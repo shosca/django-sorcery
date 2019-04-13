@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django_sorcery.db import SQLAlchemy
+from django_sorcery.db import databases
 
 
-db = SQLAlchemy("terrible")
+db = databases.get("terrible")
 
 
 class Foo(db.Model):
