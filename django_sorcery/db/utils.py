@@ -9,7 +9,7 @@ from django.utils.module_loading import import_string
 from ..utils import suppress
 from .sqlalchemy import SQLAlchemy
 from .transaction import TransactionContext
-from .url import get_settings
+from .url import get_settings, make_url
 
 
 class dbdict(dict):
@@ -32,7 +32,10 @@ class dbdict(dict):
 
         assert SQLAlchemy in cls.mro(), "'%s' needs to subclass from SQLAlchemy" % cls.__name__
 
-        return self.setdefault(alias, cls(alias=alias, **kwargs))
+        url, _kwargs = make_url(alias)
+        _kwargs.update(kwargs)
+        _kwargs["alias"] = alias
+        return self.setdefault(alias, cls(url, **_kwargs))
 
     def update(self, *args, **kwargs):
         for arg in args:
