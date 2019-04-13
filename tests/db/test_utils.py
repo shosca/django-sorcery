@@ -94,7 +94,7 @@ class TestMultiDbAtomic(unittest.TestCase):
             default_db.add(Foo())
             other_db.add(Bar())
 
-        self.assertIn("IntegrityError", ctx.exception.args[0])
+        self.assertIsInstance(ctx.exception, sa.exc.IntegrityError)
         self.assertEqual(Foo.objects.count(), 0)
         self.assertEqual(Bar.objects.count(), 0)
         databases.rollback()
