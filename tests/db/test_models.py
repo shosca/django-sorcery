@@ -24,25 +24,6 @@ from ..testapp.models import (
 )
 
 
-class TestDeprecated(TestCase):
-    def test_get_primary_keys(self):
-        key = models.get_primary_keys(Owner, {"id": 1})
-        self.assertEqual(key, 1)
-
-    def test_get_primary_keys_from_instance(self):
-        key = models.get_primary_keys_from_instance(Owner(id=1))
-        self.assertEqual(key, 1)
-
-    def test_get_identity_key(self):
-        key = models.get_identity_key(Owner, {"id": 1})
-        self.assertEqual(key, meta.Identity(Owner, (1,)))
-        self.assertIsNone(models.get_identity_key(Owner, {}))
-
-    def test_model_to_dict(self):
-        val = models.model_to_dict(Owner(id=1))
-        self.assertDictEqual(val, {"first_name": None, "last_name": None})
-
-
 class TestModelRepr(TestCase):
     def test_simple_repr(self):
 
