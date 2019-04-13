@@ -21,13 +21,6 @@ from ...testapp.models import COLORS, AllKindsOfFields, Business, Vehicle, Vehic
 
 
 class TestColumnMeta(TestCase):
-    def test_deprecated_init(self):
-        col = dbfields.CharField(length=25)
-        info = meta.column_info(None, col)
-
-        self.assertIs(info.column, col)
-        self.assertEqual(repr(info), "<string_column_info(<None>.<None>)>")
-
     def test_column_info(self):
         info = meta.model_info(Vehicle)
 

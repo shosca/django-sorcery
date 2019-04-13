@@ -6,7 +6,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
 import enum
-import warnings
 
 import six
 from dateutil.parser import parse
@@ -45,19 +44,9 @@ class column_info(object):
     def __new__(cls, *args, **kwargs):
         args = list(args)
         column = kwargs.pop("column", None)
-        prop = kwargs.pop("property", None)
 
         if args:
             column = args.pop(0)
-        if args:
-            prop = args.pop(0)
-
-        if not isinstance(column, sa.Column):
-            warnings.warn(
-                "Instantiating column_info with property is deprecated, "
-                "a column instance is now required and its the first argument"
-            )
-            column = prop
 
         column_info_mapping = getattr(settings, "DJANGO_SORCERY", {}).get("column_info_mapping", COLUMN_INFO_MAPPING)
 
@@ -80,13 +69,6 @@ class column_info(object):
         return instance
 
     def __init__(self, column, prop=None, parent=None, name=None):
-        if not isinstance(column, sa.Column):
-            warnings.warn(
-                "Instantiating column_info with property is deprecated, "
-                "a column instance is now required and its the first argument"
-            )
-            column, prop = prop, column
-
         self.property = prop
         self.column = column
         self.parent = parent
