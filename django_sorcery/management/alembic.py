@@ -10,6 +10,8 @@ import alembic
 import alembic.config
 import six
 
+from sqlalchemy.orm import configure_mappers
+
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.functional import cached_property
@@ -127,6 +129,7 @@ class AlembicCommand(BaseCommand):
         """
         Executes an alembic context, just like the env.py file of alembic
         """
+        configure_mappers()
         try:
             if context.is_offline_mode():
                 self.run_migrations_offline(context, appconfig)
