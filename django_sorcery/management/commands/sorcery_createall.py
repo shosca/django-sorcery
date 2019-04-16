@@ -4,6 +4,8 @@ CreateAll command
 """
 from __future__ import absolute_import, print_function, unicode_literals
 
+from sqlalchemy.orm import configure_mappers
+
 from django.core.management.base import BaseCommand
 
 from ...db import databases
@@ -27,6 +29,7 @@ class CreateAll(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
+        configure_mappers()
         dbs = kwargs.get("databases") or databases.keys()
         for key in dbs:
             databases[key].create_all()
