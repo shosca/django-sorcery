@@ -2,8 +2,19 @@ Changelog
 =========
 
 
-0.8.12 (2019-03-15)
+0.9.0 (2019-04-23)
 -----------------------------
+- Trigger configure_mappers before commands (#135) [Serkan Hosca]
+- Add migrations on tutorial (#134) [Serkan Hosca]
+- Drop sqlalchemy init django dependency (#133) [Serkan Hosca]
+- Drop deprecated functions (#132) [Serkan Hosca]
+- Raising in middleware on error (#131) [Miroslav Shubernetskiy]
+- Allow limit_choices_to to be callable (#130) [Serkan Hosca]
+- Add a bunch of docs and fix lint issues (#129) [Serkan Hosca]
+
+
+0.8.12 (2019-03-15)
+-------------------
 - Fix field run_validator (#128) [Serkan Hosca]
 
 
