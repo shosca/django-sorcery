@@ -14,15 +14,17 @@ class TestSession(TestCase):
         db.commit()
         db.remove()
 
-        self.before_flush_signal_called = False
-        self.after_flush_signal_called = False
-        self.before_commit_called = False
-        self.after_commit_called = False
-
         signals.before_flush.connect(self._before_flush, weak=False)
         signals.after_flush.connect(self._after_flush, weak=False)
         signals.before_commit.connect(self._before_commit, weak=False)
         signals.after_commit.connect(self._after_commit, weak=False)
+
+        self.before_flush_signal_called = False
+        self.after_flush_signal_called = False
+        self.before_commit_called = False
+        self.after_commit_called = False
+        self.models_committed = None
+        self.models_deleted = None
 
     def _before_flush(self, session, **kwargs):
         self.before_flush_signal_called = True
@@ -35,6 +37,8 @@ class TestSession(TestCase):
 
     def _after_commit(self, session, **kwargs):
         self.after_commit_called = True
+        self.models_committed = session.models_committed.copy()
+        self.models_deleted = session.models_deleted.copy()
 
     def tearDown(self):
         super(TestSession, self).tearDown()
@@ -71,3 +75,32 @@ class TestSession(TestCase):
 
         self.assertTrue(self.before_commit_called)
         self.assertTrue(self.after_commit_called)
+
+    def test_tracking(self):
+        owner = Owner(first_name="Joe", last_name="Smith")
+        db.add(owner)
+        db.commit()
+
+        self.assertEqual(set(self.models_committed), {owner})
+        self.assertEqual(set(self.models_deleted), set())
+
+        owner.first_name = "Michael"
+        db.commit()
+
+        self.assertEqual(set(self.models_committed), {owner})
+        self.assertEqual(set(self.models_deleted), set())
+
+        db.delete(owner)
+        db.commit()
+
+        self.assertEqual(set(self.models_committed), set())
+        self.assertEqual(set(self.models_deleted), {owner})
+
+        owner = Owner(first_name="Joe", last_name="Smith")
+        db.add(owner)
+        db.flush()
+        db.delete(owner)
+        db.commit()
+
+        self.assertEqual(set(self.models_committed), set())
+        self.assertEqual(set(self.models_deleted), {owner})
