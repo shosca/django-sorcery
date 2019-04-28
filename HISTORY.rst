@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.9.0 (2019-04-23)
+0.9.1 (2019-04-28)
 -----------------------------
+- Track committed models (#136) [Serkan Hosca]
+- Fix topic. [Serkan Hosca]
+
+
+0.9.0 (2019-04-23)
+------------------
 - Trigger configure_mappers before commands (#135) [Serkan Hosca]
 - Add migrations on tutorial (#134) [Serkan Hosca]
 - Drop sqlalchemy init django dependency (#133) [Serkan Hosca]
