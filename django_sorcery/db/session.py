@@ -3,10 +3,55 @@
 sqlalchemy session related things
 """
 from __future__ import absolute_import, print_function, unicode_literals
+from itertools import chain
 
 from sqlalchemy import event, orm
 
+from ..utils import setdefaultattr
 from . import signals
+
+
+def before_flush(session, flush_context, instances):
+    signals.before_flush.send(session, flush_context=flush_context, instances=instances)
+
+
+def after_flush(session, flush_context):
+    signals.after_flush.send(session, flush_context=flush_context)
+
+
+def before_commit(session):
+    if session.transaction and (session.transaction._parent is None or not session.transaction.nested):
+        signals.before_commit.send(session)
+        signals.before_scoped_commit.send(session)
+
+
+def after_commit(session):
+    if session.transaction and (session.transaction._parent is None or not session.transaction.nested):
+        signals.after_scoped_commit.send(session)
+        signals.after_commit.send(session)
+        setdefaultattr(session, "models_committed", set()).clear()
+        setdefaultattr(session, "models_deleted", set()).clear()
+
+
+def after_rollback(session):
+    if session.transaction and (session.transaction._parent is None or session.transaction.nested):
+        signals.after_scoped_rollback.send(session)
+        signals.after_rollback.send(session)
+        setdefaultattr(session, "models_committed", set()).clear()
+        setdefaultattr(session, "models_deleted", set()).clear()
+
+
+def record_models(session, flush_context=None, instances=None):
+    setdefaultattr(session, "models_committed", set())
+    setdefaultattr(session, "models_deleted", set())
+
+    for instance in chain(session.new, session.dirty):
+        session.models_committed.add(instance)
+
+    for instance in session.deleted:
+        session.models_deleted.add(instance)
+        if instance in session.models_committed:
+            session.models_committed.remove(instance)
 
 
 class SignallingSession(orm.Session):
@@ -16,16 +61,13 @@ class SignallingSession(orm.Session):
 
     def __init__(self, *args, **kwargs):
         super(SignallingSession, self).__init__(*args, **kwargs)
-
-        def before_flush(session, flush_context, instances):
-            signals.before_flush.send(session, flush_context=flush_context, instances=instances)
+        event.listen(self, "after_flush", record_models)
 
         event.listen(self, "before_flush", before_flush)
-
-        def after_flush(session, flush_context):
-            signals.after_flush.send(session, flush_context=flush_context)
-
         event.listen(self, "after_flush", after_flush)
+        event.listen(self, "before_commit", before_commit)
+        event.listen(self, "after_commit", after_commit)
+        event.listen(self, "after_rollback", after_rollback)
 
     def query(self, *args, **kwargs):
         """
@@ -35,27 +77,3 @@ class SignallingSession(orm.Session):
             return args[0].query_class(*args, session=self, **kwargs)
 
         return super(SignallingSession, self).query(*args, **kwargs)
-
-    def commit(self):
-        """
-        Flushes pending changes and commits the current transaction. If the transaction is the main transaction,
-        triggers before and after commit signals.
-        """
-        is_main = self.transaction and (self.transaction._parent is None or not self.transaction.nested)
-
-        if is_main:
-            signals.before_commit.send(self)
-            signals.before_scoped_commit.send(self)
-
-        super(SignallingSession, self).commit()
-
-        if is_main:
-            signals.after_scoped_commit.send(self)
-            signals.after_commit.send(self)
-
-    def rollback(self):
-        super(SignallingSession, self).rollback()
-
-        if self.transaction and (self.transaction._parent is None or self.transaction.nested):
-            signals.after_scoped_rollback.send(self)
-            signals.after_rollback.send(self)

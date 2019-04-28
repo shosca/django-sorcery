@@ -1,8 +1,23 @@
 ---
 language: python
-python:
-  - "2.7"
-  - "3.6"
+dist: xenial
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.cache/pre-commit
+matrix:
+  include:
+    - { python: "2.7", env: DJANGO=1.11 }
+
+    - { python: "3.6", env: DJANGO=1.11 }
+    - { python: "3.6", env: DJANGO=2.0 }
+    - { python: "3.6", env: DJANGO=2.1 }
+    - { python: "3.6", env: DJANGO=2.2 }
+
+    - { python: "3.7", env: DJANGO=1.11 }
+    - { python: "3.7", env: DJANGO=2.0 }
+    - { python: "3.7", env: DJANGO=2.1 }
+    - { python: "3.7", env: DJANGO=2.2 }
 
 services:
   - postgresql
@@ -12,6 +27,7 @@ before_script:
 
 install:
   - pip install -U -r requirements.txt
+  - pip install django==$DJANGO
 
 script:
   - make lint
@@ -19,8 +35,3 @@ script:
 
 after_success:
   coveralls
-
-cache:
-  directories:
-    - $HOME/.cache/pip
-    - $HOME/.cache/pre-commit

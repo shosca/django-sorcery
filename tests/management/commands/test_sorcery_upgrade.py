@@ -60,7 +60,7 @@ class TestUpgrade(MigrationMixin, TestCase):
         cmd.run_from_argv(["./manage.py sorcery", "upgrade", "--no-color"])
 
         revs = db.execute("select * from alembic_version_tests_testapp").fetchall()
-        self.assertEqual(revs, [("000000000001",), ("000000000000",)])
+        self.assertEqual(set([r.version_num for r in revs]), {"000000000001", "000000000000"})
 
     def test_sql(self):
         out = six.StringIO()
@@ -68,34 +68,17 @@ class TestUpgrade(MigrationMixin, TestCase):
         cmd.run_from_argv(["./manage.py sorcery", "upgrade", "-s", "--no-color"])
 
         out.seek(0)
-        self.assertEqual(
-            out.readlines(),
-            [
-                "BEGIN;\n",
-                "\n",
-                "CREATE TABLE public.alembic_version_tests_testapp (\n",
-                "    version_num VARCHAR(32) NOT NULL, \n",
-                "    CONSTRAINT alembic_version_tests_testapp_pkc PRIMARY KEY (version_num)\n",
-                ");\n",
-                "\n",
-                "-- Running upgrade  -> 000000000001\n",
-                "\n",
-                "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000001');\n",
-                "\n",
-                "-- Running upgrade  -> 000000000000\n",
-                "\n",
-                "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000000');\n",
-                "\n",
-                "COMMIT;\n",
-                "\n",
-                "BEGIN;\n",
-                "\n",
-                "DROP TABLE alembic_version_tests_otherapp;\n",
-                "\n",
-                "COMMIT;\n",
-                "\n",
-            ],
-        )
+        lines = out.readlines()
+
+        self.assertEqual(len(lines), 23)
+        statements = [
+            "-- Running upgrade  -> 000000000001\n",
+            "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000001');\n",
+            "-- Running upgrade  -> 000000000000\n",
+            "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000000');\n",
+        ]
+        for statement in statements:
+            self.assertIn(statement, lines)
 
     def test_with_range_no_app(self):
         out = six.StringIO()
