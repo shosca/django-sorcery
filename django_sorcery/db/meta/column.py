@@ -405,7 +405,8 @@ class numeric_column_info(column_info):
         if isinstance(value, decimal.Decimal):
             return value
         if isinstance(value, float):
-            return decimal.Context(prec=self.max_digits).create_decimal_from_float(value)
+            value = decimal.Context(prec=self.max_digits).create_decimal_from_float(value)
+            return value.to_integral() if value == value.to_integral() else value.normalize()
         if isinstance(value, six.integer_types):
             return decimal.Decimal(value)
 
