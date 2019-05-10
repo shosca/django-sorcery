@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.9.1 (2019-04-28)
+0.9.2 (2019-05-10)
 -----------------------------
+- Drop trailing zeros on float to decimal conversion (#137) [Serkan
+  Hosca]
+
+
+0.9.1 (2019-04-28)
+------------------
 - Track committed models (#136) [Serkan Hosca]
 - Fix topic. [Serkan Hosca]
 
