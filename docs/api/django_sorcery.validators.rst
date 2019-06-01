@@ -13,4 +13,3 @@ Submodules
 
    django_sorcery.validators.base
    django_sorcery.validators.runner
-

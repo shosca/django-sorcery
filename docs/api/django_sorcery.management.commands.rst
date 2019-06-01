@@ -21,4 +21,3 @@ Submodules
    django_sorcery.management.commands.sorcery_revision
    django_sorcery.management.commands.sorcery_stamp
    django_sorcery.management.commands.sorcery_upgrade
-

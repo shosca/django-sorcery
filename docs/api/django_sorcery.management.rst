@@ -20,4 +20,3 @@ Submodules
 
    django_sorcery.management.alembic
    django_sorcery.management.base
-

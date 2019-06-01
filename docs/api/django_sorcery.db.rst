@@ -33,4 +33,3 @@ Submodules
    django_sorcery.db.transaction
    django_sorcery.db.url
    django_sorcery.db.utils
-

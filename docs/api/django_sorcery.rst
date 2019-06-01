@@ -32,4 +32,3 @@ Submodules
    django_sorcery.shortcuts
    django_sorcery.testing
    django_sorcery.utils
-

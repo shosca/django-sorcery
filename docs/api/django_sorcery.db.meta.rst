@@ -16,4 +16,3 @@ Submodules
    django_sorcery.db.meta.composite
    django_sorcery.db.meta.model
    django_sorcery.db.meta.relations
-

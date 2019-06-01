@@ -420,7 +420,7 @@ def modelform_factory(model, form=ModelForm, formfield_callback=None, **kwargs):
         if value is not None:
             attrs[key] = value
 
-    bases = (form.Meta,) if hasattr(form, "Meta") else tuple()
+    bases = (form.Meta,) if hasattr(form, "Meta") else ()
     meta_ = type(str("Meta"), bases, attrs)
     if formfield_callback:
         meta_.formfield_callback = staticmethod(formfield_callback)
