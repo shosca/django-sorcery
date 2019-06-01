@@ -13,4 +13,3 @@ Submodules
 
    django_sorcery.db.alembic.base
    django_sorcery.db.alembic.signals
-
