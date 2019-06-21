@@ -163,7 +163,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         keys = self.mapper.primary_key_from_instance(instance)
         if any(key is None for key in keys):
             return
-        return keys
+        return tuple(keys)
 
     def identity_key_from_instance(self, instance):
         """
