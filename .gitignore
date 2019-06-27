@@ -55,3 +55,4 @@ db.sqlite3
 .mypy_cache
 *.sqlite3
 .vscode
+.python-version

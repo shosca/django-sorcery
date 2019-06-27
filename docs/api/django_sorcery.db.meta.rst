@@ -2,9 +2,9 @@ django\_sorcery.db.meta package
 ===============================
 
 .. automodule:: django_sorcery.db.meta
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

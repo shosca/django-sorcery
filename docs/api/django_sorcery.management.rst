@@ -2,16 +2,16 @@ django\_sorcery.management package
 ==================================
 
 .. automodule:: django_sorcery.management
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
 
-    django_sorcery.management.commands
+   django_sorcery.management.commands
 
 Submodules
 ----------

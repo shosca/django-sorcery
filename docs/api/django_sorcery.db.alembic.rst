@@ -2,9 +2,9 @@ django\_sorcery.db.alembic package
 ==================================
 
 .. automodule:: django_sorcery.db.alembic
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

@@ -2,9 +2,9 @@ django\_sorcery.viewsets package
 ================================
 
 .. automodule:: django_sorcery.viewsets
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

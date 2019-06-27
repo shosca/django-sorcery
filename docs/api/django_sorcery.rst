@@ -2,21 +2,21 @@ django\_sorcery package
 =======================
 
 .. automodule:: django_sorcery
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
 
-    django_sorcery.db
-    django_sorcery.formsets
-    django_sorcery.management
-    django_sorcery.validators
-    django_sorcery.views
-    django_sorcery.viewsets
+   django_sorcery.db
+   django_sorcery.formsets
+   django_sorcery.management
+   django_sorcery.validators
+   django_sorcery.views
+   django_sorcery.viewsets
 
 Submodules
 ----------

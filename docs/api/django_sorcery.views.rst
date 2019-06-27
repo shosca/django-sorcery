@@ -2,9 +2,9 @@ django\_sorcery.views package
 =============================
 
 .. automodule:: django_sorcery.views
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

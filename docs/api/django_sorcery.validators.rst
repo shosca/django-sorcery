@@ -2,9 +2,9 @@ django\_sorcery.validators package
 ==================================
 
 .. automodule:: django_sorcery.validators
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

@@ -2,9 +2,9 @@ django\_sorcery.management.commands package
 ===========================================
 
 .. automodule:: django_sorcery.management.commands
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

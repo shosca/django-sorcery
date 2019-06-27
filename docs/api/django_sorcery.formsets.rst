@@ -2,9 +2,9 @@ django\_sorcery.formsets package
 ================================
 
 .. automodule:: django_sorcery.formsets
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

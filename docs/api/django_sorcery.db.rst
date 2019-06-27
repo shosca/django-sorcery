@@ -2,17 +2,17 @@ django\_sorcery.db package
 ==========================
 
 .. automodule:: django_sorcery.db
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
 
-    django_sorcery.db.alembic
-    django_sorcery.db.meta
+   django_sorcery.db.alembic
+   django_sorcery.db.meta
 
 Submodules
 ----------

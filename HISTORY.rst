@@ -2,8 +2,16 @@ Changelog
 =========
 
 
-0.9.2 (2019-05-10)
+0.9.3 (2019-06-26)
 -----------------------------
+- Defining test matrix in tox and switchint to tox-travis (#140)
+  [Miroslav Shubernetskiy]
+- Increase build matrix (#139) [Serkan Hosca]
+- Update pre-commit (#138) [Serkan Hosca]
+
+
+0.9.2 (2019-05-10)
+------------------
 - Drop trailing zeros on float to decimal conversion (#137) [Serkan
   Hosca]
 
@@ -589,3 +597,5 @@ Other
 0.1.0 (2018-05-05)
 ------------------
 - Initial commit. [Serkan Hosca]
+
+
