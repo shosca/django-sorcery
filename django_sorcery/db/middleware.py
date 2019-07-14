@@ -57,9 +57,10 @@ class BaseMiddleware(object):
         except Exception:
             self.logger.error("Error during flush or commit")
             self.rollback(request=request, response=response)
-            raise
-        finally:
             self.return_response(request, response)
+            raise
+
+        return self.return_response(request, response)
 
     def return_response(self, request, response):
         """

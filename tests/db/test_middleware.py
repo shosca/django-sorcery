@@ -53,35 +53,40 @@ class TestBaseMiddleware(unittest.TestCase):
 
     def test_process_request(self):
         self.middleware.dummy = "abcd"
-        self.middleware(Request())
+        response = self.middleware(Request())
+        self.assertIsNotNone(response)
         self.assertFalse(self.middleware.rollback_called)
         self.assertFalse(self.middleware.flush_called)
         self.assertFalse(self.middleware.commit_called)
         self.assertTrue(self.middleware.remove_called)
 
     def test_success(self):
-        self.middleware(Request())
+        response = self.middleware(Request())
+        self.assertIsNotNone(response)
         self.assertFalse(self.middleware.rollback_called)
         self.assertTrue(self.middleware.flush_called)
         self.assertTrue(self.middleware.commit_called)
         self.assertTrue(self.middleware.remove_called)
 
     def test_redirect(self):
-        self.middleware(Request(status_code=300))
+        response = self.middleware(Request(status_code=300))
+        self.assertIsNotNone(response)
         self.assertFalse(self.middleware.rollback_called)
         self.assertTrue(self.middleware.flush_called)
         self.assertTrue(self.middleware.commit_called)
         self.assertTrue(self.middleware.remove_called)
 
     def test_bad_request(self):
-        self.middleware(Request(status_code=400))
+        response = self.middleware(Request(status_code=400))
+        self.assertIsNotNone(response)
         self.assertTrue(self.middleware.rollback_called)
         self.assertFalse(self.middleware.flush_called)
         self.assertFalse(self.middleware.commit_called)
         self.assertTrue(self.middleware.remove_called)
 
     def test_server_error(self):
-        self.middleware(Request(status_code=400))
+        response = self.middleware(Request(status_code=400))
+        self.assertIsNotNone(response)
         self.assertTrue(self.middleware.rollback_called)
         self.assertFalse(self.middleware.flush_called)
         self.assertFalse(self.middleware.commit_called)
@@ -97,7 +102,8 @@ class TestBaseMiddleware(unittest.TestCase):
         self.assertTrue(self.middleware.remove_called)
 
     def test_other_methods(self):
-        self.middleware(Request(method="HEAD"))
+        response = self.middleware(Request(method="HEAD"))
+        self.assertIsNotNone(response)
         self.assertTrue(self.middleware.rollback_called)
         self.assertFalse(self.middleware.flush_called)
         self.assertFalse(self.middleware.commit_called)
