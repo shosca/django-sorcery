@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.9.3 (2019-06-26)
+0.9.4 (2019-07-14)
 -----------------------------
+- Fix middleware response return (#143) [Serkan Hosca]
+- Use python/black (#141) [Serkan Hosca]
+
+
+0.9.3 (2019-06-27)
+------------------
 - Defining test matrix in tox and switchint to tox-travis (#140)
   [Miroslav Shubernetskiy]
 - Increase build matrix (#139) [Serkan Hosca]
