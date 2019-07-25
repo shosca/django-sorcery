@@ -12,7 +12,7 @@ import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
 from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.utils.text import camel_case_to_spaces
 
 from . import meta, signals
@@ -324,6 +324,13 @@ class Base(CleanMixin):
         Return all relations to be validated
         """
         return meta.model_info(self.__class__).relationships
+
+    def serializable_value(self, field_name):
+        try:
+            field = meta.model_info(self.__class__).get_field(field_name)
+        except FieldDoesNotExist:
+            return getattr(self, field_name)
+        return getattr(self, field.attname)
 
 
 _instant_defaults = set()

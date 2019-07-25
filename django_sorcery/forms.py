@@ -354,6 +354,9 @@ class BaseModelForm(DjangoBaseModelForm):
 
         return self.instance
 
+    def save_m2m(self):
+        pass
+
     def _post_clean(self):
         """
         Hook for performing additional cleaning after form cleaning is complete. Used for model validation in model

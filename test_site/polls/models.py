@@ -19,3 +19,6 @@ class Choice(db.Model):
     votes = db.Column(db.Integer(), default=0)
 
     question = db.ManyToOne(Question, backref=db.backref("choices", cascade="all, delete-orphan"))
+
+    def __str__(self):
+        return "Choice {}: {}".format(self.pk, self.choice_text)

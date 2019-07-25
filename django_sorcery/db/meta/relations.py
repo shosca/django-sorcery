@@ -31,6 +31,7 @@ class relation_info(object):
         "related_table",
         "relationship",
         "uselist",
+        "unique",
     )
 
     def __init__(self, relationship):
@@ -47,6 +48,7 @@ class relation_info(object):
         self.foreign_keys = list(
             set(chain(self.relationship._calculated_foreign_keys, self.relationship._user_defined_foreign_keys))
         )
+        self.unique = None
         self.uselist = self.relationship.uselist
         self.field_kwargs = {}
         if self.uselist:
