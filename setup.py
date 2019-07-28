@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# fmt:off
 from __future__ import absolute_import, print_function, unicode_literals
 import os
 import shutil
@@ -13,7 +14,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
 with open(os.path.join(here, "django_sorcery", "__version__.py")) as f:
-    exec(f.read(), about)  # yapf: disable
+    exec(f.read(), about)
 
 
 def read(fname):

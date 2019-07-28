@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# fmt: off
 #
 # Django Sorcery documentation build configuration file, created by
 # sphinx-quickstart on Sat Jun 10 09:20:17 2017.
@@ -40,7 +41,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
 with open(os.path.join(here, "..", "django_sorcery", "__version__.py")) as f:
-    exec(f.read(), about)  # yapf: disable
+    exec(f.read(), about)
 
 # -- General configuration ------------------------------------------------
 

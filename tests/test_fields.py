@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
+import json
 
 from django.core.exceptions import ValidationError
 
@@ -131,6 +132,18 @@ class TestModelChoiceField(TestCase):
             ctx.exception.args,
             ("Select a valid choice. That choice is not one of the available choices.", "invalid_choice", None),
         )
+
+    def test_get_object_composite_pk(self):
+        instance = CompositePkModel(id=1, pk=2)
+        db.add(instance)
+        db.flush()
+
+        field = fields.ModelChoiceField(CompositePkModel, db)
+        pks = field.prepare_value(instance)
+
+        obj = field.get_object(json.dumps(pks))
+        self.assertIsNotNone(obj)
+        self.assertIs(obj, instance)
 
     def test_to_python(self):
         owner = Owner.objects.first()

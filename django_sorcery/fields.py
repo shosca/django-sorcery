@@ -150,7 +150,9 @@ class ModelChoiceField(djangofields.ChoiceField):
 
         pk = None
         try:
-            pk = self.model_info.primary_keys_from_dict(json.loads(value))
+            pk = json.loads(value)
+            if isinstance(pk, dict):
+                pk = self.model_info.primary_keys_from_dict(pk)
         except TypeError:
             pk = value
 
