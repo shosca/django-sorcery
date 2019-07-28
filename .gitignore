@@ -21,6 +21,7 @@ lib
 lib64
 .eggs
 .cache
+pip-wheel-metadata
 
 # Installer logs
 pip-log.txt

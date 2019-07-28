@@ -10,8 +10,8 @@ import six
 
 from django.core.exceptions import NON_FIELD_ERRORS, ImproperlyConfigured, ValidationError
 from django.forms import ALL_FIELDS
-from django.forms.forms import BaseForm, DeclarativeFieldsMetaclass
-from django.forms.models import ModelFormOptions
+from django.forms.forms import BaseForm as DjangoBaseForm, DeclarativeFieldsMetaclass
+from django.forms.models import BaseModelForm as DjangoBaseModelForm, ModelFormOptions
 from django.forms.utils import ErrorList
 
 from .db import meta
@@ -252,7 +252,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
         return cls
 
 
-class BaseModelForm(BaseForm):
+class BaseModelForm(DjangoBaseModelForm):
     """
     Base ModelForm for sqlalchemy models
     """
@@ -284,15 +284,16 @@ class BaseModelForm(BaseForm):
         object_data = self.model_to_dict()
         object_data.update(initial or {})
         self._validate_unique = False
-        super(BaseModelForm, self).__init__(
-            data,
-            files,
-            auto_id,
-            prefix,
-            object_data,
-            error_class,
-            label_suffix,
-            empty_permitted,
+        DjangoBaseForm.__init__(
+            self,
+            data=data,
+            files=files,
+            auto_id=auto_id,
+            prefix=prefix,
+            initial=object_data,
+            error_class=error_class,
+            label_suffix=label_suffix,
+            empty_permitted=empty_permitted,
             use_required_attribute=use_required_attribute,
             renderer=renderer,
         )

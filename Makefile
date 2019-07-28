@@ -9,7 +9,7 @@ DBS=\
 	minimal \
 	minimal_backpop
 RESETDBS=$(addsuffix -resetdb,$(DBS))
-COVERAGE_FLAGS?=--cov-fail-under=100
+COVERAGE_FLAGS?=
 
 .PHONY: docs $(FILES)
 
@@ -49,16 +49,12 @@ lint:  ## run pre-commit hooks on all files
 
 coverage: ## check code coverage quickly with the default Python
 	py.test $(PYTEST_OPTS) \
-		--cov-report html \
-		--cov-report term-missing \
 		--cov=django_sorcery \
 		$(COVERAGE_FLAGS) \
 		tests
 
 $(FILES):  ## helper target to run coverage tests on a module
 	py.test $(PYTEST_OPTS) \
-		--cov-report term-missing \
-		--cov-fail-under 100 \
 		--cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
