@@ -15,72 +15,54 @@ class relation_info(object):
     A helper class that makes sqlalchemy relationship property inspection easier
     """
 
-    __slots__ = ("relationship",)
+    __slots__ = (
+        "attribute",
+        "direction",
+        "field_kwargs",
+        "foreign_keys",
+        "local_remote_pairs",
+        "local_remote_pairs_for_identity_key",
+        "name",
+        "parent_mapper",
+        "parent_model",
+        "parent_table",
+        "related_mapper",
+        "related_model",
+        "related_table",
+        "relationship",
+        "uselist",
+    )
 
     def __init__(self, relationship):
         self.relationship = relationship
-
-    @property
-    def attribute(self):
-        """
-        Returns the relationship instrumented attribute on the model
-        """
-        return getattr(self.parent_model, self.name)
-
-    @property
-    def name(self):
-        """
-        Returns the name of the attribute
-        """
-        return self.relationship.key
-
-    @property
-    def parent_mapper(self):
-        return self.relationship.parent
-
-    @property
-    def parent_model(self):
-        return self.relationship.parent.class_
-
-    @property
-    def parent_table(self):
-        return self.relationship.parent.tables[0]
-
-    @property
-    def related_mapper(self):
-        return self.relationship.mapper
-
-    @property
-    def related_model(self):
-        return self.relationship.mapper.class_
-
-    @property
-    def related_table(self):
-        return self.relationship.mapper.tables[0]
-
-    @property
-    def direction(self):
-        return self.relationship.direction
-
-    @property
-    def foreign_keys(self):
-        return list(
+        self.name = self.relationship.key
+        self.parent_mapper = self.relationship.parent
+        self.parent_model = self.relationship.parent.class_
+        self.parent_table = self.relationship.parent.tables[0]
+        self.related_mapper = self.relationship.mapper
+        self.related_model = self.relationship.mapper.class_
+        self.related_table = self.relationship.mapper.tables[0]
+        self.attribute = getattr(self.parent_model, self.name)
+        self.direction = self.relationship.direction
+        self.foreign_keys = list(
             set(chain(self.relationship._calculated_foreign_keys, self.relationship._user_defined_foreign_keys))
         )
+        self.uselist = self.relationship.uselist
+        self.field_kwargs = {}
+        if self.uselist:
+            self.field_kwargs["required"] = False
+        else:
+            self.field_kwargs["required"] = not all([col.nullable for col in self.foreign_keys])
 
-    @property
-    def local_remote_pairs(self):
-        return self.relationship.local_remote_pairs
+        self.local_remote_pairs = self.relationship.local_remote_pairs
 
-    @property
-    def local_remote_pairs_for_identity_key(self):
         target_pk = list(self.relationship.target.primary_key)
         pairs = {v: k for k, v in self.local_remote_pairs}
-
+        self.local_remote_pairs_for_identity_key = []
         try:
             # ensure local_remote pairs are of same order as remote pk
-            return [(pairs[i], i) for i in target_pk]
-
+            for i in target_pk:
+                self.local_remote_pairs_for_identity_key.append((pairs[i], i))
         except KeyError:
             # if relation is missing one of related pk columns
             # but actual constraint has it defined
@@ -102,15 +84,11 @@ class relation_info(object):
 
             if len(matching_constraints) == 1:
                 pairs = {i.column: i.parent for i in matching_constraints[0].elements}
-                return [(pairs[i], i) for i in target_pk]
-
+                for i in target_pk:
+                    self.local_remote_pairs_for_identity_key.append((pairs[i], i))
             else:
                 # if everything fails, return default pairs
-                return self.local_remote_pairs
-
-    @property
-    def uselist(self):
-        return self.relationship.uselist
+                self.local_remote_pairs_for_identity_key = self.local_remote_pairs[:]
 
     def formfield(self, form_class=None, **kwargs):
         if kwargs.get("session") is None:
@@ -118,7 +96,7 @@ class relation_info(object):
 
         form_class = form_class or self.get_form_class()
         if form_class is not None:
-            field_kwargs = self.field_kwargs
+            field_kwargs = self.field_kwargs.copy()
             field_kwargs.update(kwargs)
             return form_class(self.related_model, **field_kwargs)
 
@@ -129,15 +107,6 @@ class relation_info(object):
             return ModelMultipleChoiceField
 
         return ModelChoiceField
-
-    @property
-    def field_kwargs(self):
-        kwargs = {}
-        if self.uselist:
-            kwargs["required"] = False
-        else:
-            kwargs["required"] = not all([col.nullable for col in self.foreign_keys])
-        return kwargs
 
     def __repr__(self):
         return "<relation_info(%s.%s)>" % (self.parent_model.__name__, self.name)
