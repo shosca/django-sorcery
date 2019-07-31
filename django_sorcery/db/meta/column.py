@@ -14,6 +14,7 @@ import sqlalchemy as sa
 
 from django import forms as djangoforms
 from django.conf import settings
+from django.core import validators as djangovalidators
 from django.core.exceptions import ValidationError
 from django.db.models import fields as djangomodelfields
 from django.forms import fields as djangofields
@@ -39,7 +40,27 @@ class column_info(object):
     default_form_class = None
     default_error_messages = djangomodelfields.Field.default_error_messages
 
-    __slots__ = ("name", "property", "column", "parent", "_coercer", "error_messages")
+    __slots__ = (
+        "_coercer",
+        "attribute",
+        "choices",
+        "column",
+        "label",
+        "default",
+        "empty_values",
+        "error_messages",
+        "field_kwargs",
+        "form_class",
+        "help_text",
+        "name",
+        "null",
+        "parent",
+        "parent_model",
+        "property",
+        "required",
+        "validators",
+        "widget",
+    )
 
     def __new__(cls, *args, **kwargs):
         args = list(args)
@@ -75,10 +96,38 @@ class column_info(object):
         self._coercer = None
         self.name = name or (self.property.key if self.property is not None else self.column.key)
 
+        self.validators = self.column.info.get("validators") or []
+        self.null = not self.column.primary_key and self.column.nullable
+        self.required = self.column.info.get("required", not self.column.nullable)
+
+        self.parent_model = self.property.parent.class_ if self.property else None
+        self.attribute = getattr(self.parent_model, self.property.key) if self.parent_model else None
+        self.help_text = self.column.doc
+        self.form_class = self.column.info.get("form_class") or self.default_form_class
+        self.empty_values = self.column.info.get("empty_values") or getattr(
+            self.form_class, "empty_values", djangovalidators.EMPTY_VALUES
+        )
+        self.default = getattr(self.column.default, "arg", None)
+        self.choices = getattr(self.column.type, "enum_class", None) or getattr(self.column.type, "enums", None)
+        self.widget = self.column.info.get("widget_class")
+
         self.error_messages = {}
         for c in reversed(self.__class__.mro()):
             self.error_messages.update(getattr(c, "default_error_messages", {}))
         self.error_messages.update(column.info.get("error_messages") or {})
+
+        self.label = self.column.info.get("label") or (capfirst(" ".join(self.name.split("_"))) if self.name else None)
+
+        self.field_kwargs = {"required": self.required, "validators": self.validators, "help_text": self.help_text}
+        if self.default:
+            if not callable(self.default):
+                self.field_kwargs["initial"] = self.default
+
+        if self.label:
+            self.field_kwargs["label"] = self.label
+
+        if self.widget:
+            self.field_kwargs["widget"] = self.widget
 
     def __repr__(self):
         return "<{!s}({!s}.{!s}){!s}>".format(
@@ -97,112 +146,6 @@ class column_info(object):
             self._coercer = self.formfield(localize=True) or djangofields.Field(localize=True)
         return self._coercer
 
-    @property
-    def attribute(self):
-        """
-        Returns the instrumented attribute itself for buiding query expressions
-        """
-        return getattr(self.parent_model, self.property.key) if self.parent_model else None
-
-    @property
-    def validators(self):
-        """
-        Returns validators of the field
-        """
-        return self.column.info.get("validators") or []
-
-    @property
-    def null(self):
-        """
-        Returns if field allows null
-        """
-        return not self.column.primary_key and self.column.nullable
-
-    @property
-    def required(self):
-        """
-        Returns if the field is required
-        """
-        return self.column.info.get("required", not self.column.nullable)
-
-    @property
-    def parent_model(self):
-        """
-        Returns the model class the field belongs to
-        """
-        return self.property.parent.class_ if self.property else None
-
-    @property
-    def help_text(self):
-        """
-        Returns field help text
-        """
-        return self.column.doc
-
-    @property
-    def empty_values(self):
-        """
-        Returns field empty values
-        """
-        return self.column.info.get("empty_values") or self.coercer.empty_values
-
-    @property
-    def default(self):
-        """
-        Returns the default for the field
-        """
-        return getattr(self.column.default, "arg", None)
-
-    @property
-    def choices(self):
-        """
-        Returns the choices for the field, only used in sqlalchemy enum typed columns
-        """
-        return getattr(self.column.type, "enum_class", None) or getattr(self.column.type, "enums", None)
-
-    @property
-    def widget(self):
-        """
-        Returns the form ui widget for the field
-        """
-        return self.column.info.get("widget_class")
-
-    @property
-    def label(self):
-        """
-        Returns the ui label for the field
-        """
-        label = self.column.info.get("label")
-        if label:
-            return label
-
-        return capfirst(" ".join(self.name.split("_"))) if self.name else None
-
-    @property
-    def form_class(self):
-        """
-        Returns the form class to be used for the field
-        """
-        return self.column.info.get("form_class") or self.default_form_class
-
-    @property
-    def field_kwargs(self):
-        """
-        Returns form field kwargs for the field
-        """
-        kwargs = {"required": self.required, "validators": self.validators, "help_text": self.help_text}
-        if self.default:
-            if not callable(self.default):
-                kwargs["initial"] = self.default
-
-        if self.label:
-            kwargs["label"] = self.label
-
-        if self.widget:
-            kwargs["widget"] = self.widget
-
-        return kwargs
-
     def formfield(self, form_class=None, **kwargs):
         """
         Returns the form field for the field.
@@ -210,7 +153,7 @@ class column_info(object):
         form_class = form_class or self.form_class
 
         if form_class is not None:
-            field_kwargs = self.field_kwargs
+            field_kwargs = self.field_kwargs.copy()
             field_kwargs.update(kwargs)
             return form_class(**field_kwargs)
 
@@ -262,11 +205,9 @@ class string_column_info(column_info):
 
     default_form_class = djangofields.CharField
 
-    @property
-    def field_kwargs(self):
-        kwargs = super(string_column_info, self).field_kwargs
-        kwargs["max_length"] = self.column.type.length
-        return kwargs
+    def __init__(self, column, prop=None, parent=None, name=None):
+        super(string_column_info, self).__init__(column, prop, parent, name)
+        self.field_kwargs["max_length"] = self.column.type.length
 
     def to_python(self, value):
         if value is None:
@@ -279,9 +220,10 @@ class text_column_info(string_column_info):
     Provides meta info for text columns
     """
 
-    @property
-    def widget(self):
-        return super(text_column_info, self).widget or djangoforms.Textarea
+    def __init__(self, column, prop=None, parent=None, name=None):
+        super(text_column_info, self).__init__(column, prop, parent, name)
+        self.widget = self.column.info.get("widget_class") or djangoforms.Textarea
+        self.field_kwargs["widget"] = self.widget
 
 
 class choice_column_info(column_info):
@@ -291,22 +233,13 @@ class choice_column_info(column_info):
 
     default_form_class = djangofields.TypedChoiceField
 
-    @property
-    def form_choices(self):
-        """
-        Returns choices for form field
-        """
-        return [(x, x) for x in self.choices]
-
-    @property
-    def field_kwargs(self):
-        kwargs = super(choice_column_info, self).field_kwargs
-        kwargs["choices"] = self.form_choices
-
+    def __init__(self, column, prop=None, parent=None, name=None):
+        super(choice_column_info, self).__init__(column, prop, parent, name)
+        self.field_kwargs["choices"] = [(x, x) for x in self.choices]
         # Many of the subclass-specific formfield arguments (min_value,
         # max_value) don't apply for choice fields, so be sure to only pass
         # the values that TypedChoiceField will understand.
-        for k in list(kwargs):
+        for k in list(self.field_kwargs):
             if k not in (
                 "choices",
                 "coerce",
@@ -322,9 +255,7 @@ class choice_column_info(column_info):
                 "validators",
                 "widget",
             ):
-                del kwargs[k]  # pragma: nocover
-
-        return kwargs
+                del self.field_kwargs[k]  # pragma: nocover
 
     def to_python(self, value):
         if value is None:
@@ -350,9 +281,9 @@ class enum_column_info(choice_column_info):
 
     default_form_class = sorceryfields.EnumField
 
-    @property
-    def form_choices(self):
-        return self.choices
+    def __init__(self, column, prop=None, parent=None, name=None):
+        super(choice_column_info, self).__init__(column, prop, parent, name)
+        self.field_kwargs["choices"] = self.choices
 
     def to_python(self, value):
         if value is None:
@@ -373,31 +304,19 @@ class numeric_column_info(column_info):
     Provides meta info for numeric columns
     """
 
+    __slots__ = ("max_digits", "decimal_places")
+
     default_form_class = djangofields.DecimalField
 
-    @property
-    def field_kwargs(self):
-        kwargs = super(numeric_column_info, self).field_kwargs
+    def __init__(self, column, prop=None, parent=None, name=None):
+        super(numeric_column_info, self).__init__(column, prop, parent, name)
+        self.max_digits = self.column.type.precision
+        self.decimal_places = self.column.type.scale
         if self.column.type.python_type == decimal.Decimal:
             if self.max_digits is not None:
-                kwargs["max_digits"] = self.max_digits
+                self.field_kwargs["max_digits"] = self.max_digits
             if self.decimal_places is not None:
-                kwargs["decimal_places"] = self.decimal_places
-        return kwargs
-
-    @property
-    def max_digits(self):
-        """
-        Return max digits for the column
-        """
-        return self.column.type.precision
-
-    @property
-    def decimal_places(self):
-        """
-        Return decimal places for the column
-        """
-        return self.column.type.scale
+                self.field_kwargs["decimal_places"] = self.decimal_places
 
     def to_python(self, value):
         if value is None:
@@ -419,13 +338,10 @@ class boolean_column_info(column_info):
     Provides meta info for boolean columns
     """
 
-    @property
-    def form_class(self):
-        form_class = super(boolean_column_info, self).form_class
-        if form_class:
-            return form_class
-
-        return djangofields.NullBooleanField if self.null else djangofields.BooleanField
+    def __init__(self, column, prop=None, parent=None, name=None):
+        super(boolean_column_info, self).__init__(column, prop, parent, name)
+        if not self.form_class:
+            self.form_class = djangofields.NullBooleanField if self.null else djangofields.BooleanField
 
     def to_python(self, value):
         if value is None:
