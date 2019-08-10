@@ -12,11 +12,10 @@ import six
 
 from sqlalchemy.orm import configure_mappers
 
-from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.functional import cached_property
 
-from ..db import alembic as sorcery_alembic, databases, signals
+from ..db import alembic as sorcery_alembic, databases, meta, signals
 from ..db.alembic import include_object, process_revision_directives
 
 
@@ -42,7 +41,8 @@ class AlembicCommand(BaseCommand):
             for table in db.metadata.sorted_tables:
                 model = table_class_map.get(table)
                 if model:
-                    app = apps.get_containing_app_config(model.__module__)
+                    info = meta.model_info(model)
+                    app = info.app_config
                     if app:
                         path = self.get_app_version_path(app)
                         if os.path.exists(path):

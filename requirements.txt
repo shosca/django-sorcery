@@ -3,6 +3,7 @@ Sphinx
 attrs
 beautifulsoup4
 coveralls
+coverage
 django-extensions
 flake8
 gitchangelog

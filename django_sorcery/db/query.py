@@ -6,6 +6,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 from collections import namedtuple
 from functools import partial
 
+import six
+
 import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
 
@@ -71,6 +73,33 @@ class Query(sa.orm.Query):
             return None
 
         return super(Query, self).get(*args, **kwargs)
+
+    def order_by(self, *criterion):
+        """
+        Standard SQLAlchemy ordering plus django-like expressions can be provided:
+
+        For example::
+
+            MyModel.objects.order_by("-id")
+            MyModel.objects.order_by("name")
+        """
+        if len(self._entities) == 1 and all(isinstance(criteria, six.string_types) for criteria in criterion):
+            info = meta.model_info(self._entity_zero())
+            new_criterion = []
+            for criteria in criterion:
+                direction = sa.asc
+                if criteria[0] == "-":
+                    criteria = criteria[1:]
+                    direction = sa.desc
+                elif criteria[0] == "+":
+                    criteria = criteria[1:]
+
+                col_info = info.primary_keys.get(criteria) or info.properties.get(criteria)
+                new_criterion.append(direction(col_info.attribute))
+
+            criterion = new_criterion
+
+        return super(Query, self).order_by(*criterion)
 
     def filter(self, *args, **kwargs):
         """

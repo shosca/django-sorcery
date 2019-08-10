@@ -39,9 +39,11 @@ class column_info(object):
 
     default_form_class = None
     default_error_messages = djangomodelfields.Field.default_error_messages
+    is_relation = False
 
     __slots__ = (
         "_coercer",
+        "attname",
         "attribute",
         "choices",
         "column",
@@ -52,6 +54,7 @@ class column_info(object):
         "field_kwargs",
         "form_class",
         "help_text",
+        "unique",
         "name",
         "null",
         "parent",
@@ -95,10 +98,12 @@ class column_info(object):
         self.parent = parent
         self._coercer = None
         self.name = name or (self.property.key if self.property is not None else self.column.key)
+        self.attname = self.name
 
         self.validators = self.column.info.get("validators") or []
         self.null = not self.column.primary_key and self.column.nullable
         self.required = self.column.info.get("required", not self.column.nullable)
+        self.unique = self.column.unique
 
         self.parent_model = self.property.parent.class_ if self.property else None
         self.attribute = getattr(self.parent_model, self.property.key) if self.parent_model else None

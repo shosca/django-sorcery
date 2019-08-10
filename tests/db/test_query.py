@@ -10,15 +10,15 @@ from ..testapp.models import CompositePkModel, Owner, Point, Vehicle, VehicleTyp
 class TestQuery(TestCase):
     def setUp(self):
         super(TestQuery, self).setUp()
-        owner = Owner(first_name="Test 1", last_name="Owner 1")
-        vehicle = Vehicle(name="used", is_used=True, type=VehicleType.car, owner=owner)
+        self.owner = Owner(first_name="Test 1", last_name="Owner 1")
+        vehicle = Vehicle(name="used", is_used=True, type=VehicleType.car, owner=self.owner)
         vertex = Vertex(start=Point(x=1, y=2), end=Point(x=3, y=4))
-        db.add(owner)
+        db.add(self.owner)
         db.add(vehicle)
         db.add(vertex)
         db.add(CompositePkModel(id=1, pk=1, active=True, name="Test-1-1"))
         db.flush()
-        self.owner_id = owner.id
+        self.owner_id = self.owner.id
         self.vehicle_id = vehicle.id
         self.vertex_id = vertex.pk
         db.expire_all()
@@ -46,6 +46,19 @@ class TestQuery(TestCase):
 
     def test_query_kwarg_none(self):
         self.assertIsNone(CompositePkModel.query.get(id=1))
+
+    def test_query_order_by_django_style(self):
+        owner1 = Owner(first_name="AAAA 1", last_name="AAAA 1")
+        owner2 = Owner(first_name="ZZZZ 2", last_name="ZZZZ 1")
+        db.add_all([owner1, owner2])
+        db.flush()
+
+        owners = Owner.objects.order_by("-first_name").all()
+
+        self.assertListEqual([owner2, self.owner, owner1], owners)
+
+        owners = Owner.objects.order_by("+first_name", "-last_name").all()
+        self.assertListEqual([owner1, self.owner, owner2], owners)
 
     def test_query_filter_default_equality(self):
         obj = Owner.query.filter(first_name="Test 1").first()

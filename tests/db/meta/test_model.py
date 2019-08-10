@@ -3,9 +3,13 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import sqlalchemy as sa
 
+from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist
+
 from django_sorcery.db import meta  # noqa
 
 from ...base import TestCase
+from ...otherapp.models import OtherAppInOtherApp
 from ...testapp.models import Business, CompositePkModel, Owner, Vehicle
 
 
@@ -28,31 +32,47 @@ class TestModelMeta(TestCase):
         self.assertEqual(
             [attr for attr in dir(info) if not attr.startswith("__")],
             [
-                "_configure",
-                "_field_names",
+                "_init",
+                "app_config",
+                "app_label",
                 "clean_fields",
                 "clean_nested_fields",
                 "clean_relation_fields",
                 "column_properties",
                 "composites",
+                "concrete_fields",
                 "field_names",
+                "fields",
                 "first_name",
                 "full_clean",
+                "get_field",
                 "get_key",
                 "id",
                 "identity_key_from_dict",
                 "identity_key_from_instance",
+                "label",
+                "label_lower",
                 "last_name",
+                "local_fields",
                 "mapper",
+                "model",
                 "model_class",
+                "model_name",
+                "object_name",
+                "opts",
+                "ordering",
                 "primary_keys",
                 "primary_keys_from_dict",
                 "primary_keys_from_instance",
+                "private_fields",
                 "properties",
                 "relationships",
                 "run_validators",
                 "sa_state",
+                "unique_together",
                 "vehicles",
+                "verbose_name",
+                "verbose_name_plural",
             ],
         )
         self.assertEqual(info.id, info.primary_keys["id"])
@@ -65,6 +85,26 @@ class TestModelMeta(TestCase):
         self.assertEqual(info.location, info.composites["location"])
         self.assertEqual(info.other_location, info.composites["other_location"])
         self.assertNotEqual(info.location, info.other_location)
+
+        self.assertEqual(info.label, "tests.testapp.Business")
+        self.assertEqual(info.label_lower, "tests.testapp.business")
+
+        info = meta.model_info(Vehicle)
+        self.assertEqual(info.private_fields, ())
+
+        self.assertEqual(
+            set(f.name for f in info.local_fields),
+            {"id", "name", "type", "created_at", "paint", "is_used", "msrp", "owner", "parts", "options"},
+        )
+        for f in info.local_fields:
+            self.assertEqual(f, info.get_field(f.name))
+
+    def test_app(self):
+        info = meta.model_info(Owner)
+        self.assertIs(info.app_config, apps.get_containing_app_config(Owner.__module__))
+
+        info = meta.model_info(OtherAppInOtherApp)
+        self.assertIs(info.app_config, apps.get_containing_app_config(Owner.__module__))
 
     def test_reprs(self):
         owner_info = meta.model_info(Owner)
@@ -125,6 +165,13 @@ class TestModelMeta(TestCase):
     def test_inspect(self):
         info = meta.model_info(Owner)
         self.assertIsInstance(info.sa_state(Owner()), sa.orm.state.InstanceState)
+
+    def test_get_field(self):
+        info = meta.model_info(Owner)
+        self.assertIs(info.get_field("first_name"), info.properties.get("first_name"))
+
+        with self.assertRaises(FieldDoesNotExist):
+            info.get_field("zzzzzz")
 
     def test_column_properties(self):
         info = meta.model_info(Owner)

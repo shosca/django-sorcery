@@ -50,5 +50,4 @@ class Order(db.Model):
 
 
 db.configure_mappers()
-db.drop_all()
 db.create_all()
