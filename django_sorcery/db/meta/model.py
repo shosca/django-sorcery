@@ -7,11 +7,13 @@ from collections import OrderedDict, namedtuple
 from functools import partial
 from itertools import chain
 
+import inflect
 import six
 
 import sqlalchemy as sa
 
-from django.core.exceptions import ValidationError
+from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 
 from ...exceptions import NestedValidationError
 from ...validators import ValidationRunner
@@ -22,6 +24,7 @@ from .relations import relation_info
 
 
 Identity = namedtuple("Key", ["model", "pk"])
+inflector = inflect.engine()
 
 
 class model_info(six.with_metaclass(model_info_meta)):
@@ -29,44 +32,106 @@ class model_info(six.with_metaclass(model_info_meta)):
     A helper class that makes sqlalchemy model inspection easier
     """
 
-    __slots__ = ("mapper", "properties", "_field_names", "model_class", "composites", "primary_keys", "relationships")
+    __slots__ = (
+        "field_names",
+        "app_label",
+        "composites",
+        "concrete_fields",
+        "fields",
+        "local_fields",
+        "mapper",
+        "label",
+        "label_lower",
+        "column_properties",
+        "model",
+        "model_class",
+        "model_name",
+        "object_name",
+        "opts",
+        "ordering",
+        "primary_keys",
+        "private_fields",
+        "properties",
+        "relationships",
+        "unique_together",
+        "verbose_name",
+        "verbose_name_plural",
+    )
 
     def __init__(self, model):
-        self.model_class = model
+        self.model_class = self.model = model
         self.mapper = sa.inspect(model)
-        self._field_names = None
-        self.properties = {}
-        self.composites = {}
-        self.relationships = {}
+        self.field_names = ()
+        self.properties = OrderedDict()
+        self.composites = OrderedDict()
+        self.relationships = OrderedDict()
         self.primary_keys = OrderedDict()
+        self.private_fields = ()
+        self.local_fields = ()
+        self.concrete_fields = ()
 
-        sa.event.listen(self.mapper, "mapper_configured", self._configure)
-        self._configure(self.mapper, self.model_class)
+        self.opts = getattr(model, "Meta", None)
 
-    def _configure(self, mapper, class_):
+        self.object_name = getattr(self.opts, "object_name", self.model_class.__name__)
+        self.model_name = getattr(self.opts, "model_name", self.object_name.lower())
+        self.verbose_name = getattr(self.opts, "model_name", self.model_class.__name__.lower())
+        self.verbose_name_plural = getattr(self.opts, "verbose_name_plural", inflector.plural(self.model_name).lower())
+        self.ordering = getattr(self.opts, "ordering", None)
+        self.unique_together = getattr(self.opts, "unique_together", ())
+
+        self.app_label = getattr(self.opts, "app_label", None)
+        if not self.app_label:
+            app_config = apps.get_containing_app_config(self.model_class.__module__)
+            self.app_label = getattr(app_config, "label", None) or "django_sorcery"
+
+        self.label = "%s.%s" % (self.app_label, self.object_name)
+        self.label_lower = "%s.%s" % (self.app_label, self.model_name)
+
+        sa.event.listen(self.mapper, "mapper_configured", self._init)
+        self._init(self.mapper, self.model_class)
+
+    def _init(self, mapper, class_):
         assert mapper is self.mapper
         assert class_ is self.model_class
 
+        self.primary_keys.clear()
         for col in self.mapper.primary_key:
             attr = self.mapper.get_property_by_column(col)
-            if attr.key not in self.primary_keys:
-                self.primary_keys[attr.key] = column_info(col, attr, self, name=attr.key)
+            self.primary_keys[attr.key] = column_info(col, attr, self, name=attr.key)
 
+        self.properties.clear()
         for col in self.mapper.columns:
             attr = self.mapper.get_property_by_column(col)
-            if attr.key not in self.primary_keys and attr.key not in self.properties:
+            if attr.key not in self.primary_keys:
                 self.properties[attr.key] = column_info(col, attr, self, name=attr.key)
 
+        self.composites.clear()
         for composite in self.mapper.composites:
-            if composite.key not in self.composites:
-                self.composites[composite.key] = composite_info(getattr(self.model_class, composite.key), parent=self)
-                for prop in composite.props:
-                    if prop.key in self.properties:
-                        del self.properties[prop.key]
+            self.composites[composite.key] = composite_info(getattr(self.model_class, composite.key), parent=self)
+            for prop in composite.props:
+                if prop.key in self.properties:
+                    del self.properties[prop.key]
 
+        self.relationships.clear()
         for relationship in self.mapper.relationships:
-            if relationship.key not in self.relationships:
-                self.relationships[relationship.key] = relation_info(relationship)
+            self.relationships[relationship.key] = relation_info(relationship)
+
+        self.local_fields = tuple(
+            filter(
+                lambda f: not f.name.startswith("_"),
+                chain(self.primary_keys.values(), self.properties.values(), self.relationships.values()),
+            )
+        )
+        self.fields = tuple(self.local_fields)
+        self.concrete_fields = tuple(self.local_fields)
+        self.column_properties = tuple(chain(self.primary_keys.items(), sorted(self.properties.items())))
+        self.field_names = [
+            attr
+            for attr in chain(
+                self.primary_keys.keys(), self.properties.keys(), self.composites.keys(), self.relationships.keys()
+            )
+            if not attr.startswith("_")
+        ]
 
     def __dir__(self):
         return (
@@ -97,34 +162,27 @@ class model_info(six.with_metaclass(model_info_meta)):
         reprs.extend("    " + repr(i) for _, i in sorted(self.relationships.items()))
         return "\n".join(reprs)
 
+    @property
+    def app_config(self):
+        return apps.get_app_config(self.app_label) or apps.get_containing_app_config(self.model_name.__module__)
+
     def sa_state(self, instance):
         """
         Returns sqlalchemy instance state
         """
         return sa.inspect(instance)
 
-    @property
-    def column_properties(self):
-        """
-        Returns column properties
-        """
-        return chain(self.primary_keys.items(), sorted(self.properties.items()))
+    def get_field(self, field_name):
+        field = (
+            self.primary_keys.get(field_name)
+            or self.properties.get(field_name)
+            or self.composites.get(field_name)
+            or self.relationships.get(field_name)
+        )
+        if not field:
+            raise FieldDoesNotExist
 
-    @property
-    def field_names(self):
-        """
-        Returns field names for the model
-        """
-        if not self._field_names:
-            self._field_names = [
-                attr
-                for attr in chain(
-                    self.primary_keys.keys(), self.properties.keys(), self.composites.keys(), self.relationships.keys()
-                )
-                if not attr.startswith("_")
-            ]
-
-        return self._field_names
+        return field
 
     def primary_keys_from_dict(self, kwargs):
         """

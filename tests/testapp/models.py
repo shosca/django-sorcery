@@ -63,6 +63,9 @@ class Business(db.Model):
     location = db.CompositeField(Address)
     other_location = db.CompositeField(Address, prefix="foo")
 
+    class Meta:
+        db_table = "business"
+
     def clean(self, **kwargs):
         if self.other_location and not self.location:
             raise ValidationError({"location": "Primary location is required when other location is provided."})
@@ -290,7 +293,5 @@ classic_model_table = db.Table(
 )
 db.mapper(ClassicModel, classic_model_table)
 
-
 db.configure_mappers()
-db.drop_all()
 db.create_all()

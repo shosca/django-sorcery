@@ -251,6 +251,21 @@ class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
         return klass
 
 
+def _table_name(cls):
+    opts = getattr(cls, "Meta", None)
+    return getattr(opts, "db_table", None) or "_".join(camel_case_to_spaces(cls.__name__).split())
+
+
+def _table_args(cls):
+    opts = getattr(cls, "Meta", None)
+    return getattr(opts, "table_args", ())
+
+
+def _mapper_args(cls):
+    opts = getattr(cls, "Meta", None)
+    return getattr(opts, "mapper_args", ())
+
+
 class Base(CleanMixin):
     """
     Base model class for SQLAlchemy.
@@ -265,12 +280,9 @@ class Base(CleanMixin):
         objects = None
     """
 
-    @sa.ext.declarative.declared_attr
-    def __tablename__(cls):
-        """
-        Autogenerate a table name
-        """
-        return "_".join(camel_case_to_spaces(cls.__name__).split())
+    __tablename__ = sa.ext.declarative.declared_attr(_table_name)
+    __table_args__ = sa.ext.declarative.declared_attr(_table_args)
+    __mapper_args__ = sa.ext.declarative.declared_attr(_mapper_args)
 
     def as_dict(self):
         """

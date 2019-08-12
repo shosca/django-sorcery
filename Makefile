@@ -1,5 +1,5 @@
 PACKAGE=django_sorcery
-FILES=$(shell find $(PACKAGE) -iname '*.py')
+FILES=$(shell find $(PACKAGE) -iname '*.py' ! -iname '__*')
 VERSION=$(shell python setup.py --version)
 NEXT=$(shell semver -i $(BUMP) $(VERSION))
 DBS=\
@@ -9,15 +9,19 @@ DBS=\
 	minimal \
 	minimal_backpop
 RESETDBS=$(addsuffix -resetdb,$(DBS))
-COVERAGE_FLAGS?=
+COVERAGE_FLAGS?=--cov-report term-missing --cov-fail-under=100
 
-.PHONY: docs $(FILES)
+.PHONY: help list docs $(FILES)
+
 
 help:
 	@for f in $(MAKEFILE_LIST) ; do \
 		echo "$$f:" ; \
-		grep -E '^[a-zA-Z_-%]+:.*?## .*$$' $$f | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}' ; \
+		grep -E '^[^[:space:]].*:.*?## .*$$' $$f | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}' ; \
 	done ; \
+
+list:  ## list all possible targets
+	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
@@ -54,7 +58,7 @@ coverage: ## check code coverage quickly with the default Python
 		tests
 
 $(FILES):  ## helper target to run coverage tests on a module
-	py.test $(PYTEST_OPTS) \
+	py.test $(PYTEST_OPTS) $(COVERAGE_FLAGS) \
 		--cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
