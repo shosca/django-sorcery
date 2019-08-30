@@ -2,7 +2,6 @@
 """
 Validation runner
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 

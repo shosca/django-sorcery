@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django import forms as djangoforms
 from django.core.exceptions import ImproperlyConfigured, ValidationError
@@ -211,7 +210,7 @@ class TestModelToDict(TestCase):
 
 class TestModelForm(TestCase):
     def setUp(self):
-        super(TestModelForm, self).setUp()
+        super().setUp()
         self.owner = Owner(first_name="Test", last_name="Owner")
         db.add(self.owner)
 

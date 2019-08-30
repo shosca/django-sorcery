@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from bs4 import BeautifulSoup
 
@@ -16,14 +15,14 @@ except ImportError:
 
 class TestCase(test.TestCase):
     def setUp(self):
-        super(TestCase, self).setUp()
+        super().setUp()
         self.maxDiff = None
         self.factory = test.RequestFactory()
 
     def tearDown(self):
         databases.rollback()
         databases.remove()
-        super(TestCase, self).tearDown()
+        super().tearDown()
 
     def get_soup(self, html):
         soup = BeautifulSoup(html, "html.parser")

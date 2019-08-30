@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.management.base import BaseCommand
 from django.utils.six import StringIO
@@ -29,7 +28,7 @@ class DummyCommand(NamespacedCommand):
 
 class TestNamespacedCommand(TestCase):
     def setUp(self):
-        super(TestNamespacedCommand, self).setUp()
+        super().setUp()
         self.stdout = StringIO()
         self.stderr = StringIO()
 

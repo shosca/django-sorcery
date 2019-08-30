@@ -2,7 +2,6 @@
 """
 Django-esque field metadata and interface providers.
 """
-from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
 import enum
@@ -89,7 +88,7 @@ class column_info(object):
                 break
 
         _cls = override_cls or cls
-        instance = super(column_info, _cls).__new__(_cls)
+        instance = super().__new__(_cls)
         return instance
 
     def __init__(self, column, prop=None, parent=None, name=None):
@@ -211,7 +210,7 @@ class string_column_info(column_info):
     default_form_class = djangofields.CharField
 
     def __init__(self, column, prop=None, parent=None, name=None):
-        super(string_column_info, self).__init__(column, prop, parent, name)
+        super().__init__(column, prop, parent, name)
         self.field_kwargs["max_length"] = self.column.type.length
 
     def to_python(self, value):
@@ -226,7 +225,7 @@ class text_column_info(string_column_info):
     """
 
     def __init__(self, column, prop=None, parent=None, name=None):
-        super(text_column_info, self).__init__(column, prop, parent, name)
+        super().__init__(column, prop, parent, name)
         self.widget = self.column.info.get("widget_class") or djangoforms.Textarea
         self.field_kwargs["widget"] = self.widget
 
@@ -239,7 +238,7 @@ class choice_column_info(column_info):
     default_form_class = djangofields.TypedChoiceField
 
     def __init__(self, column, prop=None, parent=None, name=None):
-        super(choice_column_info, self).__init__(column, prop, parent, name)
+        super().__init__(column, prop, parent, name)
         self.field_kwargs["choices"] = [(x, x) for x in self.choices]
         # Many of the subclass-specific formfield arguments (min_value,
         # max_value) don't apply for choice fields, so be sure to only pass
@@ -287,7 +286,7 @@ class enum_column_info(choice_column_info):
     default_form_class = sorceryfields.EnumField
 
     def __init__(self, column, prop=None, parent=None, name=None):
-        super(choice_column_info, self).__init__(column, prop, parent, name)
+        super().__init__(column, prop, parent, name)
         self.field_kwargs["choices"] = self.choices
 
     def to_python(self, value):
@@ -314,7 +313,7 @@ class numeric_column_info(column_info):
     default_form_class = djangofields.DecimalField
 
     def __init__(self, column, prop=None, parent=None, name=None):
-        super(numeric_column_info, self).__init__(column, prop, parent, name)
+        super().__init__(column, prop, parent, name)
         self.max_digits = self.column.type.precision
         self.decimal_places = self.column.type.scale
         if self.column.type.python_type == decimal.Decimal:
@@ -344,7 +343,7 @@ class boolean_column_info(column_info):
     """
 
     def __init__(self, column, prop=None, parent=None, name=None):
-        super(boolean_column_info, self).__init__(column, prop, parent, name)
+        super().__init__(column, prop, parent, name)
         if not self.form_class:
             self.form_class = djangofields.NullBooleanField if self.null else djangofields.BooleanField
 
@@ -369,7 +368,7 @@ class date_column_info(column_info):
 
     @property
     def coercer(self):
-        coercer = super(date_column_info, self).coercer
+        coercer = super().coercer
         coercer.input_formats = settings.DATE_INPUT_FORMATS
         return coercer
 
@@ -399,7 +398,7 @@ class datetime_column_info(column_info):
 
     @property
     def coercer(self):
-        coercer = super(datetime_column_info, self).coercer
+        coercer = super().coercer
         coercer.input_formats = settings.DATETIME_INPUT_FORMATS
         return coercer
 

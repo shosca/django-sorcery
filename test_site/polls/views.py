@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -24,7 +23,7 @@ class PollsViewSet(ModelViewSet):
 
     def get_form_context_data(self, **kwargs):
         kwargs["choice_set"] = self.get_choice_formset()
-        return super(PollsViewSet, self).get_form_context_data(**kwargs)
+        return super().get_form_context_data(**kwargs)
 
     def get_choice_formset(self, instance=None):
         if not hasattr(self, "_choice_formset"):

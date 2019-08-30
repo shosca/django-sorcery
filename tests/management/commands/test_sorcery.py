@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
@@ -10,12 +9,12 @@ from ...models_multidb import default_db, other_db
 
 class TestCreateAllDropAll(TestCase):
     def setUp(self):
-        super(TestCreateAllDropAll, self).setUp()
+        super().setUp()
         default_db.drop_all()
         other_db.drop_all()
 
     def tearDown(self):
-        super(TestCreateAllDropAll, self).setUp()
+        super().setUp()
         default_db.create_all()
         other_db.create_all()
 

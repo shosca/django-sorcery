@@ -2,7 +2,6 @@
 """
 Revision command
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from functools import partial
 
 import alembic
@@ -69,7 +68,7 @@ class Revision(AlembicCommand):
         depends_on=None,
         rev_id=None,
         autogenerate=None,
-        **kwargs
+        **kwargs,
     ):
         appconfig = self.lookup_app(app_label)
 
@@ -94,17 +93,17 @@ class Revision(AlembicCommand):
             else:
                 return obj.table in appconfig.tables
 
-        command_args = dict(
-            autogenerate=autogenerate,
-            branch_label=branch_label,
-            depends_on=depends_on,
-            head=head,
-            rev_id=rev_id,
-            message=message,
-            splice=splice,
-            sql=False,
-            version_path=appconfig.version_path,
-        )
+        command_args = {
+            "autogenerate": autogenerate,
+            "branch_label": branch_label,
+            "depends_on": depends_on,
+            "head": head,
+            "rev_id": rev_id,
+            "message": message,
+            "splice": splice,
+            "sql": False,
+            "version_path": appconfig.version_path,
+        }
         self.revision_context = alembic.autogenerate.RevisionContext(appconfig.config, appconfig.script, command_args)
         with alembic.context.EnvironmentContext(
             appconfig.config,

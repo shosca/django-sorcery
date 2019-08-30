@@ -2,7 +2,6 @@
 """
 Django-esque declarative fields for sqlalchemy
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -75,7 +74,7 @@ class Field(sa.Column):
 
         column_kwargs["type_"] = column_type
         column_kwargs.setdefault("name", name)
-        super(Field, self).__init__(*args, **column_kwargs)
+        super().__init__(*args, **column_kwargs)
         self.info["validators"] = self.get_validators(validators)
         self.info["required"] = required if required is not None else not self.nullable
         label = kwargs.pop("label", None)
@@ -155,12 +154,12 @@ class BooleanField(Field):
     form_class = djangofields.BooleanField
 
     def get_type_kwargs(self, type_class, kwargs):
-        type_kwargs = super(BooleanField, self).get_type_kwargs(type_class, kwargs)
+        type_kwargs = super().get_type_kwargs(type_class, kwargs)
         type_kwargs["name"] = kwargs.pop("constraint_name", None)
         return type_kwargs
 
     def get_column_kwargs(self, kwargs):
-        column_kwargs = super(BooleanField, self).get_column_kwargs(kwargs)
+        column_kwargs = super().get_column_kwargs(kwargs)
         column_kwargs["nullable"] = False
         column_kwargs.setdefault("default", False)
         return column_kwargs
@@ -176,14 +175,14 @@ class CharField(Field):
     form_class = djangofields.CharField
 
     def get_type_kwargs(self, type_class, kwargs):
-        type_kwargs = super(CharField, self).get_type_kwargs(type_class, kwargs)
+        type_kwargs = super().get_type_kwargs(type_class, kwargs)
         type_kwargs["length"] = type_kwargs.get("length") or kwargs.get("max_length")
         if not type_kwargs["length"] and self.length_is_required:
             raise TypeError('Missing length parameter. Must provide either "max_length" or "length" parameter')
         return type_kwargs
 
     def get_validators(self, validators):
-        validators = super(CharField, self).get_validators(validators)
+        validators = super().get_validators(validators)
         if self.type.length and not any(isinstance(i, django_validators.MaxLengthValidator) for i in validators):
             validators.append(django_validators.MaxLengthValidator(self.type.length))
         return validators
@@ -225,14 +224,14 @@ class DecimalField(Field):
     form_class = djangofields.DecimalField
 
     def get_type_kwargs(self, type_class, kwargs):
-        type_kwargs = super(DecimalField, self).get_type_kwargs(type_class, kwargs)
+        type_kwargs = super().get_type_kwargs(type_class, kwargs)
         type_kwargs.setdefault("precision", kwargs.pop("max_digits", None))
         type_kwargs.setdefault("scale", kwargs.pop("decimal_places", None))
         type_kwargs["asdecimal"] = True
         return type_kwargs
 
     def get_validators(self, validators):
-        return super(DecimalField, self).get_validators(validators) + [
+        return super().get_validators(validators) + [
             django_validators.DecimalValidator(self.type.precision, self.type.scale)
         ]
 
@@ -254,7 +253,7 @@ class EnumField(Field):
     type_class = sa.Enum
 
     def get_type_kwargs(self, type_class, kwargs):
-        type_kwargs = super(EnumField, self).get_type_kwargs(type_class, kwargs)
+        type_kwargs = super().get_type_kwargs(type_class, kwargs)
         choices = kwargs.pop("choices", None) or kwargs.pop("enum_class", None)
         type_kwargs["choices"] = choices if len(choices) > 1 and isinstance(choices, (list, tuple)) else [choices]
         type_kwargs["name"] = kwargs.pop("constraint_name", None)
@@ -297,7 +296,7 @@ class FloatField(Field):
     form_class = djangofields.FloatField
 
     def get_type_kwargs(self, type_class, kwargs):
-        type_kwargs = super(FloatField, self).get_type_kwargs(type_class, kwargs)
+        type_kwargs = super().get_type_kwargs(type_class, kwargs)
         type_kwargs["precision"] = type_kwargs.get("precision") or kwargs.pop("max_digits", None)
         return type_kwargs
 
@@ -331,7 +330,7 @@ class ValidateIntegerFieldMixin(object):
         """
         Returns django integer min/max validators supported by the database
         """
-        validators = super(ValidateIntegerFieldMixin, self).get_validators(validators)
+        validators = super().get_validators(validators)
         min_int, max_int = self.get_dialect_range()
         if not any(isinstance(i, django_validators.MinValueValidator) for i in validators):
             validators.append(django_validators.MinValueValidator(min_int))

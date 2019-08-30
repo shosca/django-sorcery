@@ -2,7 +2,6 @@
 """
 Metadata for sqlalchemy models
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict, namedtuple
 from functools import partial
 from itertools import chain
@@ -135,7 +134,7 @@ class model_info(six.with_metaclass(model_info_meta)):
 
     def __dir__(self):
         return (
-            dir(super(model_info, self))
+            dir(super())
             + list(vars(type(self)))
             + list(self.primary_keys)
             + list(self.properties)
@@ -152,7 +151,7 @@ class model_info(six.with_metaclass(model_info_meta)):
             return self.composites[name]
         if name in self.relationships:
             return self.relationships[name]
-        return getattr(super(model_info, self), name)
+        return getattr(super(), name)
 
     def __repr__(self):
         reprs = ["<model_info({!s})>".format(self.model_class.__name__)]

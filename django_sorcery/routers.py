@@ -2,7 +2,6 @@
 """
 Django REST Framework like router for viewsets
 """
-from __future__ import absolute_import, print_function, unicode_literals
 import itertools
 from collections import namedtuple
 
@@ -161,7 +160,7 @@ class SimpleRouter(BaseRouter):
 
     def __init__(self, trailing_slash=True):
         self.trailing_slash = "/" if trailing_slash else ""
-        super(SimpleRouter, self).__init__()
+        super().__init__()
 
     def get_default_base_name(self, viewset):
         """

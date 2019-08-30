@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # fmt:off
-from __future__ import absolute_import, print_function, unicode_literals
 import os
 import shutil
 import sys

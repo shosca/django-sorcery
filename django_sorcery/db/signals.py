@@ -5,7 +5,6 @@ Signals
 
 Implements some basic signals using blinker
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from threading import local
 
 import blinker

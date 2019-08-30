@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 from collections import namedtuple
 
 from django.core.exceptions import ValidationError
@@ -105,7 +104,7 @@ class TestValidateUnique(TestCase):
 
 class TestValidateValue(TestCase):
     def setUp(self):
-        super(TestValidateValue, self).setUp()
+        super().setUp()
         self.validator = ValidateValue("right", lambda n: n.left != "left" or "right" in n.right)
 
     def test_valid(self):
@@ -124,7 +123,7 @@ class TestValidateValue(TestCase):
 
 class TestValidateEmptyWhen(TestCase):
     def setUp(self):
-        super(TestValidateEmptyWhen, self).setUp()
+        super().setUp()
         self.validator = ValidateEmptyWhen("right", lambda n: not n.left)
 
     def test_valid(self):
@@ -138,7 +137,7 @@ class TestValidateEmptyWhen(TestCase):
 
 class TestValidateNotEmptyWhen(TestCase):
     def setUp(self):
-        super(TestValidateNotEmptyWhen, self).setUp()
+        super().setUp()
         self.validator = ValidateNotEmptyWhen("right", lambda n: n.left)
 
     def test_valid(self):
@@ -181,7 +180,7 @@ class TestValidateOnlyOneOf(TestCase):
 
 class TestValidateCantRemove(TestCase):
     def setUp(self):
-        super(TestValidateCantRemove, self).setUp()
+        super().setUp()
         self.validator = ValidateCantRemove("name")
 
     def test_no_changes(self):

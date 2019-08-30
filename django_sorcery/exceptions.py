@@ -2,7 +2,6 @@
 """
 Exceptions
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ValidationError
 
@@ -52,7 +51,7 @@ class NestedValidationError(ValidationError):
             self.__dict__.update(vars(message))
 
         else:
-            super(NestedValidationError, self).__init__(message, code, params)
+            super().__init__(message, code, params)
 
     def update_error_dict(self, error_dict):
         if hasattr(self, "error_dict"):
@@ -61,11 +60,11 @@ class NestedValidationError(ValidationError):
                 (getattr(holder, "update", None) or holder.extend)(errors)
             return error_dict
         else:
-            return super(NestedValidationError, self).update_error_dict(error_dict)
+            return super().update_error_dict(error_dict)
 
     def __iter__(self):
         if hasattr(self, "code"):
-            for i in super(NestedValidationError, self).__iter__():
+            for i in super().__iter__():
                 yield i
 
         elif hasattr(self, "error_dict"):
@@ -86,4 +85,4 @@ class NestedValidationError(ValidationError):
                         yield i
 
     def __repr__(self):
-        return "Nested" + super(NestedValidationError, self).__repr__()
+        return "Nested" + super().__repr__()

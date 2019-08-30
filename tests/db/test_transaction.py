@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ValidationError
 
@@ -11,7 +10,7 @@ from ..testapp.models import Owner, db
 
 class TestTransaction(TestCase):
     def setUp(self):
-        super(TestTransaction, self).setUp()
+        super().setUp()
         Owner.query.delete()
         db.commit()
         db.remove()

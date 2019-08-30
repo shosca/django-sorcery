@@ -2,7 +2,6 @@
 """
 Django REST Framework like viewset mixins for common model sqlalchemy actions
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
@@ -50,7 +49,7 @@ class ListModelMixin(BaseMultipleObjectMixin):
         if context_object_name is not None:
             context[context_object_name] = queryset
         context.update(kwargs)
-        return super(ListModelMixin, self).get_context_data(**context)
+        return super().get_context_data(**context)
 
 
 class RetrieveModelMixin(BaseSingleObjectMixin):
@@ -92,7 +91,7 @@ class RetrieveModelMixin(BaseSingleObjectMixin):
             if context_object_name:
                 context[context_object_name] = self.object
         context.update(kwargs)
-        return super(RetrieveModelMixin, self).get_context_data(**context)
+        return super().get_context_data(**context)
 
 
 class ModelFormMixin(FormMixin, RetrieveModelMixin):
@@ -121,7 +120,7 @@ class ModelFormMixin(FormMixin, RetrieveModelMixin):
         """
         Returns the keyword arguments for instantiating the form
         """
-        kwargs = super(ModelFormMixin, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         if hasattr(self, "object"):
             kwargs.update({"instance": self.object})
 
@@ -153,7 +152,7 @@ class ModelFormMixin(FormMixin, RetrieveModelMixin):
         Processes a valid form
         """
         self.object = form.save()
-        return super(ModelFormMixin, self).form_valid(form)
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         """

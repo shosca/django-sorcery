@@ -2,7 +2,6 @@
 """
 Field mapping from SQLAlchemy type's to form fields
 """
-from __future__ import absolute_import, print_function, unicode_literals
 import json
 
 from django.core.exceptions import ValidationError
@@ -28,7 +27,7 @@ class EnumField(djangofields.ChoiceField):
             kwargs["choices"] = [(self.empty_value, empty_label)] + kwargs["choices"]
 
         kwargs.pop("max_length", None)
-        super(EnumField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def to_python(self, value):
         if value in self.empty_values:
@@ -56,7 +55,7 @@ class EnumField(djangofields.ChoiceField):
         return value if value is None else value.name
 
     def bound_data(self, data, initial):
-        value = super(EnumField, self).bound_data(data, initial)
+        value = super().bound_data(data, initial)
         return self.prepare_value(value)
 
 
@@ -107,7 +106,7 @@ class ModelChoiceField(djangofields.ChoiceField):
         help_text="",
         to_field_name=None,
         limit_choices_to=None,
-        **kwargs
+        **kwargs,
     ):
         if required and (initial is not None):
             self.empty_label = None
@@ -181,14 +180,14 @@ class ModelChoiceField(djangofields.ChoiceField):
         if isinstance(obj, self.model):
             return self.prepare_instance_value(obj)
 
-        return super(ModelChoiceField, self).prepare_value(obj)
+        return super().prepare_value(obj)
 
     def validate(self, value):
         return djangofields.Field.validate(self, value)
 
     def get_bound_field(self, form, field_name):
         self.widget.choices = self.choices
-        return super(ModelChoiceField, self).get_bound_field(form, field_name)
+        return super().get_bound_field(form, field_name)
 
     def get_limit_choices_to(self):
         """
@@ -213,7 +212,7 @@ class ModelMultipleChoiceField(ModelChoiceField):
 
     def __init__(self, *args, **kwargs):
         kwargs["empty_label"] = None
-        super(ModelMultipleChoiceField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def to_python(self, value):
         if not value:
@@ -229,4 +228,4 @@ class ModelMultipleChoiceField(ModelChoiceField):
             return [self.prepare_instance_value(v) for v in value if not isinstance(v, str)]
 
         except Exception:
-            return super(ModelMultipleChoiceField, self).prepare_value(value)
+            return super().prepare_value(value)

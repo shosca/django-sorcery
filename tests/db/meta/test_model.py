@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import sqlalchemy as sa
 
@@ -93,7 +92,7 @@ class TestModelMeta(TestCase):
         self.assertEqual(info.private_fields, ())
 
         self.assertEqual(
-            set(f.name for f in info.local_fields),
+            {f.name for f in info.local_fields},
             {"id", "name", "type", "created_at", "paint", "is_used", "msrp", "owner", "parts", "options"},
         )
         for f in info.local_fields:

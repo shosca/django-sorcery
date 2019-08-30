@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -65,7 +64,7 @@ db = databases.get("test")
 
 class TestDowngrade(MigrationMixin, TestCase):
     def setUp(self):
-        super(TestDowngrade, self).setUp()
+        super().setUp()
 
         self.write_migration(M1, "{}_.py".format("000000000000"))
         self.write_migration(M2, "{}_.py".format("000000000001"))
@@ -73,7 +72,7 @@ class TestDowngrade(MigrationMixin, TestCase):
         Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp", "--no-color"])
 
     def tearDown(self):
-        super(TestDowngrade, self).tearDown()
+        super().tearDown()
 
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
         for rev in ["000000000000", "000000000001"]:

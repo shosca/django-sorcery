@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import sqlalchemy as sa
 
@@ -15,7 +14,7 @@ from ..testapp.models import Owner, db
 
 class TestListView(TestCase):
     def setUp(self):
-        super(TestListView, self).setUp()
+        super().setUp()
         db.add_all(
             [
                 Owner(id=1, first_name="Test 1", last_name="Owner 1"),

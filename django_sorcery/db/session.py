@@ -2,7 +2,6 @@
 """
 sqlalchemy session related things
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from itertools import chain
 
 from sqlalchemy import event, orm
@@ -60,7 +59,7 @@ class SignallingSession(orm.Session):
     """
 
     def __init__(self, *args, **kwargs):
-        super(SignallingSession, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         event.listen(self, "after_flush", record_models)
 
         event.listen(self, "before_flush", before_flush)
@@ -76,4 +75,4 @@ class SignallingSession(orm.Session):
         if len(args) == 1 and hasattr(args[0], "query_class") and args[0].query_class is not None:
             return args[0].query_class(*args, session=self, **kwargs)
 
-        return super(SignallingSession, self).query(*args, **kwargs)
+        return super().query(*args, **kwargs)

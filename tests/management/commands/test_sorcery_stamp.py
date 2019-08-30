@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -41,13 +40,13 @@ db = databases.get("test")
 
 class TestStamp(MigrationMixin, TestCase):
     def setUp(self):
-        super(TestStamp, self).setUp()
+        super().setUp()
 
         self.delete_migration("{}_.py".format("000000000000"))
         self.write_migration(M1, "{}_.py".format("000000000000"))
 
     def tearDown(self):
-        super(TestStamp, self).tearDown()
+        super().tearDown()
 
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
         self.delete_migration("{}_.py".format("000000000000"))

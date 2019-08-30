@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -13,7 +12,7 @@ from ..testapp.models import Owner, db
 
 class TestDetailView(TestCase):
     def setUp(self):
-        super(TestDetailView, self).setUp()
+        super().setUp()
         db.add_all(
             [
                 Owner(id=1, first_name="Test 1", last_name="Owner1"),

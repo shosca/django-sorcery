@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -12,7 +11,7 @@ from ..testapp.models import Owner, db
 
 class TestModelFormSet(TestCase):
     def setUp(self):
-        super(TestModelFormSet, self).setUp()
+        super().setUp()
         self.owners = [
             Owner(first_name="Test 1", last_name="Owner 1"),
             Owner(first_name="Test 2", last_name="Owner 2"),

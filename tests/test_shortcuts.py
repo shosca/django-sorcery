@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.http import Http404
 
@@ -11,7 +10,7 @@ from .testapp.models import Owner, db
 
 class TestShortcuts(TestCase):
     def setUp(self):
-        super(TestShortcuts, self).setUp()
+        super().setUp()
         db.add_all(
             [
                 Owner(first_name="Test 1", last_name="Owner 1"),

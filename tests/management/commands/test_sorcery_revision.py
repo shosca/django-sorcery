@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import os
 
 import six
@@ -21,11 +20,11 @@ db = databases.get("test")
 
 class TestRevision(MigrationMixin, TestCase):
     def setUp(self):
-        super(TestRevision, self).setUp()
+        super().setUp()
         Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "--no-color"])
 
     def tearDown(self):
-        super(TestRevision, self).tearDown()
+        super().tearDown()
         self.delete_migration("{}_.py".format(rev))
         self.delete_migration("{}_zero.py".format(rev))
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])

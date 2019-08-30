@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django_sorcery.db.query import QueryProperty
 
@@ -9,7 +8,7 @@ from ..testapp.models import CompositePkModel, Owner, Point, Vehicle, VehicleTyp
 
 class TestQuery(TestCase):
     def setUp(self):
-        super(TestQuery, self).setUp()
+        super().setUp()
         self.owner = Owner(first_name="Test 1", last_name="Owner 1")
         vehicle = Vehicle(name="used", is_used=True, type=VehicleType.car, owner=self.owner)
         vertex = Vertex(start=Point(x=1, y=2), end=Point(x=3, y=4))
@@ -24,7 +23,7 @@ class TestQuery(TestCase):
         db.expire_all()
 
     def tearDown(self):
-        super(TestQuery, self).tearDown()
+        super().tearDown()
         db.rollback()
         db.remove()
 
@@ -87,7 +86,7 @@ class TestQuery(TestCase):
 
 class TestQueryProperty(TestCase):
     def setUp(self):
-        super(TestQueryProperty, self).setUp()
+        super().setUp()
         db.add_all(
             [
                 Vehicle(name="used", is_used=True, type=VehicleType.car),
@@ -116,7 +115,8 @@ class TestQueryProperty(TestCase):
         self.assertEqual(
             ctx.exception.args,
             (
-                "<QueryProperty db=<SQLAlchemy engine=postgresql://postgres@localhost/test>, model='Vehicle'> object has no attribute 'dummy'",
+                "<QueryProperty db=<SQLAlchemy engine=postgresql://postgres@localhost/test>, model='Vehicle'> "
+                "object has no attribute 'dummy'",
             ),
         )
 

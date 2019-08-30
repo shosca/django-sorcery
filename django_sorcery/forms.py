@@ -2,7 +2,6 @@
 """
 Helper functions for creating Form classes from SQLAlchemy models.
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict
 from itertools import chain
 
@@ -69,7 +68,7 @@ def fields_for_model(
     error_messages=None,
     field_classes=None,
     apply_limit_choices_to=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Returns a dictionary containing form fields for a given model
@@ -188,7 +187,7 @@ class SQLAModelFormOptions(ModelFormOptions):
     """
 
     def __init__(self, options=None):
-        super(SQLAModelFormOptions, self).__init__(options=options)
+        super().__init__(options=options)
         self.session = getattr(options, "session", None)
 
 
@@ -198,7 +197,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
     """
 
     def __new__(mcs, name, bases, attrs):
-        cls = super(ModelFormMetaclass, mcs).__new__(mcs, name, bases, attrs)
+        cls = super().__new__(mcs, name, bases, attrs)
 
         base_formfield_callback = None
         for base in bases:
@@ -328,7 +327,7 @@ class BaseModelForm(DjangoBaseModelForm):
         """
         Return True if the form has no errors, or False otherwise. Will also rollback the session transaction.
         """
-        is_valid = super(BaseModelForm, self).is_valid()
+        is_valid = super().is_valid()
 
         if not is_valid and rollback:
             self._meta.session.rollback()

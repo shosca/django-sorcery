@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import os
 
 from django.test import TestCase, override_settings
@@ -39,12 +38,12 @@ from django_sorcery.db.url import (
 )
 class TestMakeUrl(TestCase):
     def setUp(self):
-        super(TestMakeUrl, self).setUp()
+        super().setUp()
         os.environ["FROM_ENV_URL"] = "postgresql://usr:hunter2@awesomedomain/db?engine_echo=True"
         os.environ["FROM_ENV_PRESERVE_URL"] = "postgresql://usr:hunter2@awesomedomain/db?engine_echo=True"
 
     def tearDown(self):
-        super(TestMakeUrl, self).tearDown()
+        super().tearDown()
         os.environ.pop("FROM_ENV_URL", None)
         os.environ.pop("FROM_ENV_PRESERVE_URL", None)
 

@@ -2,7 +2,6 @@
 """
 Alembic Django command things
 """
-from __future__ import absolute_import, print_function, unicode_literals
 import os
 from collections import OrderedDict, namedtuple
 
@@ -118,12 +117,12 @@ class AlembicCommand(BaseCommand):
         Common alembic configuration
         """
         config = context.config
-        return dict(
-            include_object=include_object,
-            process_revision_directives=process_revision_directives,
-            version_table=config.get_main_option("version_table"),
-            version_table_schema=config.get_main_option("version_table_schema"),
-        )
+        return {
+            "include_object": include_object,
+            "process_revision_directives": process_revision_directives,
+            "version_table": config.get_main_option("version_table"),
+            "version_table_schema": config.get_main_option("version_table_schema"),
+        }
 
     def run_env(self, context, appconfig):
         """
@@ -158,7 +157,7 @@ class AlembicCommand(BaseCommand):
             url=appconfig.db.url,
             literal_binds=True,
             target_metadata=appconfig.db.metadata,
-            **self.get_common_config(context)
+            **self.get_common_config(context),
         )
         with context.begin_transaction():
             context.run_migrations()

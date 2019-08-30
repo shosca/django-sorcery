@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django_sorcery.db import signals  # noqa
 
@@ -9,7 +8,7 @@ from ..testapp.models import CompositePkModel, Owner, OwnerQuery, db
 
 class TestSession(TestCase):
     def setUp(self):
-        super(TestSession, self).setUp()
+        super().setUp()
         Owner.query.delete()
         db.commit()
         db.remove()
@@ -41,7 +40,7 @@ class TestSession(TestCase):
         self.models_deleted = session.models_deleted.copy()
 
     def tearDown(self):
-        super(TestSession, self).tearDown()
+        super().tearDown()
         signals.before_flush.disconnect(self._before_flush)
         signals.after_flush.disconnect(self._after_flush)
         signals.before_commit.disconnect(self._before_commit)
