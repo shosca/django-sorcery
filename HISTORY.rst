@@ -2,8 +2,17 @@ Changelog
 =========
 
 
-0.9.4 (2019-07-14)
+0.10.0 (2019-08-30)
 -----------------------------
+- Drop py2 support (#149) [Serkan Hosca]
+- Make model meta look like django meta (#148) [Serkan Hosca]
+- Simplify column meta info (#147) [Serkan Hosca]
+- Fix ModelChoiceField.get_object and make ModelForm inherit
+  BaseModelForm (#146) [Serkan Hosca]
+
+
+0.9.4 (2019-07-14)
+------------------
 - Fix middleware response return (#143) [Serkan Hosca]
 - Use python/black (#141) [Serkan Hosca]
 
