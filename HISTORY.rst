@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.10.0 (2019-08-30)
+0.10.1 (2019-08-30)
 -----------------------------
+- Drop py2 from setup.py. [Serkan Hosca]
+
+
+0.10.0 (2019-08-31)
+-------------------
 - Drop py2 support (#149) [Serkan Hosca]
 - Make model meta look like django meta (#148) [Serkan Hosca]
 - Simplify column meta info (#147) [Serkan Hosca]
