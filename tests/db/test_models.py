@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 from decimal import Decimal
 
@@ -206,7 +205,7 @@ class TestSerialization(TestCase):
 
 class TestClone(TestCase):
     def setUp(self):
-        super(TestClone, self).setUp()
+        super().setUp()
         self.vehicle = Vehicle(
             name="vehicle",
             owner=Owner(first_name="first_name", last_name="last_name"),

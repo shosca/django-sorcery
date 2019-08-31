@@ -2,7 +2,6 @@
 """
 Default alembic signal configuration
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from ...db import signals
 
@@ -18,7 +17,7 @@ def include_object(obj, name, type_, reflected, compare_to):
         obj, name=name, type_=type_, reflected=reflected, compare_to=compare_to
     )
     if results:
-        return all([res[1] for res in results])
+        return all(res[1] for res in results)
 
     return True
 

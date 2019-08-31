@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
@@ -13,7 +12,7 @@ from ..testapp.models import Owner, db
 
 class TestListModelMixin(TestCase):
     def setUp(self):
-        super(TestListModelMixin, self).setUp()
+        super().setUp()
         db.add_all(
             [
                 Owner(id=1, first_name="Test 1", last_name="Owner 1"),
@@ -94,7 +93,7 @@ class TestListModelMixin(TestCase):
 
 class TestRetieveModelMixin(TestCase):
     def setUp(self):
-        super(TestRetieveModelMixin, self).setUp()
+        super().setUp()
         db.add_all(
             [
                 Owner(id=1, first_name="Test 1", last_name="Owner 1"),
@@ -232,7 +231,7 @@ class TestCreateModelMixin(TestCase):
 
 class TestUpdateModelMixin(TestCase):
     def setUp(self):
-        super(TestUpdateModelMixin, self).setUp()
+        super().setUp()
         db.add(Owner(id=1, first_name="Test 1", last_name="Owner 1"))
         db.flush()
 
@@ -273,7 +272,7 @@ class TestUpdateModelMixin(TestCase):
 
 class TestDeleteModelMixin(TestCase):
     def setUp(self):
-        super(TestDeleteModelMixin, self).setUp()
+        super().setUp()
         db.add(Owner(id=1, first_name="Test 1", last_name="Owner 1"))
         db.flush()
 

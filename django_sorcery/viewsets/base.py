@@ -2,7 +2,6 @@
 """
 Django REST Framework like model viewsets
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from functools import update_wrapper
 from inspect import getmembers
 
@@ -24,7 +23,7 @@ class GenericViewSet(TemplateResponseMixin, View):
         names = []
 
         try:
-            names.extend(super(GenericViewSet, self).get_template_names())
+            names.extend(super().get_template_names())
         except ImproperlyConfigured:
             pass
 

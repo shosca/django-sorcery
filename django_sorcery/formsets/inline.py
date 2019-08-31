@@ -2,7 +2,6 @@
 """
 InlineFormSet for sqlalchemy
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from ..db import meta
 from ..forms import ModelForm
@@ -19,7 +18,7 @@ class BaseInlineFormSet(BaseModelFormSet):
         if queryset is None:
             queryset = getattr(self.instance, self.fk.name, [])
 
-        super(BaseInlineFormSet, self).__init__(data, files, prefix=prefix, queryset=queryset, **kwargs)
+        super().__init__(data, files, prefix=prefix, queryset=queryset, **kwargs)
 
     @classmethod
     def get_default_prefix(cls):
@@ -29,10 +28,10 @@ class BaseInlineFormSet(BaseModelFormSet):
         if self.save_as_new:
             return 0
 
-        return super(BaseInlineFormSet, self).initial_form_count()
+        return super().initial_form_count()
 
     def save(self, flush=False, **kwargs):
-        instances = super(BaseInlineFormSet, self).save(flush=flush)
+        instances = super().save(flush=flush)
         setattr(self.instance, self.fk.name, instances)
         return instances
 

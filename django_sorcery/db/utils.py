@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import sqlalchemy as sa
 
@@ -55,7 +54,7 @@ class dbdict(dict):
         if not isinstance(val, SQLAlchemy):
             raise RuntimeError("Database alias `{alias}` has wrong type".format(alias=alias))
 
-        super(dbdict, self).__setitem__(alias, val)
+        super().__setitem__(alias, val)
 
     def rollback(self):
         """
@@ -94,9 +93,9 @@ class dbdict(dict):
 
 
 def _index_foreign_keys(tbl):
-    indexes = {tuple(sorted([col.name for col in ix.columns])) for ix in tbl.indexes}
+    indexes = {tuple(sorted(col.name for col in ix.columns)) for ix in tbl.indexes}
     for fk in tbl.foreign_key_constraints:
-        key = tuple(sorted([col.name for col in fk.columns]))
+        key = tuple(sorted(col.name for col in fk.columns))
         if key not in indexes:
             sa.Index(None, *list(fk.columns), use_alter=True)
 

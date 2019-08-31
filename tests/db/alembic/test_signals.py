@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase
 
@@ -9,7 +8,7 @@ from django_sorcery.db.alembic.signals import include_object, process_revision_d
 
 class TestIncludeObject(TestCase):
     def tearDown(self):
-        super(TestIncludeObject, self).tearDown()
+        super().tearDown()
         signals.alembic_include_object._clear_state()
 
     def test_default(self):
@@ -32,11 +31,11 @@ class TestIncludeObject(TestCase):
 
 class TestProcessRevisionDirectives(TestCase):
     def setUp(self):
-        super(TestProcessRevisionDirectives, self).tearDown()
+        super().tearDown()
         signals.alembic_process_revision_directives.connect(self._handler)
 
     def tearDown(self):
-        super(TestProcessRevisionDirectives, self).tearDown()
+        super().tearDown()
         signals.alembic_process_revision_directives.disconnect(self._handler)
 
     def _handler(self, context, revision, directives):

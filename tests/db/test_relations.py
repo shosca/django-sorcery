@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import sqlalchemy as sa
 
@@ -10,7 +9,7 @@ from ..minimalapp import models
 
 class TestSQLAlchemyRelationships(TestCase):
     def tearDown(self):
-        super(TestSQLAlchemyRelationships, self).setUp()
+        super().setUp()
         self.addCleanup(models.db.rollback)
         self.addCleanup(models.db.remove)
         self.addCleanup(models_backpop.db.rollback)

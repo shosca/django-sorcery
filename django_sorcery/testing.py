@@ -2,7 +2,6 @@
 """
 Testing utilities
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy import event
 from sqlalchemy.engine import Engine

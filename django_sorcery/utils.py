@@ -2,7 +2,6 @@
 """
 Some common utilities
 """
-from __future__ import absolute_import, print_function, unicode_literals
 import contextlib
 import inspect
 import unicodedata

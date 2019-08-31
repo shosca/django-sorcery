@@ -8,7 +8,6 @@ Connecting
 
 Connecting to the DB is as simple as using a url with :py:class:`.SQLAlchemy` abstraction::
 
-    >>> from __future__ import absolute_import, print_function, unicode_literals
     >>> from django_sorcery.db import SQLAlchemy
     >>> db = SQLAlchemy('sqlite://')
 
@@ -141,7 +140,6 @@ for the used session within the request::
 
 """
 
-from __future__ import absolute_import, print_function, unicode_literals
 
 from .sqlalchemy import SQLAlchemy  # noqa
 from .utils import dbdict

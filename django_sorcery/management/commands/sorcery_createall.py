@@ -2,7 +2,6 @@
 """
 CreateAll command
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy.orm import configure_mappers
 

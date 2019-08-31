@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -61,12 +60,12 @@ def downgrade():
 
 class TestHeads(MigrationMixin, TestCase):
     def setUp(self):
-        super(TestHeads, self).setUp()
+        super().setUp()
         self.write_migration(M1, "{}_.py".format("000000000000"))
         self.write_migration(M2, "{}_.py".format("000000000001"))
 
     def tearDown(self):
-        super(TestHeads, self).tearDown()
+        super().tearDown()
         for rev in ["000000000000", "000000000001"]:
             self.delete_migration("{}_.py".format(rev))
 

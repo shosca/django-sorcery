@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -37,11 +36,11 @@ def downgrade():
 
 class TestHistory(MigrationMixin, TestCase):
     def setUp(self):
-        super(TestHistory, self).setUp()
+        super().setUp()
         self.write_migration(MIGRATION, "000000000000_zero.py")
 
     def tearDown(self):
-        super(TestHistory, self).tearDown()
+        super().tearDown()
         self.delete_migration("000000000000_zero.py")
 
     def test(self):

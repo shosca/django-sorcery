@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 
 import sqlalchemy as sa
@@ -16,7 +15,7 @@ from ..models_multidb import Bar, Foo, default_db, other_db
 
 class TestDbDict(unittest.TestCase):
     def setUp(self):
-        super(TestDbDict, self).setUp()
+        super().setUp()
         self.settings = mock.patch.dict(settings.SQLALCHEMY_CONNECTIONS, {"minimal": {"DIALECT": "sqlite"}})
         self.settings.start()
         self.addCleanup(self.settings.stop)
@@ -69,13 +68,13 @@ class TestDbDict(unittest.TestCase):
 
 class TestMultiDbAtomic(unittest.TestCase):
     def setUp(self):
-        super(TestMultiDbAtomic, self).setUp()
+        super().setUp()
         Foo.objects.delete()
         Bar.objects.delete()
         databases.commit()
 
     def tearDown(self):
-        super(TestMultiDbAtomic, self).tearDown()
+        super().tearDown()
         Foo.objects.delete()
         Bar.objects.delete()
         databases.commit()
@@ -119,7 +118,7 @@ class TestMultiDbAtomic(unittest.TestCase):
 
 class TestIndexForeignKeys(unittest.TestCase):
     def setUp(self):
-        super(TestIndexForeignKeys, self).setUp()
+        super().setUp()
 
         self.metadata = sa.MetaData()
         self.parent = sa.Table(

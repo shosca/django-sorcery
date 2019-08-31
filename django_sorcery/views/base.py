@@ -2,7 +2,6 @@
 """
 Base model view things with sqlalchemy
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy import literal
 from sqlalchemy.exc import InvalidRequestError
@@ -121,7 +120,7 @@ class BaseMultipleObjectMixin(SQLAlchemyMixin):
         The return value must be an iterable and may be an instance of
         `QuerySet` in which case `QuerySet` specific behavior will be enabled.
         """
-        queryset = super(BaseMultipleObjectMixin, self).get_queryset()
+        queryset = super().get_queryset()
 
         ordering = self.get_ordering()
         if ordering is not None:

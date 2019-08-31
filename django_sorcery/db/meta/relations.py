@@ -2,7 +2,6 @@
 """
 Metadata for sqlalchemy model relationships
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from itertools import chain
 
 import sqlalchemy as sa
@@ -52,7 +51,7 @@ class relation_info(object):
         if self.uselist:
             self.field_kwargs["required"] = False
         else:
-            self.field_kwargs["required"] = not all([col.nullable for col in self.foreign_keys])
+            self.field_kwargs["required"] = not all(col.nullable for col in self.foreign_keys)
 
         self.local_remote_pairs = self.relationship.local_remote_pairs
 
@@ -78,8 +77,8 @@ class relation_info(object):
             matching_constraints = [
                 i
                 for i in [c for c in self.parent_table.constraints if isinstance(c, sa.ForeignKeyConstraint)]
-                if parent_columns & set(j.parent for j in i.elements) == parent_columns
-                and target_columns & set(j.column for j in i.elements) == target_columns
+                if parent_columns & {j.parent for j in i.elements} == parent_columns
+                and target_columns & {j.column for j in i.elements} == target_columns
             ]
 
             if len(matching_constraints) == 1:

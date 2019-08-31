@@ -2,7 +2,6 @@
 """
 Helper functions for creating FormSet classes from SQLAlchemy models.
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
 from django.forms import fields as djangofields
@@ -30,14 +29,14 @@ class BaseModelFormSet(BaseFormSet):
         self.queryset = queryset
         self.initial_extra = initial
         kwargs.update({"data": data, "files": files, "auto_id": auto_id, "prefix": prefix})
-        super(BaseModelFormSet, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def initial_form_count(self):
         """Return the number of forms that are required in this FormSet."""
         if not (self.data or self.files):
             return len(self.get_queryset())
 
-        return super(BaseModelFormSet, self).initial_form_count()
+        return super().initial_form_count()
 
     def _existing_object(self, pk):
         info = meta.model_info(self.model)
@@ -74,7 +73,7 @@ class BaseModelFormSet(BaseFormSet):
             except IndexError:
                 pass
         kwargs["session"] = self.session
-        form = super(BaseModelFormSet, self)._construct_form(i, **kwargs)
+        form = super()._construct_form(i, **kwargs)
         return form
 
     def add_fields(self, form, index):
@@ -85,7 +84,7 @@ class BaseModelFormSet(BaseFormSet):
                 pk_field = djangofields.Field(initial=getattr(form.instance, name, None), widget=HiddenInput)
                 form.fields[name] = pk_field
 
-        super(BaseModelFormSet, self).add_fields(form, index)
+        super().add_fields(form, index)
 
     def get_queryset(self):
         """

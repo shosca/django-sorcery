@@ -2,7 +2,6 @@
 """
 sqlalchemy query related things
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from collections import namedtuple
 from functools import partial
 
@@ -68,11 +67,11 @@ class Query(sa.orm.Query):
             pk = meta.model_info(mapper).primary_keys_from_dict(kwargs)
 
             if pk is not None:
-                return super(Query, self).get(pk)
+                return super().get(pk)
 
             return None
 
-        return super(Query, self).get(*args, **kwargs)
+        return super().get(*args, **kwargs)
 
     def order_by(self, *criterion):
         """
@@ -99,7 +98,7 @@ class Query(sa.orm.Query):
 
             criterion = new_criterion
 
-        return super(Query, self).order_by(*criterion)
+        return super().order_by(*criterion)
 
     def filter(self, *args, **kwargs):
         """
@@ -113,7 +112,7 @@ class Query(sa.orm.Query):
             MyModel.objects.filter(relation__id__gte=5)
         """
         args = args + tuple(self._lookup_to_expression(k, v) for k, v in kwargs.items())
-        return super(Query, self).filter(*args)
+        return super().filter(*args)
 
     def _lookup_to_expression(self, lookup, value):
         parts = lookup.split(LOOKUP_SEP)

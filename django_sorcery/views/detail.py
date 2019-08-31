@@ -2,7 +2,6 @@
 """
 Django detail view things for sqlalchemy
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -34,7 +33,7 @@ class SingleObjectMixin(BaseSingleObjectMixin):
             if context_object_name:
                 context[context_object_name] = self.object
         context.update(kwargs)
-        return super(SingleObjectMixin, self).get_context_data(**context)
+        return super().get_context_data(**context)
 
 
 class BaseDetailView(SingleObjectMixin, View):
@@ -64,7 +63,7 @@ class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
         Returns template names for detail view
         """
         try:
-            names = super(SingleObjectTemplateResponseMixin, self).get_template_names()
+            names = super().get_template_names()
         except ImproperlyConfigured as e:
 
             names = []

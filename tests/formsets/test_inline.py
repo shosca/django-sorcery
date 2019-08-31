@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django_sorcery.db import meta
 from django_sorcery.forms import ALL_FIELDS
@@ -11,7 +10,7 @@ from ..testapp.models import Owner, Vehicle, VehicleType, db
 
 class TestInlineFormSet(TestCase):
     def setUp(self):
-        super(TestInlineFormSet, self).setUp()
+        super().setUp()
         self.owner = Owner(first_name="Test 1", last_name="Owner 1")
         db.add(self.owner)
         db.flush()

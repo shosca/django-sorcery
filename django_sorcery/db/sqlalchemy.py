@@ -2,7 +2,6 @@
 """
 SQLAlchemy goodies that provides a nice interface to using sqlalchemy with django
 """
-from __future__ import absolute_import, print_function, unicode_literals
 import functools
 import inspect
 

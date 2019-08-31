@@ -2,7 +2,6 @@
 """
 Namespaced Django command
 """
-from __future__ import absolute_import, print_function, unicode_literals
 import inspect
 import os
 
@@ -23,7 +22,7 @@ class NamespacedCommand(BaseCommand):
         """
         if not hasattr(self, "_commands"):
             self._commands = {}
-            for cls in reversed(self.__class__.mro()):
+            for _ in reversed(self.__class__.mro()):
                 self._commands.update(
                     {
                         name: cmd_cls

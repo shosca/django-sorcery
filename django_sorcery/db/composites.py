@@ -2,7 +2,6 @@
 """
 Support for reusable sqlalchemy composite fields
 """
-from __future__ import absolute_import, print_function, unicode_literals
 from collections import OrderedDict
 
 import sqlalchemy as sa
@@ -31,7 +30,7 @@ class CompositeField(CompositeProperty):
             if hasattr(c.type, "name") and c.type.name:
                 c.type.name = self.prefix + "_" + c.type.name
 
-        super(CompositeField, self).__init__(class_, *list(columns.values()), **kwargs)
+        super().__init__(class_, *list(columns.values()), **kwargs)
 
     def instrument_class(self, mapper):
         if self.prefix == self.random_prefix:
@@ -42,7 +41,7 @@ class CompositeField(CompositeProperty):
                 if hasattr(c.type, "name") and c.type.name:
                     c.type.name = c.type.name.replace(self.random_prefix, "")[1:]
 
-        return super(CompositeField, self).instrument_class(mapper)
+        return super().instrument_class(mapper)
 
 
 class BaseComposite(object):

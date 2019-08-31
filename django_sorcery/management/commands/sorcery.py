@@ -2,7 +2,6 @@
 """
 Sorcery command namespace
 """
-from __future__ import absolute_import, print_function, unicode_literals
 
 from .. import NamespacedCommand
 from .sorcery_createall import CreateAll

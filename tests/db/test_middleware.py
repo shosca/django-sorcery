@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 
 import attr
@@ -17,7 +16,7 @@ class DummyMiddeware(middleware.BaseMiddleware):
     remove_called = False
 
     def process_request(self, request):
-        super(DummyMiddeware, self).process_request(request)
+        super().process_request(request)
         if hasattr(self, "dummy"):
             return self.dummy
 
@@ -48,7 +47,7 @@ class Request(object):
 
 class TestBaseMiddleware(unittest.TestCase):
     def setUp(self):
-        super(TestBaseMiddleware, self).setUp()
+        super().setUp()
         self.middleware = DummyMiddeware(get_response=get_response)
 
     def test_process_request(self):
@@ -112,7 +111,7 @@ class TestBaseMiddleware(unittest.TestCase):
 
 class TestSQLAlchemyDBMiddleware(unittest.TestCase):
     def setUp(self):
-        super(TestSQLAlchemyDBMiddleware, self).setUp()
+        super().setUp()
 
         self.db = mock.MagicMock()
         self.middleware = type(str("DummySQLAlchemyMiddleware"), (middleware.SQLAlchemyDBMiddleware,), {"db": self.db})(
@@ -138,14 +137,14 @@ class TestSQLAlchemyDBMiddleware(unittest.TestCase):
 
 class TestSQLAlchemyMiddleware(unittest.TestCase):
     def setUp(self):
-        super(TestSQLAlchemyMiddleware, self).setUp()
+        super().setUp()
         self.middleware = middleware.SQLAlchemyMiddleware(get_response)
         self.orig_dbs = databases.copy()
         databases.clear()
         databases.update(one=mock.MagicMock(spec=SQLAlchemy), two=mock.MagicMock(spec=SQLAlchemy))
 
     def tearDown(self):
-        super(TestSQLAlchemyMiddleware, self).setUp()
+        super().setUp()
         databases.clear()
         databases.update(self.orig_dbs)
 

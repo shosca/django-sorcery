@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -41,14 +40,14 @@ db = databases.get("test")
 
 class TestUpgrade(MigrationMixin, TestCase):
     def setUp(self):
-        super(TestUpgrade, self).setUp()
+        super().setUp()
         for rev in ["000000000000", "000000000001"]:
             self.write_migration(MIGRATION.format(rev=rev), "{}_zero.py".format(rev))
             self.write_migration(MIGRATION.format(rev=rev), "{}_zero.py".format(rev))
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
 
     def tearDown(self):
-        super(TestUpgrade, self).tearDown()
+        super().tearDown()
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
         for rev in ["000000000000", "000000000001"]:
             self.delete_migration("{}_zero.py".format(rev))
@@ -60,7 +59,7 @@ class TestUpgrade(MigrationMixin, TestCase):
         cmd.run_from_argv(["./manage.py sorcery", "upgrade", "--no-color"])
 
         revs = db.execute("select * from alembic_version_tests_testapp").fetchall()
-        self.assertEqual(set([r.version_num for r in revs]), {"000000000001", "000000000000"})
+        self.assertEqual({r.version_num for r in revs}, {"000000000001", "000000000000"})
 
     def test_sql(self):
         out = six.StringIO()

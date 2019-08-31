@@ -554,7 +554,7 @@ Now, lets add an inline formset to be able to add choices to questions, adjust `
 
       def get_form_context_data(self, **kwargs):
          kwargs["choice_formset"] = self.get_choice_formset()
-         return super(PollsViewSet, self).get_form_context_data(**kwargs)
+         return super().get_form_context_data(**kwargs)
 
       def get_choice_formset(self, instance=None):
          if not hasattr(self, "_choice_formset"):
