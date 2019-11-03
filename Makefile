@@ -27,9 +27,7 @@ clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and 
 
 clean-build:  ## remove build artifacts
 	find -name '*.sqlite3' -delete
-	rm -rf build/ dist/ .eggs/
-	rm -rf '*.egg-info'
-	rm -rf '*.egg'
+	rm -rf build dist .eggs .mypy_cache .pytest_cache docs/_build *.egg*
 
 clean-pyc:  ## remove Python file artifacts
 	find -name '*.pyc' -delete
@@ -38,7 +36,7 @@ clean-pyc:  ## remove Python file artifacts
 	find -name '__pycache__' -delete
 
 clean-test:  ## remove test and coverage artifacts
-	rm -rf .tox/ .coverage htmlcov/
+	rm -rf .tox .coverage htmlcov
 
 %-resetdb:
 	-psql -c "drop database $*;" -h localhost -U postgres
