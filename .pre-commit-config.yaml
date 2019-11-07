@@ -13,6 +13,11 @@ repos:
   - id: black
     language_version: python3
 
+- repo: https://github.com/mgedmin/check-manifest
+  rev: '0.40'
+  hooks:
+    - id: check-manifest
+
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.3.0
   hooks:
