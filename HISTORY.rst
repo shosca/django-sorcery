@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.10.1 (2019-08-30)
+0.10.2 (2019-11-07)
 -----------------------------
+- Adding check-manifest in pre-commit (#150) [Miroslav Shubernetskiy]
+
+
+0.10.1 (2019-08-31)
+-------------------
 - Drop py2 from setup.py. [Serkan Hosca]
 
 
