@@ -29,7 +29,7 @@ class composite_info(six.with_metaclass(model_info_meta)):
         self.prop = composite.prop
         self.parent = parent
 
-        attrs = list(sorted(k for k, v in vars(self.prop.composite_class).items() if isinstance(v, sa.Column)))
+        attrs = [k for k, v in sorted(vars(self.prop.composite_class).items()) if isinstance(v, sa.Column)]
         if not attrs:
             attrs = get_args(self.prop.composite_class.__init__)
 
