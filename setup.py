@@ -38,7 +38,7 @@ setup(
     author_email=about["__author_email__"],
     description=about["__description__"],
     include_package_data=True,
-    install_requires=["alembic", "blinker", "inflect", "six", "django", "sqlalchemy"],
+    install_requires=["alembic", "blinker", "inflect", "django", "sqlalchemy"],
     license="MIT",
     long_description=read("README.rst"),
     name="django-sorcery",

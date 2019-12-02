@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from io import StringIO
 
 from django.core.management.base import BaseCommand
-from django.utils.six import StringIO
 
 from django_sorcery.management import NamespacedCommand
 
