@@ -57,6 +57,13 @@ class Query(sa.orm.Query):
     A customized sqlalchemy query
     """
 
+    def __init__(self, entities, session=None):
+        self.caching_option = None
+        if not isinstance(entities, (list, tuple)):
+            ent_zero = getattr(entities, "class_", entities)
+            self.caching_option = getattr(ent_zero, "__caching_option__", None) or None
+        super(Query, self).__init__(entities, session=session)
+
     def get(self, *args, **kwargs):
         """
         Return an instance based on the given primary key identifier, either as args or
@@ -151,6 +158,22 @@ class Query(sa.orm.Query):
                 lhs = props[part].attribute
 
         return lhs == value
+
+    def __iter__(self):
+        """
+        override __iter__ to pull results from caching option
+        """
+        super_ = super(Query, self)
+
+        if self.caching_option:
+            return self.caching_option.get(super_)
+        else:
+            return super_.__iter__()
+
+    def invalidate(self):
+        """Invalidate the cache value represented by this Query."""
+        if self.caching_option:
+            self.caching_option.invalidate(self)
 
 
 class QueryProperty(object):

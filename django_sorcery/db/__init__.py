@@ -142,6 +142,7 @@ for the used session within the request::
 
 
 from .sqlalchemy import SQLAlchemy  # noqa
+from .strategy_options import FromCache  # noqa
 from .utils import dbdict
 
 
