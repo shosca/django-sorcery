@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from django.core.exceptions import ImproperlyConfigured
-
 from django_sorcery import viewsets
 from django_sorcery.routers import BaseRouter, Route, SimpleRouter, action
 

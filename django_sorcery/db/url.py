@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
 import os
 from importlib import import_module
 
-import six
-
 import sqlalchemy as sa
-
 from django.conf import settings
 from django.utils.encoding import force_text
 from django.utils.module_loading import import_string
@@ -22,7 +18,7 @@ DIALECT_MAP_TO_DJANGO = {v: k for k, v in DIALECT_MAP.items()}
 
 
 def boolean(x):
-    return six.text_type(x) in ["True", "1"]
+    return str(x) in ["True", "1"]
 
 
 def integer(x):
@@ -87,9 +83,8 @@ ENGINE_OPTIONS_NORMALIZATION = {
 
 
 def get_settings(alias):
-    """
-    Returns database settings from either ``SQLALCHEMY_CONNECTIONS`` setting or ``DATABASES`` setting.
-    """
+    """Returns database settings from either ``SQLALCHEMY_CONNECTIONS`` setting
+    or ``DATABASES`` setting."""
 
     if hasattr(settings, "SQLALCHEMY_CONNECTIONS") and alias in settings.SQLALCHEMY_CONNECTIONS:
         return settings.SQLALCHEMY_CONNECTIONS[alias]

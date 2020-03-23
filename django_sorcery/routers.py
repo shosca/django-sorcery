@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Django REST Framework like router for viewsets
-"""
+"""Django REST Framework like router for viewsets."""
 import itertools
 from collections import namedtuple
 
@@ -16,17 +13,14 @@ DynamicRoute = namedtuple("DynamicRoute", ["url", "name", "detail", "initkwargs"
 
 
 def escape_curly_brackets(url_path):
-    """
-    Double brackets in regex of url_path for escape string formatting
-    """
+    """Double brackets in regex of url_path for escape string formatting."""
     if ("{" and "}") in url_path:
         url_path = url_path.replace("{", "{{").replace("}", "}}")
     return url_path
 
 
 def action(methods=None, detail=None, url_path=None, url_name=None, **kwargs):
-    """
-    Mark a ViewSet method as a routable action.
+    """Mark a ViewSet method as a routable action.
 
     Set the `detail` boolean to determine if this action should apply to
     instance/detail requests or collection/list requests.
@@ -47,48 +41,38 @@ def action(methods=None, detail=None, url_path=None, url_name=None, **kwargs):
     return decorator
 
 
-class BaseRouter(object):
-    """
-    Base router
-    """
+class BaseRouter:
+    """Base router."""
 
     def __init__(self):
         self.registry = []
 
     def register(self, prefix, viewset, base_name=None):
-        """
-        Registers a viewset for route generation
-        """
+        """Registers a viewset for route generation."""
         if base_name is None:
             base_name = self.get_default_base_name(viewset)
         self.registry.append((prefix, viewset, base_name))
 
     def get_default_base_name(self, viewset):
-        """
-        If `base_name` is not specified, attempt to automatically determine
-        it from the viewset.
-        """
+        """If `base_name` is not specified, attempt to automatically determine
+        it from the viewset."""
         raise NotImplementedError("get_default_base_name must be overridden")
 
     def get_urls(self):
-        """
-        Return a list of URL patterns, given the registered viewsets.
-        """
+        """Return a list of URL patterns, given the registered viewsets."""
         raise NotImplementedError("get_urls must be overridden")
 
     @property
     def urls(self):
-        """
-        URL's routed
-        """
+        """URL's routed."""
         if not hasattr(self, "_urls"):
             self._urls = self.get_urls()
         return self._urls
 
 
 class SimpleRouter(BaseRouter):
-    """
-    Generates url patterns that map requests to a viewset's action functions.
+    """Generates url patterns that map requests to a viewset's action
+    functions.
 
     It will map the following operations to following actions on the viewset:
 
@@ -163,10 +147,8 @@ class SimpleRouter(BaseRouter):
         super().__init__()
 
     def get_default_base_name(self, viewset):
-        """
-        If `base_name` is not specified, attempt to automatically determine
-        it from the viewset.
-        """
+        """If `base_name` is not specified, attempt to automatically determine
+        it from the viewset."""
         model = getattr(viewset, "get_model", lambda: None)()
 
         assert model is not None, (
@@ -178,8 +160,7 @@ class SimpleRouter(BaseRouter):
         return model.__name__.lower()
 
     def get_routes(self, viewset):
-        """
-        Augment `self.routes` with any dynamically generated routes.
+        """Augment `self.routes` with any dynamically generated routes.
 
         Returns a list of the Route namedtuple.
         """
@@ -224,11 +205,9 @@ class SimpleRouter(BaseRouter):
         )
 
     def get_method_map(self, viewset, method_map):
-        """
-        Given a viewset, and a mapping of http methods to actions,
-        return a new mapping which only includes any mappings that
-        are actually implemented by the viewset.
-        """
+        """Given a viewset, and a mapping of http methods to actions, return a
+        new mapping which only includes any mappings that are actually
+        implemented by the viewset."""
         bound_methods = {}
         for method, action in method_map.items():
             if hasattr(viewset, action):
@@ -236,9 +215,8 @@ class SimpleRouter(BaseRouter):
         return bound_methods
 
     def get_lookup_regex(self, viewset, lookup_prefix=""):
-        """
-        Given a viewset, return the portion of URL regex that is used
-        to match against a single instance.
+        """Given a viewset, return the portion of URL regex that is used to
+        match against a single instance.
 
         Note that lookup_prefix is not used directly inside REST rest_framework
         itself, but is required in order to nicely support nested router
@@ -272,9 +250,7 @@ class SimpleRouter(BaseRouter):
         )
 
     def get_urls(self):
-        """
-        Use the registered viewsets to generate a list of URL patterns.
-        """
+        """Use the registered viewsets to generate a list of URL patterns."""
         ret = []
 
         for prefix, viewset, basename in self.registry:

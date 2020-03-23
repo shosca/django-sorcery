@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django_sorcery.db import databases
 
 

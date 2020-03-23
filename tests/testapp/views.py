@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from django.urls import reverse_lazy
-
 from django_sorcery import forms, views, viewsets
 from django_sorcery.routers import action
 

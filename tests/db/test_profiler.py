@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-
 from django.http import HttpResponse
 from django.test import RequestFactory, override_settings
-
-from django_sorcery.db.profiler import SQLAlchemyProfiler, SQLAlchemyProfilingMiddleware
+from django_sorcery.db.profiler import (
+    SQLAlchemyProfiler,
+    SQLAlchemyProfilingMiddleware,
+)
 
 from ..base import TestCase
 from ..testapp.models import Business, Owner, db

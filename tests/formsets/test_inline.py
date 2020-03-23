@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django_sorcery.db import meta
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import inlineformset_factory

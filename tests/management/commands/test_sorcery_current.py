@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import six
 
 from django.test import TestCase
-
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_current import Command
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade
@@ -112,7 +109,7 @@ class TestCurrent(MigrationMixin, TestCase):
             out.readlines(),
             [
                 "Revision for tests.testapp on database test\n",
-                "Current revision(s) for postgresql://postgres@localhost/test\n",
+                "Current revision(s) for postgresql://postgres:***@localhost/test\n",
                 "Rev: 000000000001 (head)\n",
                 "Parent: 000000000000\n",
                 "Path: {}/000000000001_.py\n".format(MIGRATION_DIR),
@@ -123,6 +120,6 @@ class TestCurrent(MigrationMixin, TestCase):
                 "    Revises: 000000000000\n",
                 "    Create Date: 2018-07-24 02:02:55.504526\n",
                 "Revision for tests.otherapp on database test\n",
-                "Current revision(s) for postgresql://postgres@localhost/test\n",
+                "Current revision(s) for postgresql://postgres:***@localhost/test\n",
             ],
         )

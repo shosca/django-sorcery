@@ -1,20 +1,14 @@
-# -*- coding: utf-8 -*-
-"""
-Downgrade command
-"""
+"""Downgrade command."""
 from functools import partial
 
 import alembic
-
 from django.core.management import CommandError
 
 from ..alembic import AlembicCommand
 
 
 class Downgrade(AlembicCommand):
-    """
-    Apply downgrade migration revisions
-    """
+    """Apply downgrade migration revisions."""
 
     help = "Apply migration revisions"
 
@@ -48,7 +42,7 @@ class Downgrade(AlembicCommand):
             if not sql:
                 self.stdout.write(
                     self.style.SUCCESS(
-                        "Running migrations for %s on database %s" % (appconfig.name, appconfig.db.alias)
+                        "Running migrations for {} on database {}".format(appconfig.name, appconfig.db.alias)
                     )
                 )
             with alembic.context.EnvironmentContext(
@@ -62,9 +56,7 @@ class Downgrade(AlembicCommand):
                 self.run_env(context, appconfig)
 
     def downgrade(self, rev, context, appconfig, revision):
-        """
-        Executes alembic downgrade revisions to the given revision
-        """
+        """Executes alembic downgrade revisions to the given revision."""
         return appconfig.script._downgrade_revs(revision, rev)
 
 

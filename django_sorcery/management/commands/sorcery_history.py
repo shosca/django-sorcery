@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-History command
-"""
+"""History command."""
 
 from django.core.management import CommandError
 
@@ -9,9 +6,7 @@ from ..alembic import AlembicCommand
 
 
 class History(AlembicCommand):
-    """
-    Display alembic revisions
-    """
+    """Display alembic revisions."""
 
     help = "Display alembic revisions"
 
@@ -43,12 +38,10 @@ class History(AlembicCommand):
         self.print_history(appconfigs, verbose, base, head)
 
     def print_history(self, appconfigs, verbose, base, head):
-        """
-        Prints alembic revision history
-        """
+        """Prints alembic revision history."""
         for appconfig in appconfigs:
             self.stdout.write(
-                self.style.SUCCESS("Migrations for %s on database %s" % (appconfig.name, appconfig.db.alias))
+                self.style.SUCCESS("Migrations for {} on database {}".format(appconfig.name, appconfig.db.alias))
             )
             for rev in appconfig.script.walk_revisions(base=base or "base", head=head or "heads"):
                 self.stdout.write(

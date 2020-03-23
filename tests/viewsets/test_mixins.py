@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.urls import reverse
-
 from django_sorcery import forms, viewsets
 
 from ..base import TestCase

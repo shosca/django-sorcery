@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from django.test import TestCase
-
 from django_sorcery import utils
 
 
@@ -12,7 +9,7 @@ class TestUtils(TestCase):
             assert 1 == 2
 
     def test_setdefaultattr(self):
-        class Dummy(object):
+        class Dummy:
             pass
 
         obj = Dummy()

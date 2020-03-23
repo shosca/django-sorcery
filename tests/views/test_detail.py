@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
-
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.utils.html import escape
-
-from django_sorcery.views.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
+from django_sorcery.views.detail import (
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+)
 
 from ..base import TestCase
 from ..testapp.models import Owner, db

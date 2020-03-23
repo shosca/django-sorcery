@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Signals
 -------
@@ -12,15 +11,14 @@ from blinker._utilities import defaultdict
 
 
 class ScopedSignal(blinker.NamedSignal):
-    """
-    Same as ``NamedSignal`` but signal is scoped to a thread.
+    """Same as ``NamedSignal`` but signal is scoped to a thread.
 
     In other words, if a receiver is attached within a specific thread,
-    even if signal is sent in another thread, in that other thread
-    no receivers will be present and hence nothing will execute.
-    Useful for adding one-off signal handlers for example to be executed
-    at the end of unit-of-work (e.g. request) without adding a possibility
-    that another thread might start executing the receiver.
+    even if signal is sent in another thread, in that other thread no
+    receivers will be present and hence nothing will execute. Useful for
+    adding one-off signal handlers for example to be executed at the end
+    of unit-of-work (e.g. request) without adding a possibility that
+    another thread might start executing the receiver.
     """
 
     def __init__(self, name, doc=None):
@@ -31,9 +29,7 @@ class ScopedSignal(blinker.NamedSignal):
 
     @property
     def receivers(self):
-        """
-        Return all thread scoped receivers
-        """
+        """Return all thread scoped receivers."""
         return self.local.__dict__.setdefault("receivers", {})
 
     @property
@@ -49,21 +45,15 @@ class ScopedSignal(blinker.NamedSignal):
         return self.local.__dict__.setdefault("_weak_senders", {})
 
     def cleanup(self):
-        """
-        Cleans up signal for the current thread scope
-        """
+        """Cleans up signal for the current thread scope."""
         self._clear_state()
 
 
 class Namespace(blinker.Namespace):
-    """
-    A signal namespace that also manages scoped signals
-    """
+    """A signal namespace that also manages scoped signals."""
 
     def scopedsignal(self, name, doc=None):
-        """
-        Returns the scoped signal for a given name
-        """
+        """Returns the scoped signal for a given name."""
         try:
             return self[name]
 
@@ -72,9 +62,7 @@ class Namespace(blinker.Namespace):
 
     @property
     def scoped_signals(self):
-        """
-        Returns all scoped signals
-        """
+        """Returns all scoped signals."""
         for signal in self.values():
             if isinstance(signal, ScopedSignal):
                 yield signal

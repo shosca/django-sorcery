@@ -1,6 +1,5 @@
 include *.rc
 include *.editorconfig
-include *.importanizerc
 include *.rst
 include *.toml
 include *.txt

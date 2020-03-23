@@ -1,13 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Metadata for composite sqlalchemy properties
-"""
+"""Metadata for composite sqlalchemy properties."""
 from collections import OrderedDict
 
-import six
-
 import sqlalchemy as sa
-
 from django.core.exceptions import ValidationError
 
 from ...exceptions import NestedValidationError
@@ -17,10 +11,9 @@ from .base import model_info_meta
 from .column import column_info
 
 
-class composite_info(six.with_metaclass(model_info_meta)):
-    """
-    A helper class that makes sqlalchemy composite model inspection easier
-    """
+class composite_info(metaclass=model_info_meta):
+    """A helper class that makes sqlalchemy composite model inspection
+    easier."""
 
     __slots__ = ("prop", "properties", "parent", "_field_names")
 
@@ -39,9 +32,7 @@ class composite_info(six.with_metaclass(model_info_meta)):
 
     @property
     def field_names(self):
-        """
-        Returns field names used in composite
-        """
+        """Returns field names used in composite."""
         if not self._field_names:
             self._field_names.update(self.properties.keys())
 
@@ -51,30 +42,23 @@ class composite_info(six.with_metaclass(model_info_meta)):
 
     @property
     def name(self):
-        """
-        Returns composite field name
-        """
+        """Returns composite field name."""
         return self.prop.key
 
     @property
     def attribute(self):
-        """
-        Returns composite field instrumented attribute for generating query expressions
-        """
+        """Returns composite field instrumented attribute for generating query
+        expressions."""
         return getattr(self.parent_model, self.name)
 
     @property
     def parent_model(self):
-        """
-        Returns the model class that the attribute belongs to
-        """
+        """Returns the model class that the attribute belongs to."""
         return self.prop.parent.class_
 
     @property
     def model_class(self):
-        """
-        Returns the composite class
-        """
+        """Returns the composite class."""
         return self.prop.composite_class
 
     def __repr__(self):
@@ -85,10 +69,8 @@ class composite_info(six.with_metaclass(model_info_meta)):
         return "\n".join(reprs)
 
     def clean_fields(self, instance, exclude=None):
-        """
-        Clean all fields and raise a ValidationError containing a dict
-        of all validation errors if any occur.
-        """
+        """Clean all fields and raise a ValidationError containing a dict of
+        all validation errors if any occur."""
         errors = {}
         exclude = exclude or []
         for name, f in self.properties.items():
@@ -110,15 +92,15 @@ class composite_info(six.with_metaclass(model_info_meta)):
             raise NestedValidationError(errors)
 
     def run_validators(self, instance):
-        """
-        Run composite field's validators and raise ValidationError if necessary
-        """
+        """Run composite field's validators and raise ValidationError if
+        necessary."""
         runner = ValidationRunner(validators=getattr(instance, "validators", []))
         runner.is_valid(instance, raise_exception=True)
 
     def full_clean(self, instance, exclude=None):
-        """
-        Call clean_fields(), clean(), and run_validators() on the composite model.
+        """Call clean_fields(), clean(), and run_validators() on the composite
+        model.
+
         Raise a ValidationError for any errors that occur.
         """
         runner = ValidationRunner(

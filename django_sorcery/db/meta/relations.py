@@ -1,18 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Metadata for sqlalchemy model relationships
-"""
+"""Metadata for sqlalchemy model relationships."""
 from itertools import chain
 
 import sqlalchemy as sa
-
 from django.core.exceptions import ImproperlyConfigured
 
 
-class relation_info(object):
-    """
-    A helper class that makes sqlalchemy relationship property inspection easier
-    """
+class relation_info:
+    """A helper class that makes sqlalchemy relationship property inspection
+    easier."""
 
     __slots__ = (
         "attribute",
@@ -108,4 +103,4 @@ class relation_info(object):
         return ModelChoiceField
 
     def __repr__(self):
-        return "<relation_info(%s.%s)>" % (self.parent_model.__name__, self.name)
+        return "<relation_info({}.{})>".format(self.parent_model.__name__, self.name)

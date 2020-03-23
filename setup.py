@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # fmt:off
 import os
 import shutil
@@ -28,7 +27,7 @@ if sys.argv[-1] == "publish":
     os.system("python setup.py sdist bdist_wheel")
     os.system("twine upload dist/*")
     print("You probably want to also tag the version now:")
-    print("  git tag -a %s -m %s" % (about["__version__"], about["__version__"]))
+    print("  git tag -a {} -m {}".format(about["__version__"], about["__version__"]))
     print("  git push --tags")
     os.system("make clean")
     sys.exit()

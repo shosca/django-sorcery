@@ -9,7 +9,7 @@ cache:
 python:
   - "3.6"
   - "3.7"
-  - "pypy3"
+  - "3.8"
 
 services:
   - postgresql

@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Metadata for sqlalchemy models
-"""
+"""Metadata for sqlalchemy models."""
 from collections import OrderedDict, namedtuple
 from functools import partial
 from itertools import chain
 
 import inflect
-import six
-
 import sqlalchemy as sa
-
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 
@@ -26,10 +20,8 @@ Identity = namedtuple("Key", ["model", "pk"])
 inflector = inflect.engine()
 
 
-class model_info(six.with_metaclass(model_info_meta)):
-    """
-    A helper class that makes sqlalchemy model inspection easier
-    """
+class model_info(metaclass=model_info_meta):
+    """A helper class that makes sqlalchemy model inspection easier."""
 
     __slots__ = (
         "field_names",
@@ -83,8 +75,8 @@ class model_info(six.with_metaclass(model_info_meta)):
             app_config = apps.get_containing_app_config(self.model_class.__module__)
             self.app_label = getattr(app_config, "label", None) or "django_sorcery"
 
-        self.label = "%s.%s" % (self.app_label, self.object_name)
-        self.label_lower = "%s.%s" % (self.app_label, self.model_name)
+        self.label = "{}.{}".format(self.app_label, self.object_name)
+        self.label_lower = "{}.{}".format(self.app_label, self.model_name)
 
         sa.event.listen(self.mapper, "mapper_configured", self._init)
         self._init(self.mapper, self.model_class)
@@ -166,9 +158,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         return apps.get_app_config(self.app_label) or apps.get_containing_app_config(self.model_name.__module__)
 
     def sa_state(self, instance):
-        """
-        Returns sqlalchemy instance state
-        """
+        """Returns sqlalchemy instance state."""
         return sa.inspect(instance)
 
     def get_field(self, field_name):
@@ -184,9 +174,8 @@ class model_info(six.with_metaclass(model_info_meta)):
         return field
 
     def primary_keys_from_dict(self, kwargs):
-        """
-        Returns the primary key tuple from a dictionary to be used in a sqlalchemy query.get() call
-        """
+        """Returns the primary key tuple from a dictionary to be used in a
+        sqlalchemy query.get() call."""
         pks = []
 
         for attr, _ in self.primary_keys.items():
@@ -202,9 +191,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         return tuple(pks)
 
     def primary_keys_from_instance(self, instance):
-        """
-        Return a dict containing the primary keys of the ``instance``
-        """
+        """Return a dict containing the primary keys of the ``instance``"""
         if instance is None:
             return None
 
@@ -214,18 +201,14 @@ class model_info(six.with_metaclass(model_info_meta)):
         return getattr(instance, next(iter(self.primary_keys)))
 
     def get_key(self, instance):
-        """
-        Returns the primary key tuple from the ``instance``
-        """
+        """Returns the primary key tuple from the ``instance``"""
         keys = self.mapper.primary_key_from_instance(instance)
         if any(key is None for key in keys):
             return
         return tuple(keys)
 
     def identity_key_from_instance(self, instance):
-        """
-        Returns the primary key tuple from the ``instance``
-        """
+        """Returns the primary key tuple from the ``instance``"""
         keys = self.get_key(instance)
         if keys is None:
             return
@@ -233,9 +216,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         return Identity(self.model_class, self.get_key(instance))
 
     def identity_key_from_dict(self, kwargs):
-        """
-        Returns identity key from a dictionary for the given model
-        """
+        """Returns identity key from a dictionary for the given model."""
         pks = self.primary_keys_from_dict(kwargs)
         if pks is None:
             return
@@ -243,8 +224,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         return Identity(self.model_class, pks if isinstance(pks, tuple) else (pks,))
 
     def full_clean(self, instance, exclude=None, **kwargs):
-        """
-        Run model's full clean chain
+        """Run model's full clean chain.
 
         This will run all of these in this order:
 
@@ -278,9 +258,7 @@ class model_info(six.with_metaclass(model_info_meta)):
         runner.is_valid(instance, raise_exception=True)
 
     def clean_fields(self, instance, exclude=None, **kwargs):
-        """
-        Clean all fields on object
-        """
+        """Clean all fields on object."""
         errors = {}
         exclude = exclude or []
         local_remote_pairs = set()
@@ -322,9 +300,7 @@ class model_info(six.with_metaclass(model_info_meta)):
             raise NestedValidationError(errors)
 
     def clean_nested_fields(self, instance, exclude=None, **kwargs):
-        """
-        Clean all nested fields which includes composites
-        """
+        """Clean all nested fields which includes composites."""
         errors = {}
         exclude = exclude or []
         props = [
@@ -354,9 +330,7 @@ class model_info(six.with_metaclass(model_info_meta)):
             raise NestedValidationError(errors)
 
     def clean_relation_fields(self, instance, exclude=None, **kwargs):
-        """
-        Clean all relation fields
-        """
+        """Clean all relation fields."""
         exclude = exclude or []
         visited = kwargs.pop("visited", set())
         visited.add(id(instance))
@@ -413,8 +387,7 @@ class model_info(six.with_metaclass(model_info_meta)):
             raise NestedValidationError(errors)
 
     def run_validators(self, instance, exclude=None, **kwargs):
-        """
-        Check all model validators registered on ``validators`` attribute
-        """
+        """Check all model validators registered on ``validators``
+        attribute."""
         runner = ValidationRunner(validators=getattr(instance, "validators", []))
         runner.is_valid(instance, raise_exception=True)

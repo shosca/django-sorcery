@@ -1,20 +1,14 @@
-# -*- coding: utf-8 -*-
-"""
-Upgrade command
-"""
+"""Upgrade command."""
 from functools import partial
 
 import alembic
-
 from django.core.management import CommandError
 
 from ..alembic import AlembicCommand
 
 
 class Upgrade(AlembicCommand):
-    """
-    Apply upgrade migration revisions
-    """
+    """Apply upgrade migration revisions."""
 
     help = "Apply migration revisions"
 
@@ -49,7 +43,7 @@ class Upgrade(AlembicCommand):
             if not sql:
                 self.stdout.write(
                     self.style.SUCCESS(
-                        "Running migrations for %s on database %s" % (appconfig.name, appconfig.db.alias)
+                        "Running migrations for {} on database {}".format(appconfig.name, appconfig.db.alias)
                     )
                 )
             with alembic.context.EnvironmentContext(
@@ -63,9 +57,7 @@ class Upgrade(AlembicCommand):
                 self.run_env(context, appconfig)
 
     def upgrade(self, rev, context, appconfig, revision):
-        """
-        Executes alembic upgrade revisions to the given revision
-        """
+        """Executes alembic upgrade revisions to the given revision."""
         return appconfig.script._upgrade_revs(revision, rev)
 
 

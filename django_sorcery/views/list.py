@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Django list view things for sqlalchemy
-"""
+"""Django list view things for sqlalchemy."""
 
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateResponseMixin, View
@@ -42,9 +39,7 @@ class BaseListView(MultipleObjectMixin, View):
     """A base view for displaying a list of objects."""
 
     def get(self, request, *args, **kwargs):
-        """
-        Handle GET request on list view
-        """
+        """Handle GET request on list view."""
         self.object_list = self.get_queryset()
         context = self.get_context_data()
         return self.render_to_response(context)
@@ -56,9 +51,10 @@ class MultipleObjectTemplateResponseMixin(TemplateResponseMixin):
     template_name_suffix = "_list"
 
     def get_template_names(self):
-        """
-        Return a list of template names to be used for the request. Must return a list. May not be called if
-        render_to_response is overridden.
+        """Return a list of template names to be used for the request.
+
+        Must return a list. May not be called if render_to_response is
+        overridden.
         """
         try:
             names = super().get_template_names()
@@ -84,7 +80,8 @@ class MultipleObjectTemplateResponseMixin(TemplateResponseMixin):
 
 
 class ListView(MultipleObjectTemplateResponseMixin, BaseListView):
-    """
-    Render some list of objects, set by `self.model` or `self.queryset`.
-    `self.queryset` can actually be any iterable of items, not just a queryset.
+    """Render some list of objects, set by `self.model` or `self.queryset`.
+
+    `self.queryset` can actually be any iterable of items, not just a
+    queryset.
     """

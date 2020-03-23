@@ -1,15 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Base model metadata things
-"""
+"""Base model metadata things."""
 
 import sqlalchemy as sa
 
 
 class model_info_meta(type):
-    """
-    Model metadata singleton
-    """
+    """Model metadata singleton."""
 
     _registry = {}
 
@@ -23,7 +18,7 @@ class model_info_meta(type):
             model = obj.mapper.class_
 
         if model not in cls._registry:
-            instance = super(model_info_meta, cls).__call__(model, *args, **kwargs)
+            instance = super().__call__(model, *args, **kwargs)
             cls._registry[model] = instance
 
         return cls._registry[model]

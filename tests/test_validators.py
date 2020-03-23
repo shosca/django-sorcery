@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 from collections import namedtuple
 
 from django.core.exceptions import ValidationError
-
 from django_sorcery.exceptions import NestedValidationError
 from django_sorcery.validators import (
     ValidateCantRemove,

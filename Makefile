@@ -39,8 +39,8 @@ clean-test:  ## remove test and coverage artifacts
 	rm -rf .tox .coverage htmlcov
 
 %-resetdb:
-	-psql -c "drop database $*;" -h localhost -U postgres
-	-psql -c "create database $*;" -h localhost -U postgres
+	-psql postgresql://postgres:postgres@localhost -c "drop database $*;"
+	-psql postgresql://postgres:postgres@localhost -c "create database $*;"
 
 resetdb: $(RESETDBS)
 

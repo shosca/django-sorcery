@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from django.core.exceptions import ValidationError
-
 from django_sorcery.db import meta  # noqa
 
 from ...base import TestCase

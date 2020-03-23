@@ -1,15 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Heads command
-"""
+"""Heads command."""
 
 from ..alembic import AlembicCommand
 
 
 class ShowHeads(AlembicCommand):
-    """
-    Display alembic revision heads
-    """
+    """Display alembic revision heads."""
 
     help = "Display revision heads"
 
@@ -21,7 +16,9 @@ class ShowHeads(AlembicCommand):
         appconfigs = [self.lookup_app(app_label)] if app_label is not None else self.sorcery_apps.values()
 
         for appconfig in appconfigs:
-            self.stdout.write(self.style.SUCCESS("Heads for %s on database %s" % (appconfig.name, appconfig.db.alias)))
+            self.stdout.write(
+                self.style.SUCCESS("Heads for {} on database {}".format(appconfig.name, appconfig.db.alias))
+            )
             for rev in appconfig.script.get_revisions("heads"):
                 if verbosity:
                     self.stdout.write(

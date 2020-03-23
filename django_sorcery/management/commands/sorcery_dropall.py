@@ -1,19 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-DropAll command
-"""
-
-from sqlalchemy.orm import configure_mappers
+"""DropAll command."""
 
 from django.core.management.base import BaseCommand
+from sqlalchemy.orm import configure_mappers
 
 from ...db import databases
 
 
 class DropAll(BaseCommand):
-    """
-    Drops database schemas using metadata.drop_all
-    """
+    """Drops database schemas using metadata.drop_all."""
 
     help = "Drops SQLAlchemy database schemas"
 

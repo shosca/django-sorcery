@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 from enum import Enum
-
-import six
 
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-
 from django_sorcery.db import databases
 from django_sorcery.db.models import autocoerce, autocoerce_properties
 from django_sorcery.db.query import Query
-from django_sorcery.validators import ValidateTogetherModelFields, ValidateUnique
+from django_sorcery.validators import (
+    ValidateTogetherModelFields,
+    ValidateUnique,
+)
 
 
 db = databases.get("test")
@@ -45,7 +44,7 @@ class Address(db.BaseComposite):
     validators = [ValidateTogetherModelFields(["street", "state", "zip"])]
 
     def clean_state(self):
-        if isinstance(self.state, six.text_type) and self.state != self.state.upper():
+        if isinstance(self.state, str) and self.state != self.state.upper():
             raise ValidationError({"state": "State must be uppercase."})
 
     def clean_zip(self):
@@ -192,7 +191,7 @@ class AllKindsOfFields(db.Model):
     # varbinary = db.Column(db.VARBINARY())
 
 
-class Point(object):
+class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -201,7 +200,7 @@ class Point(object):
         return self.x, self.y
 
     def __repr__(self):
-        return "Point(x=%r, y=%r)" % (self.x, self.y)
+        return "Point(x={!r}, y={!r})".format(self.x, self.y)
 
     def __eq__(self, other):
         return isinstance(other, Point) and other.x == self.x and other.y == self.y
@@ -273,7 +272,7 @@ class ValidateUniqueModel(db.Model):
     validators = [ValidateUnique(db, "name"), ValidateUnique(db, "foo", "bar")]
 
 
-class ClassicModel(object):
+class ClassicModel:
     pass
 
 

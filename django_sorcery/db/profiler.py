@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-sqlalchemy profiling things
-"""
+"""sqlalchemy profiling things."""
 import logging
 import time
 from collections import defaultdict, namedtuple
@@ -9,7 +6,6 @@ from functools import partial
 from threading import local
 
 import sqlalchemy as sa
-
 from django.conf import settings
 
 
@@ -20,10 +16,12 @@ STATEMENT_TYPES = {"SELECT": "select", "INSERT INTO": "insert", "UPDATE": "updat
 Query = namedtuple("Query", ["timestamp", "statement", "parameters", "duration"])
 
 
-class SQLAlchemyProfiler(object):
-    """
-    A sqlalchemy profiler that hooks into sqlalchemy engine and pool events and generate stats. Can also capture
-    executed sql statements. Useful for profiling or testing sql statements.
+class SQLAlchemyProfiler:
+    """A sqlalchemy profiler that hooks into sqlalchemy engine and pool events
+    and generate stats.
+
+    Can also capture executed sql statements. Useful for profiling or
+    testing sql statements.
     """
 
     def __init__(self, exclude=None, record_queries=True):
@@ -72,9 +70,7 @@ class SQLAlchemyProfiler(object):
         self.stop()  # pragma: nocover
 
     def start(self):
-        """
-        Starts profiling by wiring up sqlalchemy events
-        """
+        """Starts profiling by wiring up sqlalchemy events."""
         self.clear()
         for ev, target, handler in self._events:
             try:
@@ -85,9 +81,7 @@ class SQLAlchemyProfiler(object):
                 pass  # pragma: nocover
 
     def stop(self):
-        """
-        Stops profiling by detaching wired up sqlalchemy events
-        """
+        """Stops profiling by detaching wired up sqlalchemy events."""
         for ev, target, handler in self._events:
             try:
                 if sa.event.contains(target, ev, handler):
@@ -97,44 +91,33 @@ class SQLAlchemyProfiler(object):
                 pass  # pragma: nocover
 
     def clear(self):
-        """
-        Clears collected stats
-        """
+        """Clears collected stats."""
         self.local.__dict__.clear()
 
     @property
     def duration(self):
-        """
-        Return total statement execution duration
-        """
+        """Return total statement execution duration."""
         return self.local.__dict__.setdefault("duration", 0)
 
     @duration.setter
     def duration(self, value):
-        """
-        Sets total statement execution duration
-        """
+        """Sets total statement execution duration."""
         self.local.duration = value
 
     @property
     def counts(self):
-        """
-        Returns a dict of counts per sqlalchemy event operation like executed statements, commits, rollbacks, etc..
-        """
+        """Returns a dict of counts per sqlalchemy event operation like
+        executed statements, commits, rollbacks, etc.."""
         return self.local.__dict__.setdefault("counts", defaultdict(lambda: 0))
 
     @property
     def queries(self):
-        """
-        Returns executed statements
-        """
+        """Returns executed statements."""
         return self.local.__dict__.setdefault("queries", [])
 
     @property
     def stats(self):
-        """
-        Returns profiling stats
-        """
+        """Returns profiling stats."""
         stats = self.counts.copy()
         stats["duration"] = self.duration
         return stats
@@ -168,10 +151,8 @@ class SQLAlchemyProfiler(object):
         self.counts[count_event] += 1
 
 
-class SQLAlchemyProfilingMiddleware(object):
-    """
-    Django middleware that provides sqlalchemy statistics
-    """
+class SQLAlchemyProfilingMiddleware:
+    """Django middleware that provides sqlalchemy statistics."""
 
     logger = logger
 
@@ -181,22 +162,16 @@ class SQLAlchemyProfilingMiddleware(object):
 
     @property
     def log_results(self):
-        """
-        Determines if stats should be logged or not
-        """
+        """Determines if stats should be logged or not."""
         return settings.DEBUG
 
     @property
     def header_results(self):
-        """
-        Determines if stats should be returned as headers or not
-        """
+        """Determines if stats should be returned as headers or not."""
         return settings.DEBUG
 
     def start(self):
-        """
-        Starts profiling and disables restarts
-        """
+        """Starts profiling and disables restarts."""
         self.profiler.start()
         self.start = lambda: None
 
@@ -206,16 +181,12 @@ class SQLAlchemyProfilingMiddleware(object):
         return self.process_response(request, response)
 
     def process_request(self, request):
-        """
-        Starts profiling and resets stats doe the request
-        """
+        """Starts profiling and resets stats doe the request."""
         self.start()
         self.profiler.clear()
 
     def process_response(self, request, response):
-        """
-        Logs current request stats and also returns stats as headers
-        """
+        """Logs current request stats and also returns stats as headers."""
         try:
             stats = self.profiler.stats
             if stats["duration"] or self.log_results:
@@ -231,7 +202,5 @@ class SQLAlchemyProfilingMiddleware(object):
         return response
 
     def log(self, **kwargs):
-        """
-        Log sqlalchemy stats for current request
-        """
+        """Log sqlalchemy stats for current request."""
         self.logger.info("SQLAlchemy profiler %s", " ".join("{}={}".format(k, v) for k, v in kwargs.items()))

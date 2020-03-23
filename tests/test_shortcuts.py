@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from django.http import Http404
-
 from django_sorcery import shortcuts
 
 from .base import TestCase

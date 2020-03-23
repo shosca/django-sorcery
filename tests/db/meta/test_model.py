@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import sqlalchemy as sa
-
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
-
 from django_sorcery.db import meta  # noqa
 
 from ...base import TestCase

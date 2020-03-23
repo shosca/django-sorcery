@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Django REST Framework like viewset mixins for common model sqlalchemy actions
-"""
+"""Django REST Framework like viewset mixins for common model sqlalchemy
+actions."""
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
@@ -13,8 +11,7 @@ from ..views.base import BaseMultipleObjectMixin, BaseSingleObjectMixin
 
 
 class ListModelMixin(BaseMultipleObjectMixin):
-    """
-    A mixin for displaying a list of objects
+    """A mixin for displaying a list of objects.
 
     When used with router, it will map the following operations to actions on the viewset
 
@@ -26,7 +23,7 @@ class ListModelMixin(BaseMultipleObjectMixin):
     """
 
     def list(self, request, *args, **kwargs):
-        """List action for displaying a list of objects"""
+        """List action for displaying a list of objects."""
         self.object_list = self.get_queryset()
         context = self.get_list_context_data()
         return self.render_to_response(context)
@@ -37,7 +34,7 @@ class ListModelMixin(BaseMultipleObjectMixin):
         return "%s_list" % model.__name__.lower()
 
     def get_list_context_data(self, **kwargs):
-        """Returns context data for list action"""
+        """Returns context data for list action."""
         queryset = self.object_list
         page_size = self.get_paginate_by(queryset)
         context_object_name = self.get_list_context_object_name(queryset)
@@ -53,8 +50,7 @@ class ListModelMixin(BaseMultipleObjectMixin):
 
 
 class RetrieveModelMixin(BaseSingleObjectMixin):
-    """
-    A mixin for displaying a single object
+    """A mixin for displaying a single object.
 
     When used with router, it will map the following operations to actions on the viewset
 
@@ -66,7 +62,7 @@ class RetrieveModelMixin(BaseSingleObjectMixin):
     """
 
     def retrieve(self, request, *args, **kwargs):
-        """List action for displaying a single object"""
+        """List action for displaying a single object."""
         self.object = self.get_object()
         context = self.get_detail_context_data(object=self.object)
         return self.render_to_response(context)
@@ -81,9 +77,7 @@ class RetrieveModelMixin(BaseSingleObjectMixin):
         return model.__name__.lower()
 
     def get_detail_context_data(self, **kwargs):
-        """
-        Returns detail context data for template rendering
-        """
+        """Returns detail context data for template rendering."""
         context = {}
         if self.object:
             context["object"] = self.object
@@ -95,18 +89,14 @@ class RetrieveModelMixin(BaseSingleObjectMixin):
 
 
 class ModelFormMixin(FormMixin, RetrieveModelMixin):
-    """
-    Common mixin for handling sqlalchemy model forms in viewsets
-    """
+    """Common mixin for handling sqlalchemy model forms in viewsets."""
 
     fields = None
     form_class = None
     success_url = None
 
     def get_form_class(self):
-        """
-        Returns the form class to be used
-        """
+        """Returns the form class to be used."""
         if self.fields is not None and self.form_class:
             raise ImproperlyConfigured("Specifying both 'fields' and 'form_class' is not permitted.")
 
@@ -117,9 +107,7 @@ class ModelFormMixin(FormMixin, RetrieveModelMixin):
         return modelform_factory(model, fields=self.fields, session=self.get_session())
 
     def get_form_kwargs(self):
-        """
-        Returns the keyword arguments for instantiating the form
-        """
+        """Returns the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
         if hasattr(self, "object"):
             kwargs.update({"instance": self.object})
@@ -128,9 +116,7 @@ class ModelFormMixin(FormMixin, RetrieveModelMixin):
         return kwargs
 
     def get_success_url(self):
-        """
-        Return the URL to redirect to after processing a valid form.
-        """
+        """Return the URL to redirect to after processing a valid form."""
         if self.success_url:
             return self.success_url.format(**vars(self.object))
 
@@ -139,39 +125,30 @@ class ModelFormMixin(FormMixin, RetrieveModelMixin):
         )
 
     def process_form(self, form):
-        """
-        Checks if form is valid and processes accordingly
-        """
+        """Checks if form is valid and processes accordingly."""
         if form.is_valid():
             return self.form_valid(form)
 
         return self.form_invalid(form)
 
     def form_valid(self, form):
-        """
-        Processes a valid form
-        """
+        """Processes a valid form."""
         self.object = form.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        """
-        Handles invalid form
-        """
+        """Handles invalid form."""
         return self.render_to_response(self.get_form_context_data(form=form))
 
     def get_form_context_data(self, **kwargs):
-        """
-        Return form context data for template rendering
-        """
+        """Return form context data for template rendering."""
         if "form" not in kwargs:
             kwargs["form"] = self.get_form()
         return self.get_detail_context_data(**kwargs)
 
 
 class CreateModelMixin(ModelFormMixin):
-    """
-    A mixin for supporting creating objects
+    """A mixin for supporting creating objects.
 
     When used with router, it will map the following operations to actions on the viewset
 
@@ -184,24 +161,21 @@ class CreateModelMixin(ModelFormMixin):
     """
 
     def new(self, request, *args, **kwargs):
-        """New action for displaying a form for creating an object"""
+        """New action for displaying a form for creating an object."""
         return self.render_to_response(self.get_create_context_data())
 
     def create(self, request, *args, **kwargs):
-        """Create action for creating an object"""
+        """Create action for creating an object."""
         form = self.get_form()
         return self.process_form(form)
 
     def get_create_context_data(self, **kwargs):
-        """
-        Returns new context data for template rendering
-        """
+        """Returns new context data for template rendering."""
         return self.get_form_context_data(**kwargs)
 
 
 class UpdateModelMixin(ModelFormMixin):
-    """
-    A mixin for supporting updating objects
+    """A mixin for supporting updating objects.
 
     When used with router, it will map the following operations to actions on the viewset
 
@@ -216,26 +190,23 @@ class UpdateModelMixin(ModelFormMixin):
     """
 
     def edit(self, request, *args, **kwargs):
-        """Edit action for displaying a form for editing an object"""
+        """Edit action for displaying a form for editing an object."""
         self.object = self.get_object()
         return self.render_to_response(self.get_update_context_data())
 
     def update(self, request, *args, **kwargs):
-        """Update action for updating an object"""
+        """Update action for updating an object."""
         self.object = self.get_object()
         form = self.get_form()
         return self.process_form(form)
 
     def get_update_context_data(self, **kwargs):
-        """
-        Returns edit context data for template rendering
-        """
+        """Returns edit context data for template rendering."""
         return self.get_form_context_data(**kwargs)
 
 
 class DeleteModelMixin(RetrieveModelMixin):
-    """
-    A mixin for supporting deleting objects
+    """A mixin for supporting deleting objects.
 
     When used with router, it will map the following operations to actions on the viewset
 
@@ -251,34 +222,31 @@ class DeleteModelMixin(RetrieveModelMixin):
     destroy_success_url = None
 
     def confirm_destroy(self, request, *args, **kwargs):
-        """Confirm_destory action for displaying deletion confirmation for an object"""
+        """Confirm_destory action for displaying deletion confirmation for an
+        object."""
         self.object = self.get_object()
         return self.render_to_response(self.get_destroy_context_data())
 
     def destroy(self, request, *args, **kwargs):
-        """Destroy action for deletion of an object"""
+        """Destroy action for deletion of an object."""
         self.object = self.get_object()
         self.perform_destoy(self.object)
         return HttpResponseRedirect(self.get_destroy_success_url())
 
     def perform_destoy(self, obj):
-        """
-        Performs the deletion operation
-        """
+        """Performs the deletion operation."""
         session = self.get_session()
         session.delete(obj)
         session.flush()
 
     def get_destroy_context_data(self, **kwargs):
-        """
-        Returns destory context data for rendering deletion confirmation page
-        """
+        """Returns destory context data for rendering deletion confirmation
+        page."""
         return self.get_detail_context_data(**kwargs)
 
     def get_destroy_success_url(self):
-        """
-        Return the url to redirect to after successful deletion of an object
-        """
+        """Return the url to redirect to after successful deletion of an
+        object."""
         if self.destroy_success_url:
             return self.destroy_success_url.format(**vars(self.object))
 

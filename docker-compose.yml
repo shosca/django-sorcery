@@ -2,6 +2,10 @@ version: '2.1'
 
 services:
   pg:
-    image: postgres
+    # 12 breaks older versions of sqlalchemy so sticking with 11 for now
+    # https://github.com/sqlalchemy/sqlalchemy/issues/4463
+    image: postgres:11
     ports:
       - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres

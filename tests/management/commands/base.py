@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 from ... import testapp
@@ -7,7 +6,7 @@ from ... import testapp
 MIGRATION_DIR = os.path.abspath(os.path.join(os.path.dirname(testapp.__file__), "migrations"))
 
 
-class MigrationMixin(object):
+class MigrationMixin:
     def write_migration(self, content, filename):
         with open(os.path.join(MIGRATION_DIR, filename), "w+") as migration:
             migration.write(content)

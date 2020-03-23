@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 import sqlalchemy as sa
-
 from django.conf import settings
-
 from django_sorcery.db import databases
 from django_sorcery.db.sqlalchemy import SQLAlchemy
 from django_sorcery.db.utils import dbdict, index_foreign_keys

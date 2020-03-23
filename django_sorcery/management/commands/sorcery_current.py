@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Current command
-"""
+"""Current command."""
 from functools import partial
 
 import alembic
@@ -10,9 +7,7 @@ from ..alembic import AlembicCommand
 
 
 class Current(AlembicCommand):
-    """
-    Shows current db revisions
-    """
+    """Shows current db revisions."""
 
     help = "Show current db revisions"
 
@@ -25,7 +20,7 @@ class Current(AlembicCommand):
 
         for appconfig in appconfigs:
             self.stdout.write(
-                self.style.SUCCESS("Revision for %s on database %s" % (appconfig.name, appconfig.db.alias))
+                self.style.SUCCESS("Revision for {} on database {}".format(appconfig.name, appconfig.db.alias))
             )
             with alembic.context.EnvironmentContext(
                 appconfig.config,
@@ -35,9 +30,7 @@ class Current(AlembicCommand):
                 self.run_env(context, appconfig)
 
     def display_version(self, rev, context, verbose=False, appconfig=None):
-        """
-        Displays the alembic revision
-        """
+        """Displays the alembic revision."""
         if verbose:
             self.stdout.write("Current revision(s) for {!r}".format(context.connection.engine.url))
         for rev in appconfig.script.get_all_current(rev):

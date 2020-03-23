@@ -1,18 +1,14 @@
-# -*- coding: utf-8 -*-
-"""
-Validators
-"""
+"""Validators."""
 
 import sqlalchemy as sa
-from sqlalchemy import inspect
-
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from sqlalchemy import inspect
 
 
-class ValidateTogetherModelFields(object):
-    """
-    Validator for checking that multiple model fields are always saved together
+class ValidateTogetherModelFields:
+    """Validator for checking that multiple model fields are always saved
+    together.
 
     For example::
 
@@ -40,9 +36,9 @@ class ValidateTogetherModelFields(object):
             raise ValidationError(self.message, code=self.code, params={"fields": ", ".join(sorted(self.fields))})
 
 
-class ValidateUnique(object):
-    """
-    Validator for checking uniqueness of arbitrary list of attributes on a model
+class ValidateUnique:
+    """Validator for checking uniqueness of arbitrary list of attributes on a
+    model.
 
     For example::
 
@@ -86,9 +82,9 @@ class ValidateUnique(object):
             raise ValidationError(self.message, code=self.code, params={"fields": ", ".join(sorted(self.attrs))})
 
 
-class ValidateValue(object):
-    """
-    Validator for checking correctness of a value by using a predicate callable
+class ValidateValue:
+    """Validator for checking correctness of a value by using a predicate
+    callable.
 
     Useful when other multiple fields need to be consulted
     to check if particular field is valid.
@@ -128,9 +124,8 @@ class ValidateValue(object):
                 raise e
 
 
-class ValidateEmptyWhen(object):
-    """
-    Validator for checking a field is empty when predicate is True
+class ValidateEmptyWhen:
+    """Validator for checking a field is empty when predicate is True.
 
     Useful to conditionally enforce a field is not provided depending on related field
 
@@ -171,8 +166,7 @@ class ValidateEmptyWhen(object):
 
 
 class ValidateNotEmptyWhen(ValidateEmptyWhen):
-    """
-    Validator for checking a field is provided when predicate is True
+    """Validator for checking a field is provided when predicate is True.
 
     Useful to conditionally enforce a field is provided depending on related field
 
@@ -194,9 +188,8 @@ class ValidateNotEmptyWhen(ValidateEmptyWhen):
     allow_empty = False
 
 
-class ValidateOnlyOneOf(object):
-    """
-    Validate that only one of given fields is provided
+class ValidateOnlyOneOf:
+    """Validate that only one of given fields is provided.
 
     For example::
 
@@ -228,19 +221,18 @@ class ValidateOnlyOneOf(object):
             raise e
 
 
-class ValidateCantRemove(object):
+class ValidateCantRemove:
+    """Validate that for data cannot be removed for given field.
+
+    For example::
+
+        class MyModel(db.Model):
+            foo = db.Column(db.String())
+
+            validators = [
+                ValidateCantRemove('foo'),
+            ]
     """
-   Validate that for data cannot be removed for given field
-
-   For example::
-
-       class MyModel(db.Model):
-           foo = db.Column(db.String())
-
-           validators = [
-               ValidateCantRemove('foo'),
-           ]
-   """
 
     message = _("Cannot remove existing data.")
     code = "remove"

@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-InlineFormSet for sqlalchemy
-"""
+"""InlineFormSet for sqlalchemy."""
 
 from ..db import meta
 from ..forms import ModelForm
@@ -54,7 +51,7 @@ def _get_foreign_key(relation, parent_model, model, fk_name=None):
         if len(relations) == 1:
             return relations[0]
 
-        raise ValueError("Couldn't find a relation from '%s' to '%s'." % (parent_model.__name__, model.__name__))
+        raise ValueError("Couldn't find a relation from '{}' to '{}'.".format(parent_model.__name__, model.__name__))
 
 
 def inlineformset_factory(
@@ -82,11 +79,10 @@ def inlineformset_factory(
     field_classes=None,
     session=None,
 ):
-    """
-    Return an ``InlineFormSet`` for the given kwargs.
+    """Return an ``InlineFormSet`` for the given kwargs.
 
-    ``fk_name`` must be provided if ``model`` has more than one ``ForeignKey``
-    to ``parent_model``.
+    ``fk_name`` must be provided if ``model`` has more than one
+    ``ForeignKey`` to ``parent_model``.
     """
     if relation is not None:
         fk = _get_relation_info(relation)

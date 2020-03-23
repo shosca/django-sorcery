@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import alembic.config
-
 from django.test import TestCase
-
 from django_sorcery.db.alembic.base import setup_config
 
 

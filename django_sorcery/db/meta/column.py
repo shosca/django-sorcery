@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Django-esque field metadata and interface providers.
-"""
+"""Django-esque field metadata and interface providers."""
 import datetime
 import decimal
 import enum
 
-import six
-from dateutil.parser import parse
-
 import sqlalchemy as sa
-
+from dateutil.parser import parse
 from django import forms as djangoforms
 from django.conf import settings
 from django.core import validators as djangovalidators
@@ -31,10 +25,9 @@ def _make_naive(value):
     return value
 
 
-class column_info(object):
-    """
-    A helper class that makes sqlalchemy property and column inspection easier
-    """
+class column_info:
+    """A helper class that makes sqlalchemy property and column inspection
+    easier."""
 
     default_form_class = None
     default_error_messages = djangomodelfields.Field.default_error_messages
@@ -143,17 +136,13 @@ class column_info(object):
 
     @property
     def coercer(self):
-        """
-        Form field to be used to coerce data types
-        """
+        """Form field to be used to coerce data types."""
         if not self._coercer:
             self._coercer = self.formfield(localize=True) or djangofields.Field(localize=True)
         return self._coercer
 
     def formfield(self, form_class=None, **kwargs):
-        """
-        Returns the form field for the field.
-        """
+        """Returns the form field for the field."""
         form_class = form_class or self.form_class
 
         if form_class is not None:
@@ -162,16 +151,14 @@ class column_info(object):
             return form_class(**field_kwargs)
 
     def to_python(self, value):
-        """
-        Convert input value to appropriate python object
-        """
+        """Convert input value to appropriate python object."""
         return self.coercer.to_python(value)
 
     def clean(self, value, instance):
-        """
-        Convert the value's type and run validation. Validation errors
-        from to_python() and validate() are propagated. Return the correct
-        value if no error is raised.
+        """Convert the value's type and run validation.
+
+        Validation errors from to_python() and validate() are
+        propagated. Return the correct value if no error is raised.
         """
         value = self.to_python(value)
         self.validate(value, instance)
@@ -179,15 +166,11 @@ class column_info(object):
         return value
 
     def validate(self, value, instance):
-        """
-        Validate value and raise ValidationError if necessary
-        """
+        """Validate value and raise ValidationError if necessary."""
         getattr(instance, "clean_" + self.name, bool)()
 
     def run_validators(self, value):
-        """
-        Run field's validators and raise ValidationError if necessary
-        """
+        """Run field's validators and raise ValidationError if necessary."""
         if value in self.empty_values:
             return
 
@@ -203,9 +186,7 @@ class column_info(object):
 
 
 class string_column_info(column_info):
-    """
-    Provides meta info for string columns
-    """
+    """Provides meta info for string columns."""
 
     default_form_class = djangofields.CharField
 
@@ -216,13 +197,11 @@ class string_column_info(column_info):
     def to_python(self, value):
         if value is None:
             return value
-        return six.text_type(value).strip()
+        return str(value).strip()
 
 
 class text_column_info(string_column_info):
-    """
-    Provides meta info for text columns
-    """
+    """Provides meta info for text columns."""
 
     def __init__(self, column, prop=None, parent=None, name=None):
         super().__init__(column, prop, parent, name)
@@ -231,9 +210,7 @@ class text_column_info(string_column_info):
 
 
 class choice_column_info(column_info):
-    """
-    Provides meta info for enum columns with simple choices
-    """
+    """Provides meta info for enum columns with simple choices."""
 
     default_form_class = djangofields.TypedChoiceField
 
@@ -270,7 +247,7 @@ class choice_column_info(column_info):
             if parsed in self.choices:
                 return parsed
 
-        parsed = six.text_type(value).strip()
+        parsed = str(value).strip()
         parsed = self.coercer.to_python(parsed)
         if parsed in self.coercer.empty_values:
             return None
@@ -279,9 +256,7 @@ class choice_column_info(column_info):
 
 
 class enum_column_info(choice_column_info):
-    """
-    Provides meta info for enum columns with Enum choices
-    """
+    """Provides meta info for enum columns with Enum choices."""
 
     default_form_class = sorceryfields.EnumField
 
@@ -304,9 +279,7 @@ class enum_column_info(choice_column_info):
 
 
 class numeric_column_info(column_info):
-    """
-    Provides meta info for numeric columns
-    """
+    """Provides meta info for numeric columns."""
 
     __slots__ = ("max_digits", "decimal_places")
 
@@ -330,17 +303,15 @@ class numeric_column_info(column_info):
         if isinstance(value, float):
             value = decimal.Context(prec=self.max_digits).create_decimal_from_float(value)
             return value.to_integral() if value == value.to_integral() else value.normalize()
-        if isinstance(value, six.integer_types):
+        if isinstance(value, int):
             return decimal.Decimal(value)
 
-        parsed = sanitize_separators(six.text_type(value).strip())
+        parsed = sanitize_separators(str(value).strip())
         return self.coercer.to_python(parsed)
 
 
 class boolean_column_info(column_info):
-    """
-    Provides meta info for boolean columns
-    """
+    """Provides meta info for boolean columns."""
 
     def __init__(self, column, prop=None, parent=None, name=None):
         super().__init__(column, prop, parent, name)
@@ -360,9 +331,7 @@ class boolean_column_info(column_info):
 
 
 class date_column_info(column_info):
-    """
-    Provides meta info for date columns
-    """
+    """Provides meta info for date columns."""
 
     default_form_class = djangofields.DateField
 
@@ -380,7 +349,7 @@ class date_column_info(column_info):
         if isinstance(value, datetime.date):
             return value
 
-        parsed = six.text_type(value).strip()
+        parsed = str(value).strip()
         with suppress(ValueError):
             return _make_naive(datetime.datetime.fromtimestamp(float(parsed))).date()
         with suppress(ValueError):
@@ -390,9 +359,7 @@ class date_column_info(column_info):
 
 
 class datetime_column_info(column_info):
-    """
-    Provides meta info for datetime columns
-    """
+    """Provides meta info for datetime columns."""
 
     default_form_class = djangofields.DateTimeField
 
@@ -410,7 +377,7 @@ class datetime_column_info(column_info):
         if isinstance(value, datetime.date):
             return _make_naive(datetime.datetime(value.year, value.month, value.day))
 
-        parsed = six.text_type(value).strip()
+        parsed = str(value).strip()
         with suppress(ValueError):
             return _make_naive(datetime.datetime.fromtimestamp(float(parsed)))
 
@@ -421,9 +388,7 @@ class datetime_column_info(column_info):
 
 
 class float_column_info(column_info):
-    """
-    Provides meta info for float columns
-    """
+    """Provides meta info for float columns."""
 
     default_form_class = djangofields.FloatField
 
@@ -433,14 +398,12 @@ class float_column_info(column_info):
         if isinstance(value, float):
             return value
 
-        parsed = six.text_type(value).strip()
+        parsed = str(value).strip()
         return self.coercer.to_python(parsed)
 
 
 class integer_column_info(column_info):
-    """
-    Provides meta info for integer columns
-    """
+    """Provides meta info for integer columns."""
 
     default_form_class = djangofields.IntegerField
 
@@ -450,14 +413,12 @@ class integer_column_info(column_info):
         if isinstance(value, int):
             return value
 
-        parsed = six.text_type(value).strip()
+        parsed = str(value).strip()
         return self.coercer.to_python(parsed)
 
 
 class interval_column_info(column_info):
-    """
-    Provides meta info for interval columns
-    """
+    """Provides meta info for interval columns."""
 
     default_form_class = djangofields.DurationField
 
@@ -467,14 +428,12 @@ class interval_column_info(column_info):
         if isinstance(value, datetime.timedelta):
             return value
 
-        parsed = six.text_type(value).strip()
+        parsed = str(value).strip()
         return self.coercer.to_python(parsed)
 
 
 class time_column_info(column_info):
-    """
-    Provides meta info for time columns
-    """
+    """Provides meta info for time columns."""
 
     default_form_class = djangofields.TimeField
 
@@ -486,7 +445,7 @@ class time_column_info(column_info):
         if isinstance(value, datetime.datetime):
             return value.time()
 
-        parsed = six.text_type(value).strip()
+        parsed = str(value).strip()
         return self.coercer.to_python(parsed)
 
 

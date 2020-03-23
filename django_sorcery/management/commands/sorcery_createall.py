@@ -1,19 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-CreateAll command
-"""
-
-from sqlalchemy.orm import configure_mappers
+"""CreateAll command."""
 
 from django.core.management.base import BaseCommand
+from sqlalchemy.orm import configure_mappers
 
 from ...db import databases
 
 
 class CreateAll(BaseCommand):
-    """
-    Creates db schema using metadata.create_all
-    """
+    """Creates db schema using metadata.create_all."""
 
     help = "Creates SQLAlchemy database schemas"
 
