@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-sqlalchemy session related things
-"""
+"""sqlalchemy session related things."""
 from itertools import chain
 
 from sqlalchemy import event, orm
@@ -54,9 +51,7 @@ def record_models(session, flush_context=None, instances=None):
 
 
 class SignallingSession(orm.Session):
-    """
-    A custom sqlalchemy session implementation that provides signals
-    """
+    """A custom sqlalchemy session implementation that provides signals."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,9 +64,7 @@ class SignallingSession(orm.Session):
         event.listen(self, "after_rollback", after_rollback)
 
     def query(self, *args, **kwargs):
-        """
-        Override to try to use the model.query_class
-        """
+        """Override to try to use the model.query_class."""
         if len(args) == 1 and hasattr(args[0], "query_class") and args[0].query_class is not None:
             return args[0].query_class(*args, session=self, **kwargs)
 

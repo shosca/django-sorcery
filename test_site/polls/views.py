@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-
 from django_sorcery.formsets import inlineformset_factory
 from django_sorcery.routers import action
 from django_sorcery.viewsets import ModelViewSet

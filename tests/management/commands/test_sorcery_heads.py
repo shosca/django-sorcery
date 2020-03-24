@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import six
 
 from django.test import TestCase
-
 from django_sorcery.management.commands.sorcery_heads import Command
 
 from .base import MIGRATION_DIR, MigrationMixin

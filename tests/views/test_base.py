@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import sqlalchemy as sa
-
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-
 from django_sorcery.views.base import SQLAlchemyMixin
 
 from ..testapp.models import ClassicModel, Owner, db
@@ -68,7 +64,7 @@ class TestBaseView(TestCase):
         self.assertEqual(len(query._with_options), 1)
 
     def test_get_queryset_fail(self):
-        class DummyObject(object):
+        class DummyObject:
             pass
 
         class DummyViewFail(SQLAlchemyMixin):

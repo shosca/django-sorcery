@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # fmt: off
 #
 # Django Sorcery documentation build configuration file, created by
@@ -21,10 +20,9 @@
 import os
 import sys
 
-import sphinx_rtd_theme
-
 import django
 import django.test.utils
+import sphinx_rtd_theme
 from django.conf import settings
 
 

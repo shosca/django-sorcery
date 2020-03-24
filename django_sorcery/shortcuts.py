@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Some Django like shortcuts that support sqlalchemy models
-"""
-
-from sqlalchemy.exc import InvalidRequestError
+"""Some Django like shortcuts that support sqlalchemy models."""
 
 from django.http import Http404
+from sqlalchemy.exc import InvalidRequestError
 
 from .utils import suppress
 
@@ -23,12 +19,11 @@ def _get_query(klass):
 
 
 def get_object_or_404(klass, *args, **kwargs):
-    """
-    Use session.get() to return an object, or raise a Http404 exception if the object
-    does not exist.
+    """Use session.get() to return an object, or raise a Http404 exception if
+    the object does not exist.
 
-    klass may be a Model, or Query object. All other passed
-    arguments and keyword arguments are used in the get() query.
+    klass may be a Model, or Query object. All other passed arguments
+    and keyword arguments are used in the get() query.
     """
     query = _get_query(klass)
 
@@ -41,12 +36,11 @@ def get_object_or_404(klass, *args, **kwargs):
 
 
 def get_list_or_404(klass, *args, **kwargs):
-    """
-    Use filter() to return a list of objects, or raise a Http404 exception if
-    the count is 0.
+    """Use filter() to return a list of objects, or raise a Http404 exception
+    if the count is 0.
 
-    klass may be a Model or Query object. All other passed
-    arguments used in filter() and keyword arguments are used in filter_by().
+    klass may be a Model or Query object. All other passed arguments
+    used in filter() and keyword arguments are used in filter_by().
     """
     query = _get_query(klass)
 

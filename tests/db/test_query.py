@@ -1,9 +1,15 @@
-# -*- coding: utf-8 -*-
-
 from django_sorcery.db.query import QueryProperty
 
 from ..base import TestCase
-from ..testapp.models import CompositePkModel, Owner, Point, Vehicle, VehicleType, Vertex, db
+from ..testapp.models import (
+    CompositePkModel,
+    Owner,
+    Point,
+    Vehicle,
+    VehicleType,
+    Vertex,
+    db,
+)
 
 
 class TestQuery(TestCase):
@@ -96,7 +102,7 @@ class TestQueryProperty(TestCase):
         db.flush()
 
     def test_options_filter_and_filter_by(self):
-        class Dummy(object):
+        class Dummy:
             vehicles = QueryProperty(db, Vehicle).options(db.joinedload(Vehicle.owner))
             used_vehicles = QueryProperty(db, Vehicle, Vehicle.is_used.is_(True))
             new_vehicles = QueryProperty(db, Vehicle, is_used=False)
@@ -115,13 +121,13 @@ class TestQueryProperty(TestCase):
         self.assertEqual(
             ctx.exception.args,
             (
-                "<QueryProperty db=<SQLAlchemy engine=postgresql://postgres@localhost/test>, model='Vehicle'> "
+                "<QueryProperty db=<SQLAlchemy engine=postgresql://postgres:***@localhost/test>, model='Vehicle'> "
                 "object has no attribute 'dummy'",
             ),
         )
 
     def test_no_model(self):
-        class Dummy(object):
+        class Dummy:
             vehicles = QueryProperty(db, None)
 
         with self.assertRaises(AttributeError) as ctx:
@@ -139,7 +145,7 @@ class TestQueryProperty(TestCase):
 
         qp = QueryProperty(db, Vehicle)
 
-        class Dummy(object):
+        class Dummy:
             vehicles = qp
 
         qp.model = object

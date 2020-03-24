@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 import attr
-
 from django_sorcery.db import SQLAlchemy, databases, middleware
 
 from ..base import mock
@@ -40,7 +38,7 @@ def get_response(request):
 
 
 @attr.s
-class Request(object):
+class Request:
     method = attr.ib(default="GET")
     status_code = attr.ib(default=200)
 
@@ -114,7 +112,7 @@ class TestSQLAlchemyDBMiddleware(unittest.TestCase):
         super().setUp()
 
         self.db = mock.MagicMock()
-        self.middleware = type(str("DummySQLAlchemyMiddleware"), (middleware.SQLAlchemyDBMiddleware,), {"db": self.db})(
+        self.middleware = type("DummySQLAlchemyMiddleware", (middleware.SQLAlchemyDBMiddleware,), {"db": self.db})(
             get_response
         )
 

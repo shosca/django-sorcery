@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Common mixins used in models
-"""
+"""Common mixins used in models."""
 
 from . import meta
 
 
-class CleanMixin(object):
-    """
-    Mixin for adding django-style ``full_clean`` validation to any object.
+class CleanMixin:
+    """Mixin for adding django-style ``full_clean`` validation to any object.
 
     Base model in :py:class:`..sqlalchemy.SQLAlchemy` already uses this mixin applied.
 
@@ -33,54 +29,39 @@ class CleanMixin(object):
     """
 
     def clean(self, **kwargs):
-        """
-        Hook for adding custom model validations before model is flushed.
+        """Hook for adding custom model validations before model is flushed.
 
         Should raise ``ValidationError`` if any errors are found.
         """
 
     def clean_fields(self, exclude=None, **kwargs):
-        """
-        Clean all fields on object
-        """
+        """Clean all fields on object."""
         meta.model_info(self).clean_fields(self, exclude=exclude, **kwargs)
 
     def _get_properties_for_validation(self):
-        """
-        Needs to be implemented to return all properties for the object
-        """
+        """Needs to be implemented to return all properties for the object."""
 
     def clean_nested_fields(self, exclude=None, **kwargs):
-        """
-        Clean all nested fields which includes composites
-        """
+        """Clean all nested fields which includes composites."""
         meta.model_info(self).clean_nested_fields(self, exclude=exclude, **kwargs)
 
     def _get_nested_objects_for_validation(self):
-        """
-        Needs to be implemented to return all nested objects
-        """
+        """Needs to be implemented to return all nested objects."""
 
     def clean_relation_fields(self, exclude, **kwargs):
-        """
-        Clean all relation fields
-        """
+        """Clean all relation fields."""
         meta.model_info(self).clean_relation_fields(self, exclude=exclude, **kwargs)
 
     def _get_relation_objects_for_validation(self):
-        """
-        Needs to be implemented to return all relation objects
-        """
+        """Needs to be implemented to return all relation objects."""
 
     def run_validators(self, **kwargs):
-        """
-        Check all model validators registered on ``validators`` attribute
-        """
+        """Check all model validators registered on ``validators``
+        attribute."""
         meta.model_info(self).run_validators(self, **kwargs)
 
     def full_clean(self, exclude=None, **kwargs):
-        """
-        Run model's full clean chain
+        """Run model's full clean chain.
 
         This will run all of these in this order:
 

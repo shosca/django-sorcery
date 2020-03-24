@@ -1,16 +1,21 @@
-# -*- coding: utf-8 -*-
-"""
-Helper functions for creating Form classes from SQLAlchemy models.
-"""
+"""Helper functions for creating Form classes from SQLAlchemy models."""
 from collections import OrderedDict
 from itertools import chain
 
-import six
-
-from django.core.exceptions import NON_FIELD_ERRORS, ImproperlyConfigured, ValidationError
+from django.core.exceptions import (
+    NON_FIELD_ERRORS,
+    ImproperlyConfigured,
+    ValidationError,
+)
 from django.forms import ALL_FIELDS
-from django.forms.forms import BaseForm as DjangoBaseForm, DeclarativeFieldsMetaclass
-from django.forms.models import BaseModelForm as DjangoBaseModelForm, ModelFormOptions
+from django.forms.forms import (
+    BaseForm as DjangoBaseForm,
+    DeclarativeFieldsMetaclass,
+)
+from django.forms.models import (
+    BaseModelForm as DjangoBaseModelForm,
+    ModelFormOptions,
+)
 from django.forms.utils import ErrorList
 
 from .db import meta
@@ -70,9 +75,7 @@ def fields_for_model(
     apply_limit_choices_to=True,
     **kwargs,
 ):
-    """
-    Returns a dictionary containing form fields for a given model
-    """
+    """Returns a dictionary containing form fields for a given model."""
 
     field_list = []
     info = meta.model_info(model)
@@ -124,9 +127,8 @@ def apply_limit_choices_to_form_field(formfield):
 
 
 def model_to_dict(instance, fields=None, exclude=None):
-    """
-    Return a dict containing the data in ``instance`` suitable for passing as
-    a Form's ``initial`` keyword argument.
+    """Return a dict containing the data in ``instance`` suitable for passing
+    as a Form's ``initial`` keyword argument.
 
     ``fields`` is an optional list of field names. If provided, return only the
     named.
@@ -182,9 +184,7 @@ def model_to_dict(instance, fields=None, exclude=None):
 
 
 class SQLAModelFormOptions(ModelFormOptions):
-    """
-    Model form options for sqlalchemy
-    """
+    """Model form options for sqlalchemy."""
 
     def __init__(self, options=None):
         super().__init__(options=options)
@@ -192,9 +192,7 @@ class SQLAModelFormOptions(ModelFormOptions):
 
 
 class ModelFormMetaclass(DeclarativeFieldsMetaclass):
-    """
-    ModelForm metaclass for sqlalchemy models
-    """
+    """ModelForm metaclass for sqlalchemy models."""
 
     def __new__(mcs, name, bases, attrs):
         cls = super().__new__(mcs, name, bases, attrs)
@@ -214,7 +212,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
 
         for opt in ["fields", "exclude", "localized_fields"]:
             value = getattr(opts, opt)
-            if isinstance(value, six.string_types) and value != ALL_FIELDS:
+            if isinstance(value, str) and value != ALL_FIELDS:
                 raise TypeError(
                     "%(model)s.Meta.%(opt)s cannot be a string. Did you mean to type: ('%(value)s',)?"
                     % {"model": cls.__name__, "opt": opt, "value": value}
@@ -252,9 +250,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
 
 
 class BaseModelForm(DjangoBaseModelForm):
-    """
-    Base ModelForm for sqlalchemy models
-    """
+    """Base ModelForm for sqlalchemy models."""
 
     def __init__(
         self,
@@ -300,9 +296,8 @@ class BaseModelForm(DjangoBaseModelForm):
             apply_limit_choices_to_form_field(field)
 
     def model_to_dict(self):
-        """
-        Returns a dict containing the data in ``instance`` suitable for passing as forms ``initial`` keyword argument.
-        """
+        """Returns a dict containing the data in ``instance`` suitable for
+        passing as forms ``initial`` keyword argument."""
         opts = self._meta
         return model_to_dict(self.instance, opts.fields, opts.exclude)
 
@@ -324,8 +319,9 @@ class BaseModelForm(DjangoBaseModelForm):
         self.add_error(None, errors)
 
     def is_valid(self, rollback=True):
-        """
-        Return True if the form has no errors, or False otherwise. Will also rollback the session transaction.
+        """Return True if the form has no errors, or False otherwise.
+
+        Will also rollback the session transaction.
         """
         is_valid = super().is_valid()
 
@@ -335,14 +331,13 @@ class BaseModelForm(DjangoBaseModelForm):
         return is_valid
 
     def save(self, flush=True, **kwargs):
-        """
-        Makes form's self.instance model persistent and flushes the session.
-        """
+        """Makes form's self.instance model persistent and flushes the
+        session."""
         opts = self._meta
 
         if self.errors:
             raise ValueError(
-                "The %s could not be saved because the data didn't validate." % (self.instance.__class__.__name__,)
+                "The {} could not be saved because the data didn't validate.".format(self.instance.__class__.__name__)
             )
 
         if self.instance not in opts.session:
@@ -354,9 +349,10 @@ class BaseModelForm(DjangoBaseModelForm):
         return self.instance
 
     def _post_clean(self):
-        """
-        Hook for performing additional cleaning after form cleaning is complete. Used for model validation in model
-        forms.
+        """Hook for performing additional cleaning after form cleaning is
+        complete.
+
+        Used for model validation in model forms.
         """
         try:
             self.instance = self.save_instance()
@@ -369,9 +365,7 @@ class BaseModelForm(DjangoBaseModelForm):
             self._update_errors(e)
 
     def save_instance(self, instance=None, cleaned_data=None):
-        """
-        Updates form's instance with cleaned data.
-        """
+        """Updates form's instance with cleaned data."""
         instance = instance or self.instance
         cleaned_data = cleaned_data or self.cleaned_data
 
@@ -382,9 +376,8 @@ class BaseModelForm(DjangoBaseModelForm):
         return instance
 
     def update_attribute(self, instance, name, field, value):
-        """
-        Provides hooks for updating form instance's attribute for a field with value.
-        """
+        """Provides hooks for updating form instance's attribute for a field
+        with value."""
         field_setter = getattr(self, "set_" + name, None)
         if field_setter:
             field_setter(instance, name, field, value)
@@ -392,16 +385,12 @@ class BaseModelForm(DjangoBaseModelForm):
             setattr(instance, name, value)
 
 
-class ModelForm(six.with_metaclass(ModelFormMetaclass, BaseModelForm)):
-    """
-    ModelForm base class for sqlalchemy models
-    """
+class ModelForm(BaseModelForm, metaclass=ModelFormMetaclass):
+    """ModelForm base class for sqlalchemy models."""
 
 
 def modelform_factory(model, form=ModelForm, formfield_callback=None, **kwargs):
-    """
-    Return a ModelForm class containing form fields for the given model.
-    """
+    """Return a ModelForm class containing form fields for the given model."""
     defaults = [
         "fields",
         "exclude",
@@ -421,7 +410,7 @@ def modelform_factory(model, form=ModelForm, formfield_callback=None, **kwargs):
             attrs[key] = value
 
     bases = (form.Meta,) if hasattr(form, "Meta") else ()
-    meta_ = type(str("Meta"), bases, attrs)
+    meta_ = type("Meta", bases, attrs)
     if formfield_callback:
         meta_.formfield_callback = staticmethod(formfield_callback)
 

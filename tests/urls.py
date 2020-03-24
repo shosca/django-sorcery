@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from django.conf.urls import include, url
-
 from django_sorcery import routers
 
 from .testapp import views

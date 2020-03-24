@@ -1,20 +1,15 @@
-# -*- coding: utf-8 -*-
-"""
-Stamp command
-"""
+"""Stamp command."""
 from functools import partial
 
 import alembic
-
 from django.core.management import CommandError
 
 from ..alembic import AlembicCommand
 
 
 class Stamp(AlembicCommand):
-    """
-    Stamp the revision table with migration revisions, doesn't run any migrations
-    """
+    """Stamp the revision table with migration revisions, doesn't run any
+    migrations."""
 
     help = "Stamp the revision table with migration revisions, doesn't run any migrations"
 
@@ -35,7 +30,7 @@ class Stamp(AlembicCommand):
             raise CommandError("Range revision is not allowed")
 
         self.stdout.write(
-            self.style.SUCCESS("Stamping revision for %s on database %s" % (appconfig.name, appconfig.db.alias))
+            self.style.SUCCESS("Stamping revision for {} on database {}".format(appconfig.name, appconfig.db.alias))
         )
 
         with alembic.context.EnvironmentContext(
@@ -47,9 +42,7 @@ class Stamp(AlembicCommand):
             self.run_env(context, appconfig)
 
     def stamp(self, rev, context, appconfig, revision):
-        """
-        Stamp the alembic revision
-        """
+        """Stamp the alembic revision."""
         return appconfig.script._stamp_revs(revision, rev)
 
 

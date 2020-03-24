@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-sqlalchemy transaction related things
-"""
+"""sqlalchemy transaction related things."""
 import functools
 
-import six
 
-
-class TransactionContext(object):
-    """
-    Transaction context manager for maintaining a transaction or savepoint
-    """
+class TransactionContext:
+    """Transaction context manager for maintaining a transaction or
+    savepoint."""
 
     def __init__(self, *dbs, **kwargs):
         self.dbs = dbs
@@ -42,4 +36,4 @@ class TransactionContext(object):
             transaction.__exit__(exception_type, value, tb)
         self.transactions = None
         if value:
-            six.reraise(exception_type, value, tb)
+            raise value.with_traceback(tb)

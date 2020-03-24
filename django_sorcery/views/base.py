@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Base model view things with sqlalchemy
-"""
-
-from sqlalchemy import literal
-from sqlalchemy.exc import InvalidRequestError
+"""Base model view things with sqlalchemy."""
 
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
@@ -12,15 +6,16 @@ from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
 from django.utils.translation import gettext
 from django.views.generic.base import ContextMixin
+from sqlalchemy import literal
+from sqlalchemy.exc import InvalidRequestError
 
 from ..db import meta
 from ..utils import suppress
 
 
 class SQLAlchemyMixin(ContextMixin):
-    """
-    Provides sqlalchemy model view support like query, model, session, etc..
-    """
+    """Provides sqlalchemy model view support like query, model, session,
+    etc.."""
 
     queryset = None
     model = None
@@ -30,9 +25,7 @@ class SQLAlchemyMixin(ContextMixin):
 
     @classmethod
     def get_model(cls):
-        """
-        Returns the model class
-        """
+        """Returns the model class."""
         if cls.model is not None:
             return cls.model
 
@@ -45,10 +38,11 @@ class SQLAlchemyMixin(ContextMixin):
         )
 
     def get_queryset(self):
-        """
-        Return the `QuerySet` that will be used to look up the object.
-        This method is called by the default implementation of get_object() and
-        may not be called if get_object() is overridden.
+        """Return the `QuerySet` that will be used to look up the object.
+
+        This method is called by the default implementation of
+        get_object() and may not be called if get_object() is
+        overridden.
         """
         if self.queryset is not None:
             return self.queryset
@@ -75,27 +69,21 @@ class SQLAlchemyMixin(ContextMixin):
         return query
 
     def get_session(self):
-        """
-        Returns the sqlalchemy session
-        """
+        """Returns the sqlalchemy session."""
         if self.session is None:
             self.session = self.get_queryset().session
 
         return self.session
 
     def get_query_options(self):
-        """
-        Returns sqlalchemy query options
-        """
+        """Returns sqlalchemy query options."""
         return self.query_options or []
 
     def get_model_template_name(self):
-        """
-        Returns the base template path
-        """
+        """Returns the base template path."""
         model = self.get_model()
         app_config = apps.get_containing_app_config(model.__module__)
-        return "%s/%s%s.html" % (
+        return "{}/{}{}.html".format(
             model.__name__.lower() if app_config is None else app_config.label,
             model.__name__.lower(),
             self.template_name_suffix,
@@ -103,9 +91,7 @@ class SQLAlchemyMixin(ContextMixin):
 
 
 class BaseMultipleObjectMixin(SQLAlchemyMixin):
-    """
-    Provides sqlalchemy support for list views
-    """
+    """Provides sqlalchemy support for list views."""
 
     allow_empty = True
     paginate_by = None
@@ -115,10 +101,11 @@ class BaseMultipleObjectMixin(SQLAlchemyMixin):
     ordering = None
 
     def get_queryset(self):
-        """
-        Return the list of items for this view.
+        """Return the list of items for this view.
+
         The return value must be an iterable and may be an instance of
-        `QuerySet` in which case `QuerySet` specific behavior will be enabled.
+        `QuerySet` in which case `QuerySet` specific behavior will be
+        enabled.
         """
         queryset = super().get_queryset()
 
@@ -155,16 +142,13 @@ class BaseMultipleObjectMixin(SQLAlchemyMixin):
         return self.ordering
 
     def get_paginate_by(self, queryset):
-        """
-        Get the number of items to paginate by, or ``None`` for no pagination.
-        """
+        """Get the number of items to paginate by, or ``None`` for no
+        pagination."""
         return self.paginate_by
 
     def get_paginate_orphans(self):
-        """
-        Return the maximum number of orphans extend the last page by when
-        paginating.
-        """
+        """Return the maximum number of orphans extend the last page by when
+        paginating."""
         return self.paginate_orphans
 
     def get_paginator(self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs):
@@ -174,9 +158,7 @@ class BaseMultipleObjectMixin(SQLAlchemyMixin):
         )
 
     def paginate_queryset(self, queryset, page_size):
-        """
-        Paginate queryset
-        """
+        """Paginate queryset."""
         paginator = self.get_paginator(
             queryset, page_size, orphans=self.get_paginate_orphans(), allow_empty_first_page=self.get_allow_empty()
         )
@@ -200,17 +182,13 @@ class BaseMultipleObjectMixin(SQLAlchemyMixin):
             )
 
     def get_allow_empty(self):
-        """
-        Return ``True`` if the view should display empty lists and ``False``
-        if a 404 should be raised instead.
-        """
+        """Return ``True`` if the view should display empty lists and ``False``
+        if a 404 should be raised instead."""
         return self.allow_empty
 
 
 class BaseSingleObjectMixin(SQLAlchemyMixin):
-    """
-    Provides sqlalchemy support for detail views
-    """
+    """Provides sqlalchemy support for detail views."""
 
     object = None
     slug_field = "slug"
@@ -218,11 +196,11 @@ class BaseSingleObjectMixin(SQLAlchemyMixin):
     query_pkg_and_slug = False
 
     def get_object(self, queryset=None):
-        """
-        Return the object the view is displaying
+        """Return the object the view is displaying.
 
-        Require `self.queryset` and the primary key attributes or the slug attributes in the URLconf.
-        Subclasses can override this to return any object
+        Require `self.queryset` and the primary key attributes or the
+        slug attributes in the URLconf. Subclasses can override this to
+        return any object
         """
 
         if queryset is None:
@@ -248,12 +226,10 @@ class BaseSingleObjectMixin(SQLAlchemyMixin):
             )
 
         if obj is None:
-            raise Http404(gettext("No %(cls)s instance found matching the query" % {"cls": model.__name__}))
+            raise Http404(gettext("No {cls} instance found matching the query".format(cls=model.__name__)))
 
         return obj
 
     def get_slug_field(self):
-        """
-        Get the name of a slug field to be used to look up by slug.
-        """
+        """Get the name of a slug field to be used to look up by slug."""
         return self.slug_field

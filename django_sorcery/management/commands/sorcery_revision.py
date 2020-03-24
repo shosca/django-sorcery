@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Revision command
-"""
+"""Revision command."""
 from functools import partial
 
 import alembic
@@ -11,9 +8,7 @@ from ..alembic import AlembicCommand
 
 
 class Revision(AlembicCommand):
-    """
-    Creates an alembic migration revision
-    """
+    """Creates an alembic migration revision."""
 
     help = "Create a migration revision"
 
@@ -119,9 +114,7 @@ class Revision(AlembicCommand):
             pass  # iterate over to generate the migration scripts
 
     def generate_migration(self, rev, context, appconfig=None):
-        """
-        Generate alembic migration
-        """
+        """Generate alembic migration."""
         self.revision_context.run_autogenerate(rev, context)
         return []
 

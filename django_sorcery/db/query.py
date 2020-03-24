@@ -1,15 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-sqlalchemy query related things
-"""
+"""sqlalchemy query related things."""
 from collections import namedtuple
 from functools import partial
 
-import six
-
 import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
-
 from django.db.models.constants import LOOKUP_SEP
 
 from ..utils import lower
@@ -53,14 +47,13 @@ LOOKUP_TO_EXPRESSION = {
 
 
 class Query(sa.orm.Query):
-    """
-    A customized sqlalchemy query
-    """
+    """A customized sqlalchemy query."""
 
     def get(self, *args, **kwargs):
-        """
-        Return an instance based on the given primary key identifier, either as args or
-        kwargs for composite keys. If no instance is found, returns ``None``.
+        """Return an instance based on the given primary key identifier, either
+        as args or kwargs for composite keys.
+
+        If no instance is found, returns ``None``.
         """
         if kwargs:
             mapper = self._only_full_mapper_zero("get")
@@ -74,15 +67,15 @@ class Query(sa.orm.Query):
         return super().get(*args, **kwargs)
 
     def order_by(self, *criterion):
-        """
-        Standard SQLAlchemy ordering plus django-like expressions can be provided:
+        """Standard SQLAlchemy ordering plus django-like expressions can be
+        provided:
 
         For example::
 
             MyModel.objects.order_by("-id")
             MyModel.objects.order_by("name")
         """
-        if len(self._entities) == 1 and all(isinstance(criteria, six.string_types) for criteria in criterion):
+        if len(self._entities) == 1 and all(isinstance(criteria, str) for criteria in criterion):
             info = meta.model_info(self._entity_zero())
             new_criterion = []
             for criteria in criterion:
@@ -101,8 +94,8 @@ class Query(sa.orm.Query):
         return super().order_by(*criterion)
 
     def filter(self, *args, **kwargs):
-        """
-        Standard SQLAlchemy filtering plus django-like expressions can be provided:
+        """Standard SQLAlchemy filtering plus django-like expressions can be
+        provided:
 
         For example::
 
@@ -153,10 +146,9 @@ class Query(sa.orm.Query):
         return lhs == value
 
 
-class QueryProperty(object):
-    """
-    A property class that returns a session scoped query object against the class when called.
-    Used by the ``SQLAlchemy.queryproperty``
+class QueryProperty:
+    """A property class that returns a session scoped query object against the
+    class when called. Used by the ``SQLAlchemy.queryproperty``
 
     For example::
 

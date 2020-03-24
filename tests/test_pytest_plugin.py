@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import pytest
-
 from django_sorcery.pytest_plugin import sqlalchemy_profiler, transact  # noqa
 from django_sorcery.testing import CommitException
 

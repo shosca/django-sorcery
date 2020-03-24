@@ -1,12 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Some common utilities
-"""
+"""Some common utilities."""
 import contextlib
 import inspect
 import unicodedata
-
-import six
 
 from django.conf import settings
 
@@ -18,11 +13,12 @@ except AttributeError:  # pragma: nocover
 
 
 def sanitize_separators(value):
+    """Sanitize a value according to the current decimal and thousand separator
+    setting.
+
+    Used with form field input.
     """
-    Sanitize a value according to the current decimal and
-    thousand separator setting. Used with form field input.
-    """
-    if isinstance(value, six.string_types):
+    if isinstance(value, str):
         parts = []
         decimal_separator = settings.DECIMAL_SEPARATOR
         if decimal_separator in value:
@@ -37,9 +33,8 @@ def sanitize_separators(value):
 
 
 def get_args(func):
-    """
-    Returns the names of the positional arguments for composite model inspection
-    """
+    """Returns the names of the positional arguments for composite model
+    inspection."""
     try:
         return list(inspect.signature(func).parameters.keys())[1:]
 
@@ -48,9 +43,7 @@ def get_args(func):
 
 
 def setdefaultattr(obj, name, value):
-    """
-    setdefault for object attributes
-    """
+    """setdefault for object attributes."""
     try:
         return getattr(obj, name)
 
@@ -60,15 +53,13 @@ def setdefaultattr(obj, name, value):
 
 
 def make_args(*args, **kwargs):
-    """
-    Useful for setting table args and mapper args on models and other things
-    """
+    """Useful for setting table args and mapper args on models and other
+    things."""
     return tuple(args) + (kwargs,)
 
 
 def lower(value):
-    """
-    Convert value to lowercase if possible
+    """Convert value to lowercase if possible.
 
     For example::
 

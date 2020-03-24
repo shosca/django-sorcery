@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Sorcery command namespace
-"""
+"""Sorcery command namespace."""
 
 from .. import NamespacedCommand
 from .sorcery_createall import CreateAll
@@ -16,9 +13,7 @@ from .sorcery_upgrade import Upgrade
 
 
 class Command(NamespacedCommand):
-    """
-    Namespaced commands for sorcery
-    """
+    """Namespaced commands for sorcery."""
 
     help = "django-sorcery management commands"
 

@@ -1,25 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
-Namespaced Django command
-"""
+"""Namespaced Django command."""
 import inspect
 import os
 
 import sqlalchemy as sa
-
 from django.core.management.base import BaseCommand, CommandParser
 
 
 class NamespacedCommand(BaseCommand):
-    """
-    Namespaced django command implementation
-    """
+    """Namespaced django command implementation."""
 
     @property
     def commands(self):
-        """
-        Returns the subcommands in the namespace
-        """
+        """Returns the subcommands in the namespace."""
         if not hasattr(self, "_commands"):
             self._commands = {}
             for _ in reversed(self.__class__.mro()):
@@ -34,9 +26,7 @@ class NamespacedCommand(BaseCommand):
         return self._commands
 
     def run_command_from_argv(self, command, argv):
-        """
-        Runs the subcommand with namespace adjusted argv
-        """
+        """Runs the subcommand with namespace adjusted argv."""
         command.style = self.style
 
         cmd_args = argv[:]
@@ -58,7 +48,7 @@ class NamespacedCommand(BaseCommand):
         args = sa.util.get_cls_kwargs(CommandParser)
         kwargs = {
             "cmd": None,
-            "prog": "%s %s" % (os.path.basename(prog_name), subcommand),
+            "prog": "{} {}".format(os.path.basename(prog_name), subcommand),
             "description": self.help or None,
         }
         parser = CommandParser(**{k: v for k, v in kwargs.items() if k in args})

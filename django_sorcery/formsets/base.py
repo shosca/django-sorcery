@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Helper functions for creating FormSet classes from SQLAlchemy models.
-"""
+"""Helper functions for creating FormSet classes from SQLAlchemy models."""
 
 from django.core.exceptions import ImproperlyConfigured
 from django.forms import fields as djangofields
@@ -13,9 +10,7 @@ from ..forms import ModelForm, modelform_factory
 
 
 class BaseModelFormSet(BaseFormSet):
-    """
-    A ``FormSet`` for editing a queryset and/or adding new objects to it.
-    """
+    """A ``FormSet`` for editing a queryset and/or adding new objects to it."""
 
     model = None
     session = None
@@ -57,7 +52,7 @@ class BaseModelFormSet(BaseFormSet):
                 info = meta.model_info(self.model)
                 pks = {}
                 for name, pk_info in info.primary_keys.items():
-                    pk_key = "%s-%s" % (self.add_prefix(i), name)
+                    pk_key = "{}-{}".format(self.add_prefix(i), name)
                     pk_val = self.data.get(pk_key)
                     pks[name] = pk_info.column.type.python_type(pk_val) if pk_val else None
 
@@ -87,9 +82,7 @@ class BaseModelFormSet(BaseFormSet):
         super().add_fields(form, index)
 
     def get_queryset(self):
-        """
-        Returns a query for the model
-        """
+        """Returns a query for the model."""
         if not hasattr(self, "_queryset"):
             if self.queryset is not None:
                 qs = self.queryset
@@ -108,10 +101,8 @@ class BaseModelFormSet(BaseFormSet):
         self.session.delete(obj)
 
     def save(self, flush=True, **kwargs):
-        """
-        Save model instances for every form, adding and changing instances
-        as necessary, and return the list of instances.
-        """
+        """Save model instances for every form, adding and changing instances
+        as necessary, and return the list of instances."""
         self.new_objects = []
         self.changed_objects = []
         self.deleted_objects = []

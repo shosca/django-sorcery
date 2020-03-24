@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-sqlalchemy relationship related things
-"""
+"""sqlalchemy relationship related things."""
 from itertools import chain
 
 import sqlalchemy as sa
@@ -11,10 +8,8 @@ from ..utils import setdefaultattr, suppress
 from .signals import declare_first
 
 
-class RelationsMixin(object):
-    """
-    Mixin that provides django like shortcuts for relationships
-    """
+class RelationsMixin:
+    """Mixin that provides django like shortcuts for relationships."""
 
     def _one_relation(self, remote_cls, direction, backref_uselist, kwargs):
         @declared_attr
@@ -41,19 +36,18 @@ class RelationsMixin(object):
         return o2m
 
     def OneToOne(self, remote_cls, **kwargs):
-        """
-        Use an event to build one-to-many relationship on a model and auto generates foreign key relationship from the
-        remote table::
+        """Use an event to build one-to-many relationship on a model and auto
+        generates foreign key relationship from the remote table::
 
-            class ModelOne(db.Model):
-                pk = db.Column(.., primary_key=True)
-                m2 = db.OneToOne("ModelTwo", ...)
+        class ModelOne(db.Model):
+            pk = db.Column(.., primary_key=True)
+            m2 = db.OneToOne("ModelTwo", ...)
 
-            class ModelTwo(db.Model):
-                pk = db.Column(.., primary_key=True)
-                ...
+        class ModelTwo(db.Model):
+            pk = db.Column(.., primary_key=True)
+            ...
 
-            will create ModelTwo.m1_pk automatically for the relationship
+        will create ModelTwo.m1_pk automatically for the relationship
         """
         kwargs["uselist"] = False
         return self._one_relation(
@@ -61,19 +55,18 @@ class RelationsMixin(object):
         )
 
     def OneToMany(self, remote_cls, **kwargs):
-        """
-        Use an event to build one-to-many relationship on a model and auto generates foreign key relationship from the
-        remote table::
+        """Use an event to build one-to-many relationship on a model and auto
+        generates foreign key relationship from the remote table::
 
-            class ModelOne(db.Model):
-                pk = db.Column(.., primary_key=True)
-                m2 = db.OneToMany("ModelTwo", ...)
+        class ModelOne(db.Model):
+            pk = db.Column(.., primary_key=True)
+            m2 = db.OneToMany("ModelTwo", ...)
 
-            class ModelTwo(db.Model):
-                pk = db.Column(.., primary_key=True)
-                ...
+        class ModelTwo(db.Model):
+            pk = db.Column(.., primary_key=True)
+            ...
 
-            will create ModelTwo.m1_pk automatically for the relationship
+        will create ModelTwo.m1_pk automatically for the relationship
         """
         kwargs["uselist"] = True
         return self._one_relation(
@@ -81,9 +74,8 @@ class RelationsMixin(object):
         )
 
     def ManyToOne(self, remote_cls, **kwargs):
-        """
-        Use an event to build many-to-one relationship on a model and auto generates foreign key relationship on the
-        remote table::
+        """Use an event to build many-to-one relationship on a model and auto
+        generates foreign key relationship on the remote table::
 
             class ModelOne(db.Model):
                 pk = db.Column(.., primary_key=True)
@@ -101,9 +93,9 @@ class RelationsMixin(object):
         )
 
     def ManyToMany(self, remote_cls, table_name=None, **kwargs):
-        """
-        Use an event to build many-to-many relationship on a model and auto generates an association table or if a
-        model is provided as secondary argument::
+        """Use an event to build many-to-many relationship on a model and auto
+        generates an association table or if a model is provided as secondary
+        argument::
 
             class ModelOne(db.Model):
                 pk = db.Column(.., primary_key=True)
@@ -133,9 +125,7 @@ class RelationsMixin(object):
 
         @declared_attr
         def m2m(cls):
-            """
-            many to many relationship attribute for declarative
-            """
+            """many to many relationship attribute for declarative."""
             if "secondary" not in kwargs and table_name is None:
                 raise sa.exc.ArgumentError(
                     "You need to provide secondary or table_name for the relation for the association table "
@@ -179,9 +169,8 @@ class RelationsMixin(object):
 
 
 def _add_foreign_keys(cls, parent_cls, relation):
-    """
-    Generate fk columns and constraint to the remote class from a relationship
-    """
+    """Generate fk columns and constraint to the remote class from a
+    relationship."""
     fk_kwargs = {key[3:]: val for key, val in relation.info.items() if key.startswith("fk_")}
     fk_prefix = fk_kwargs.pop("prefix", "_")
     fk_nullable = fk_kwargs.pop("nullable", True)
@@ -226,9 +215,8 @@ def _add_foreign_keys(cls, parent_cls, relation):
 
 
 def _add_association_table(cls, child_cls, relation):
-    """
-    Generate association table and fk constraints to satisfy a many-to-many relation
-    """
+    """Generate association table and fk constraints to satisfy a many-to-many
+    relation."""
     if relation.secondary is not None:
         return
 
@@ -257,11 +245,10 @@ def _add_association_table(cls, child_cls, relation):
 
 @declare_first.connect
 def declare_first_relationships_handler(cls):
-    """
-    Declare first signal handler which connects relationships on the class
+    """Declare first signal handler which connects relationships on the class.
 
-    Can be called multiple times so once relationships are set,
-    they are removed from model
+    Can be called multiple times so once relationships are set, they are
+    removed from model
     """
     rels = getattr(cls, "_relationships", set())
 

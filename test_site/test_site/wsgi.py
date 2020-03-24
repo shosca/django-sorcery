@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-WSGI config for test_site project.
+"""WSGI config for test_site project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

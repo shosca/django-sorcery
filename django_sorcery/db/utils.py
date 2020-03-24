@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import sqlalchemy as sa
-
 from django.db import DEFAULT_DB_ALIAS
 from django.utils.module_loading import import_string
 
@@ -12,13 +9,13 @@ from .url import get_settings, make_url
 
 
 class dbdict(dict):
-    """
-    Holds all configured :py:class:`..sqlalchemy.SQLAlchemy` instances
-    """
+    """Holds all configured :py:class:`..sqlalchemy.SQLAlchemy` instances."""
 
     def get(self, alias=None, cls=SQLAlchemy, **kwargs):
-        """
-        Returns a :py:class:`..sqlalchemy.SQLAlchemy` instance from configuration and registers it. Can return a custom
+        """Returns a :py:class:`..sqlalchemy.SQLAlchemy` instance from
+        configuration and registers it.
+
+        Can return a custom
         :py:class:`..sqlalchemy.SQLAlchemy` instance thru args or thru ``SQLALCHEMY`` database setting in configuration.
         """
         alias = alias or DEFAULT_DB_ALIAS
@@ -57,38 +54,29 @@ class dbdict(dict):
         super().__setitem__(alias, val)
 
     def rollback(self):
-        """
-        Applies rollback on all registered databases
-        """
+        """Applies rollback on all registered databases."""
         for db in self.values():
             db.rollback()
 
     def flush(self):
-        """
-        Applies flush on all registered databases
-        """
+        """Applies flush on all registered databases."""
         for db in self.values():
             db.flush()
 
     def commit(self):
-        """
-        Applies commit on all registered databases
-        """
+        """Applies commit on all registered databases."""
         for db in self.values():
             db.commit()
 
     def remove(self):
-        """
-        Applies remove on all registered databases
-        """
+        """Applies remove on all registered databases."""
         for db in self.values():
             db.remove()
 
     def atomic(self, savepoint=True):
-        """
-        Returns a context manager/decorator that guarantee atomic execution of a given block
-        or function across all configured and initialized SQLAlchemy instances
-        """
+        """Returns a context manager/decorator that guarantee atomic execution
+        of a given block or function across all configured and initialized
+        SQLAlchemy instances."""
         return TransactionContext(*self.values(), savepoint=True)
 
 
@@ -101,9 +89,8 @@ def _index_foreign_keys(tbl):
 
 
 def index_foreign_keys(*args):
-    """
-    Generates indexes for all foreign keys for a table or metadata tables
-    """
+    """Generates indexes for all foreign keys for a table or metadata
+    tables."""
     for arg in args:
         if isinstance(arg, sa.Table):
             _index_foreign_keys(arg)

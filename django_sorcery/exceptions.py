@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Exceptions
-"""
+"""Exceptions."""
 
 from django.core.exceptions import ValidationError
 
 
 class NestedValidationError(ValidationError):
-    """
-    Django Validation error except which allows nested errors
+    """Django Validation error except which allows nested errors.
 
     Useful for validating composite objects.
 
@@ -64,8 +60,7 @@ class NestedValidationError(ValidationError):
 
     def __iter__(self):
         if hasattr(self, "code"):
-            for i in super().__iter__():
-                yield i
+            yield from super().__iter__()
 
         elif hasattr(self, "error_dict"):
             for field, errors in self.error_dict.items():
@@ -81,8 +76,7 @@ class NestedValidationError(ValidationError):
                 if hasattr(errors, "error_dict"):
                     yield dict(errors)
                 else:
-                    for i in errors:
-                        yield i
+                    yield from errors
 
     def __repr__(self):
         return "Nested" + super().__repr__()

@@ -1,18 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-sqlalchemy model related things
-"""
+"""sqlalchemy model related things."""
 from itertools import chain
-
-import six
 
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
-from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
-
 from django.core.exceptions import ValidationError
 from django.utils.text import camel_case_to_spaces
+from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
 from . import meta, signals
 from .mixins import CleanMixin
@@ -37,7 +31,7 @@ def simple_repr(instance, fields=None):
         value = state.attrs[key].loaded_value
         if value == NO_VALUE:
             value = None
-        elif isinstance(value, six.text_type):
+        elif isinstance(value, str):
             # remove pesky "u" prefix in repr for strings
             value = str(value)
         pk_reprs.append("=".join([key, repr(value)]))
@@ -45,7 +39,7 @@ def simple_repr(instance, fields=None):
     field_reprs = []
     for key in fields:
         value = state.attrs[key].loaded_value
-        if isinstance(value, six.text_type):
+        if isinstance(value, str):
             # remove pesky "u" prefix in repr for strings
             value = str(value)
         if value != NO_VALUE:
@@ -239,13 +233,11 @@ def clone(instance, *rels, **kwargs):
 
 
 class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
-    """
-    Base metaclass for models which registers models to DB model registry
-    when models are created.
-    """
+    """Base metaclass for models which registers models to DB model registry
+    when models are created."""
 
     def __new__(mcs, name, bases, attrs):
-        klass = super(BaseMeta, mcs).__new__(mcs, name, bases, attrs)
+        klass = super().__new__(mcs, name, bases, attrs)
         mcs.db.models_registry.append(klass)
         return klass
 
@@ -266,8 +258,7 @@ def _mapper_args(cls):
 
 
 class Base(CleanMixin):
-    """
-    Base model class for SQLAlchemy.
+    """Base model class for SQLAlchemy.
 
     Can be overwritten by subclasses:
 
@@ -284,9 +275,7 @@ class Base(CleanMixin):
     __mapper_args__ = sa.ext.declarative.declared_attr(_mapper_args)
 
     def as_dict(self):
-        """
-        Return a dict of column attributes
-        """
+        """Return a dict of column attributes."""
         return serialize(self)
 
     def __repr__(self):
@@ -294,34 +283,26 @@ class Base(CleanMixin):
 
     @classmethod
     def __declare_first__(cls):
-        """
-        Declarative hook called within `before_configure` mapper event, can be called multiple times.
-        """
+        """Declarative hook called within `before_configure` mapper event, can
+        be called multiple times."""
         signals.declare_first.send(cls)
 
     @classmethod
     def __declare_last__(cls):
-        """
-        Declarative hook called within `after_configure` mapper event, can be called multiple times.
-        """
+        """Declarative hook called within `after_configure` mapper event, can
+        be called multiple times."""
         signals.declare_last.send(cls)
 
     def _get_properties_for_validation(self):
-        """
-        Return all model columns which can be validated
-        """
+        """Return all model columns which can be validated."""
         return meta.model_info(self.__class__).properties
 
     def _get_nested_objects_for_validation(self):
-        """
-        Return all composites to be validated
-        """
+        """Return all composites to be validated."""
         return meta.model_info(self.__class__).composites
 
     def _get_relation_objects_for_validation(self):
-        """
-        Return all relations to be validated
-        """
+        """Return all relations to be validated."""
         return meta.model_info(self.__class__).relationships
 
 
@@ -373,10 +354,8 @@ def _configure_instant_defaults():
 
 @signals.before_flush.connect
 def full_clean_flush_handler(session, **kwargs):
-    """
-    Signal handler for executing ``full_clean``
-    on all dirty and new objects in session
-    """
+    """Signal handler for executing ``full_clean`` on all dirty and new objects
+    in session."""
     for i in session.dirty | session.new:
         if isinstance(i, Base):
             i.full_clean()

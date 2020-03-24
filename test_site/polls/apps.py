@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
-from sqlalchemy.orm import configure_mappers
-
 from django.apps import AppConfig
+from sqlalchemy.orm import configure_mappers
 
 
 class PollsConfig(AppConfig):

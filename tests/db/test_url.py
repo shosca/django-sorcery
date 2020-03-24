@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 import os
 
 from django.test import TestCase, override_settings
-
 from django_sorcery.db.url import (
     boolean,
     importable,

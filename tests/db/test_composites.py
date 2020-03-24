@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django_sorcery.db.composites import CompositeField
 
 from ..base import TestCase
@@ -37,22 +35,22 @@ class TestComposite(TestCase):
 
     def test_repr(self):
         self.assertEqual(
-            repr(Address(street=str("other street"), state=str("NJ"), zip=str("456"))),
+            repr(Address(street="other street", state="NJ", zip="456")),
             "Address(state='NJ', street='other street', zip='456')",
         )
-        self.assertEqual(repr(Address(state=str("NJ"), zip=str("456"))), "Address(state='NJ', zip='456')")
+        self.assertEqual(repr(Address(state="NJ", zip="456")), "Address(state='NJ', zip='456')")
 
     def test_eq(self):
         self.assertEqual(
-            Address(street=str("other street"), state=str("NJ"), zip=str("456")),
-            Address(street=str("other street"), state=str("NJ"), zip=str("456")),
+            Address(street="other street", state="NJ", zip="456"),
+            Address(street="other street", state="NJ", zip="456"),
         )
         self.assertNotEqual(
-            Address(street=str("other street"), state=str("NJ"), zip=str("456")),
-            Address(street=str("another street"), state=str("NJ"), zip=str("456")),
+            Address(street="other street", state="NJ", zip="456"),
+            Address(street="another street", state="NJ", zip="456"),
         )
-        self.assertFalse(Address(street=str("other street"), state=str("NJ"), zip=str("456")).__eq__(None))
+        self.assertFalse(Address(street="other street", state="NJ", zip="456").__eq__(None))
 
     def test_bool(self):
-        self.assertTrue(Address(street=str("street")))
+        self.assertTrue(Address(street="street"))
         self.assertFalse(Address())

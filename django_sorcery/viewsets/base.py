@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Django REST Framework like model viewsets
-"""
+"""Django REST Framework like model viewsets."""
 from functools import update_wrapper
 from inspect import getmembers
 
@@ -13,9 +10,7 @@ from . import mixins
 
 
 class GenericViewSet(TemplateResponseMixin, View):
-    """
-    Base class for all sqlalchemy model generic viewsets.
-    """
+    """Base class for all sqlalchemy model generic viewsets."""
 
     def get_template_names(self):
 
@@ -62,7 +57,7 @@ class GenericViewSet(TemplateResponseMixin, View):
                 )
 
             if not hasattr(cls, key):
-                raise TypeError("%s() received an invalid keyword %r" % (cls.__name__, key))
+                raise TypeError("{}() received an invalid keyword {!r}".format(cls.__name__, key))
 
         def view(request, *args, **kwargs):
             self = cls(**initkwargs)
@@ -107,15 +102,12 @@ class GenericViewSet(TemplateResponseMixin, View):
 
     @classmethod
     def get_extra_actions(cls):
-        """
-        Get the methods that are marked as an extra ViewSet `@action`.
-        """
+        """Get the methods that are marked as an extra ViewSet `@action`."""
         return [method for _, method in getmembers(cls, lambda attr: hasattr(attr, "bind_to_methods"))]
 
 
 class ReadOnlyModelViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    """
-    A viewset that provides default `list()` and `retrieve()` actions.
+    """A viewset that provides default `list()` and `retrieve()` actions.
 
     When used with router, it will map the following operations to actions on the viewset
 
@@ -129,9 +121,9 @@ class ReadOnlyModelViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gen
 
 
 class ModelViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DeleteModelMixin, ReadOnlyModelViewSet):
-    """
-    A viewset that provides default `new()`, `create()`, `retrieve()`, `edit()`, update()`,
-    `confirm_destroy())`, `destroy()` and `list()` actions.
+    """A viewset that provides default `new()`, `create()`, `retrieve()`,
+    `edit()`, update()`, `confirm_destroy())`, `destroy()` and `list()`
+    actions.
 
     When used with router, it will map the following operations to actions on the viewset
 

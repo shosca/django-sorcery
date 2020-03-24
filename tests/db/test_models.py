@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 import datetime
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-
 from django_sorcery.db import meta, models
 from django_sorcery.utils import make_args
 

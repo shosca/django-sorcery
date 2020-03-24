@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from ..base import TestCase
 from ..testapp.views import OwnerViewSet
 

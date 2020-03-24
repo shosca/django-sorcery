@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Support for reusable sqlalchemy composite fields
-"""
+"""Support for reusable sqlalchemy composite fields."""
 from collections import OrderedDict
 
 import sqlalchemy as sa
@@ -10,8 +7,8 @@ from sqlalchemy.util.langhelpers import classproperty
 
 
 class CompositeField(CompositeProperty):
-    """
-    Composite field which understands composite objects with builtin columns.
+    """Composite field which understands composite objects with builtin
+    columns.
 
     See :py:class:`.BaseComposite` for examples.
     """
@@ -44,9 +41,9 @@ class CompositeField(CompositeProperty):
         return super().instrument_class(mapper)
 
 
-class BaseComposite(object):
-    """
-    Base class for creating composite classes which :py:class:`.CompositeField` will understand
+class BaseComposite:
+    """Base class for creating composite classes which
+    :py:class:`.CompositeField` will understand.
 
     For example::
 
@@ -76,9 +73,7 @@ class BaseComposite(object):
         return tuple(getattr(self, i) for i in self._columns)
 
     def as_dict(self):
-        """
-        Serializer composite to a dictionary
-        """
+        """Serializer composite to a dictionary."""
         return OrderedDict([(k, getattr(self, k)) for k in self._columns])
 
     def __repr__(self):

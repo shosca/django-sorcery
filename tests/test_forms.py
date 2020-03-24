@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 from django import forms as djangoforms
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.forms import fields as djangofields
-
 from django_sorcery import fields as sorceryfields, forms
 
 from .base import TestCase

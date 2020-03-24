@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 import os
 
-from psycopg2cffi import compat
-
 import django
+from psycopg2cffi import compat
 
 
 compat.register()

@@ -13,7 +13,6 @@ pre_commit
 psycopg2cffi
 pytest
 pytest-cov
-pytest-sugar
 simplejson
 sphinx-autobuild
 sphinx_rtd_theme

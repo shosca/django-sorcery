@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Package with SQLAlchemy abstractions to interact with the database.
-All tools implemented here assume `unit-of-work`_ usage pattern.
+"""Package with SQLAlchemy abstractions to interact with the database. All
+tools implemented here assume `unit-of-work`_ usage pattern.
 
 Connecting
 ----------
@@ -137,7 +135,6 @@ for the used session within the request::
     ... ]
 
 .. _unit-of-work: https://martinfowler.com/eaaCatalog/unitOfWork.html
-
 """
 
 
