@@ -214,7 +214,7 @@ class QueryProperty:
         if self.model:
             assert isinstance(self.model, type) and issubclass(
                 self.model, self.db.Model
-            ), "{!r} is not SQLAlchemy model subclassing {!r}".format(self, model, self.db.Model)
+            ), "{!r} is not SQLAlchemy model subclassing {!r}".format(model, self.db.Model)
 
     def __repr__(self):
         return "<{} db={!r}, model={!r}>".format(self.__class__.__name__, self.db, self.model.__name__)
