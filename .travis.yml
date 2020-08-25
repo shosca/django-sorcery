@@ -1,6 +1,8 @@
 ---
 language: python
-dist: xenial
+branches:
+  only:
+    - master
 cache:
   directories:
     - $HOME/.cache/pip

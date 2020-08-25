@@ -6,7 +6,7 @@ from django_sorcery.db import databases
 try:
     from unittest import mock  # noqa
 except ImportError:
-    import mock  # noqa
+    from unittest import mock  # noqa
 
 
 class TestCase(test.TestCase):

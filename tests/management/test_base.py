@@ -38,7 +38,7 @@ class TestNamespacedCommand(TestCase):
 
         self.stdout.seek(0)
         self.assertEqual(
-            "\n".join([l.strip() for l in self.stdout.readlines()]),
+            "\n".join([line.strip() for line in self.stdout.readlines()]),
             "\n".join(
                 [
                     "usage: manage.py dummy [-h] sub1",
@@ -58,4 +58,4 @@ class TestNamespacedCommand(TestCase):
         cmd.run_from_argv(["./manage.py", "dummy", "sub1"])
 
         self.stdout.seek(0)
-        self.assertEqual("".join([l.strip() for l in self.stdout.readlines()]), "subcommand triggered")
+        self.assertEqual("".join([line.strip() for line in self.stdout.readlines()]), "subcommand triggered")

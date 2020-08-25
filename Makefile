@@ -51,7 +51,7 @@ lint:  ## run pre-commit hooks on all files
 
 coverage: ## check code coverage quickly with the default Python
 	py.test $(PYTEST_OPTS) \
-		--cov=django_sorcery \
+		--cov=$(PACKAGE) \
 		$(COVERAGE_FLAGS) \
 		tests
 
@@ -60,7 +60,7 @@ $(FILES):  ## helper target to run coverage tests on a module
 		--cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
-	py.test $(PYTEST_OPTS) tests django_sorcery
+	py.test $(PYTEST_OPTS) tests $(PACKAGE)
 
 check:  ## run all tests
 	tox
@@ -75,7 +75,10 @@ livedocs:  ## generate docs live
 	$(MAKE) -C docs live
 
 version:  # print version
-	@python setup.py --version
+	@echo $(VERSION)
+
+next:  # print next version
+	@echo $(NEXT)
 
 bump: history
 	@sed -i 's/$(VERSION)/$(NEXT)/g' $(PACKAGE)/__version__.py

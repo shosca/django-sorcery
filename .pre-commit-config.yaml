@@ -14,7 +14,7 @@ repos:
     language_version: python3
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.1.0
+  rev: v2.7.2
   hooks:
   - id: pyupgrade
     args: [--py3-plus]
@@ -25,7 +25,7 @@ repos:
   - id: docformatter
 
 - repo: https://gitlab.com/pycqa/flake8
-  rev: 3.7.9
+  rev: 3.8.3
   hooks:
   - id: flake8
     exclude: deployment/roles
@@ -36,12 +36,12 @@ repos:
       - flake8-debugger
 
 - repo: https://github.com/mgedmin/check-manifest
-  rev: '0.41'
+  rev: '0.42'
   hooks:
     - id: check-manifest
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.5.0
+  rev: v3.2.0
   hooks:
   - id: check-added-large-files
   - id: check-builtin-literals
