@@ -611,7 +611,7 @@ And add ``choice_formset`` in the ``polls/templates/question_edit.html`` and ``p
 
 
 .. |Build Status| image:: https://travis-ci.com/shosca/django-sorcery.svg?branch=master
-   :target: https://travis-ci.com/shosca/django-sorcery.svg?branch=master
+   :target: https://travis-ci.com/shosca/django-sorcery
 .. |Read The Docs| image:: https://readthedocs.org/projects/django-sorcery/badge/?version=latest
    :target: http://django-sorcery.readthedocs.io/en/latest/?badge=latest
 .. |PyPI version| image:: https://badge.fury.io/py/django-sorcery.svg
