@@ -8,13 +8,13 @@ repos:
     language_version: python3
 
 - repo: https://github.com/psf/black
-  rev: 19.10b0
+  rev: 20.8b1
   hooks:
   - id: black
     language_version: python3
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.7.2
+  rev: v2.7.3
   hooks:
   - id: pyupgrade
     args: [--py3-plus]
@@ -25,7 +25,7 @@ repos:
   - id: docformatter
 
 - repo: https://gitlab.com/pycqa/flake8
-  rev: 3.8.3
+  rev: 3.8.4
   hooks:
   - id: flake8
     exclude: deployment/roles
@@ -36,12 +36,12 @@ repos:
       - flake8-debugger
 
 - repo: https://github.com/mgedmin/check-manifest
-  rev: '0.42'
+  rev: '0.45'
   hooks:
     - id: check-manifest
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.2.0
+  rev: v3.3.0
   hooks:
   - id: check-added-large-files
   - id: check-builtin-literals

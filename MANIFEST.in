@@ -1,6 +1,7 @@
 include *.rc
 include *.editorconfig
 include *.rst
+include *.sh
 include *.toml
 include *.txt
 include *.yaml *.yml

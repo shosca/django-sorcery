@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from django.conf import settings
 from django_sorcery.db.query import Operation
 from django_sorcery.utils import suppress
 
@@ -37,7 +38,7 @@ class TestSQLAlchemy(TestCase):
         self.assertEqual(db.bind.url, db.url)
 
     def test_repr(self):
-        self.assertEqual(repr(db), "<SQLAlchemy engine=postgresql://postgres:***@localhost/test>")
+        self.assertEqual(repr(db), f"<SQLAlchemy engine=postgresql://postgres:***@{settings.DB_URL.host}/test>")
 
     def test_queryproperty(self):
         qp = db.queryproperty(ModelOne)

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django_sorcery.db.query import QueryProperty
 
 from ..base import TestCase
@@ -121,7 +122,8 @@ class TestQueryProperty(TestCase):
         self.assertEqual(
             ctx.exception.args,
             (
-                "<QueryProperty db=<SQLAlchemy engine=postgresql://postgres:***@localhost/test>, model='Vehicle'> "
+                f"<QueryProperty db=<SQLAlchemy engine=postgresql://postgres:***@{settings.DB_URL.host}/test>, "
+                "model='Vehicle'> "
                 "object has no attribute 'dummy'",
             ),
         )
