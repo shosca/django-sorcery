@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.7'
 
 services:
   pg:
@@ -9,3 +9,31 @@ services:
       - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=postgres
+
+  py36: &base
+    image: python:3.6
+    depends_on:
+      - pg
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@pg
+    working_dir: /code
+    entrypoint: /code/entrypoint.sh
+    volumes:
+    - .:/code
+    - /tmp:/root/.cache
+
+  py37:
+    image: python:3.7
+    <<: *base
+
+  py38:
+    image: python:3.8
+    <<: *base
+
+  py39:
+    image: python:3.9
+    <<: *base
+
+  pypy36:
+    image: pypy:3.6
+    <<: *base

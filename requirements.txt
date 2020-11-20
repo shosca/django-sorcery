@@ -1,13 +1,15 @@
 -e .
 Sphinx
-attrs
 beautifulsoup4
-coveralls
 coverage
+coveralls
 django-extensions
 flake8
+flake8-bugbear
+flake8-comprehensions
+flake8-django
 gitchangelog
-mock; python_version <= '2.7'
+ipython
 pdbpp
 pre_commit
 psycopg2cffi
@@ -18,5 +20,5 @@ sphinx-autobuild
 sphinx_rtd_theme
 sqlalchemy_utils
 tox
+tox-factor
 tox-pyenv
-yapf

@@ -1,5 +1,7 @@
 import os
 
+from sqlalchemy.engine.url import make_url
+
 
 def absjoin(*args):
     return os.path.normpath(os.path.abspath(os.path.join(*args)))
@@ -11,21 +13,23 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(absjoin(__file__))
 STATIC_ROOT = absjoin(PROJECT_ROOT, "..", "static")
 
+DB_URL = make_url(os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost"))
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "default_db",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "USER": DB_URL.username,
+        "PASSWORD": DB_URL.password,
+        "HOST": DB_URL.host,
         "PORT": "",
     },
     "fromdbs": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "fromdbs",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "USER": DB_URL.username,
+        "PASSWORD": DB_URL.password,
+        "HOST": DB_URL.host,
         "PORT": "",
     },
 }
@@ -34,41 +38,41 @@ SQLALCHEMY_CONNECTIONS = {
     "default": {
         "DIALECT": "postgresql",
         "NAME": "default_db",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "USER": DB_URL.username,
+        "PASSWORD": DB_URL.password,
+        "HOST": DB_URL.host,
         "PORT": "",
     },
     "test": {
         "DIALECT": "postgresql",
         "NAME": "test",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "USER": DB_URL.username,
+        "PASSWORD": DB_URL.password,
+        "HOST": DB_URL.host,
         "PORT": "",
     },
     "minimal": {
         "DIALECT": "postgresql",
         "NAME": "minimal",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "USER": DB_URL.username,
+        "PASSWORD": DB_URL.password,
+        "HOST": DB_URL.host,
         "PORT": "",
     },
     "minimal_backpop": {
         "DIALECT": "postgresql",
         "NAME": "minimal_backpop",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "USER": DB_URL.username,
+        "PASSWORD": DB_URL.password,
+        "HOST": DB_URL.host,
         "PORT": "",
     },
     "terrible": {
         "DIALECT": "postgresql",
         "NAME": "minimal_backpop",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "USER": DB_URL.username,
+        "PASSWORD": DB_URL.password,
+        "HOST": DB_URL.host,
         "PORT": "",
     },
 }

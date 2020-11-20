@@ -1,0 +1,68 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+
+    strategy:
+      matrix:
+        container:
+          - image: python:3.6
+            toxenv: py36
+          - image: python:3.7
+            toxenv: py37
+          - image: python:3.8
+            toxenv: py38
+          - image: python:3.9
+            toxenv: py39
+
+    container:
+      image: ${{ matrix.container.image }}
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get install -y postgresql-client
+        pip install -r requirements.txt
+    - name: Tox
+      run: |
+        tox -f ${{ matrix.container.toxenv }}
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@postgres
+    - name: Upload Coverage
+      run: coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.github_token }}
+        COVERALLS_FLAG_NAME: ${{ matrix.container.image }}
+        COVERALLS_PARALLEL: true
+
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+    - name: Coveralls Finished
+      run: |
+        pip3 install -U coveralls
+        coveralls --finish
+      env:
+        GITHUB_TOKEN: ${{ secrets.github_token }}
