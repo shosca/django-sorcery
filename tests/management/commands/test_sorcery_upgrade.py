@@ -69,12 +69,17 @@ class TestUpgrade(MigrationMixin, TestCase):
         self.assertEqual(len(lines), 23)
         statements = [
             "-- Running upgrade  -> 000000000001\n",
-            "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000001');\n",
+            "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000001')",
             "-- Running upgrade  -> 000000000000\n",
-            "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000000');\n",
+            "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000000')",
         ]
         for statement in statements:
-            self.assertIn(statement, lines)
+            found = False
+            for line in lines:
+                if statement in line:
+                    found = True
+
+            self.assertTrue(found, statement)
 
     def test_with_range_no_app(self):
         out = six.StringIO()

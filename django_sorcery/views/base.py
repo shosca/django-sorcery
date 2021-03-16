@@ -30,7 +30,7 @@ class SQLAlchemyMixin(ContextMixin):
             return cls.model
 
         with suppress(AttributeError, InvalidRequestError):
-            return cls.queryset._only_entity_zero().class_
+            return cls.queryset._only_full_mapper_zero("get").class_
 
         raise ImproperlyConfigured(
             "Couldn't figure out the model for %(cls)s, either provide a queryset or set the model "

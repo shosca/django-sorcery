@@ -110,7 +110,7 @@ class TestQueryProperty(TestCase):
 
         dummy = Dummy()
 
-        self.assertEqual(dummy.vehicles.count(), 2)
+        self.assertEqual(len(dummy.vehicles.all()), 2)
         self.assertEqual(dummy.used_vehicles.count(), 1)
         self.assertEqual(dummy.new_vehicles.count(), 1)
 

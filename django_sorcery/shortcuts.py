@@ -1,5 +1,6 @@
 """Some Django like shortcuts that support sqlalchemy models."""
 
+from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from sqlalchemy.exc import InvalidRequestError
 
@@ -14,8 +15,10 @@ def _get_query(klass):
         return query
 
     with suppress(AttributeError, InvalidRequestError):
-        klass._only_entity_zero()
+        klass._only_full_mapper_zero("get")
         return klass
+
+    raise ImproperlyConfigured("Couldn't figure out the query for model {cls}".format(cls=klass.__name__))
 
 
 def get_object_or_404(klass, *args, **kwargs):

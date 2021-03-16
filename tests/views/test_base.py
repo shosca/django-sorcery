@@ -24,7 +24,7 @@ class TestBaseView(TestCase):
         query = view.get_queryset()
 
         self.assertIsInstance(query, sa.orm.Query)
-        self.assertEqual(query._only_entity_zero().class_, Owner)
+        self.assertEqual(query._only_full_mapper_zero("get").class_, Owner)
 
     def test_get_queryset_from_model_only(self):
         class DummyView(SQLAlchemyMixin):
@@ -35,7 +35,7 @@ class TestBaseView(TestCase):
         query = view.get_queryset()
 
         self.assertIsInstance(query, sa.orm.Query)
-        self.assertEqual(query._only_entity_zero().class_, Owner)
+        self.assertEqual(query._only_full_mapper_zero("get").class_, Owner)
 
     def test_get_queryset_from_session(self):
         class DummyView(SQLAlchemyMixin):
@@ -47,7 +47,7 @@ class TestBaseView(TestCase):
         query = view.get_queryset()
 
         self.assertIsInstance(query, sa.orm.Query)
-        self.assertEqual(query._only_entity_zero().class_, Owner)
+        self.assertEqual(query._only_full_mapper_zero("get").class_, Owner)
 
     def test_get_queryset_with_options(self):
         class DummyViewWithOptions(SQLAlchemyMixin):
@@ -60,7 +60,7 @@ class TestBaseView(TestCase):
         query = view.get_queryset()
 
         self.assertIsInstance(query, sa.orm.Query)
-        self.assertEqual(query._only_entity_zero().class_, Owner)
+        self.assertEqual(query._only_full_mapper_zero("get").class_, Owner)
         self.assertEqual(len(query._with_options), 1)
 
     def test_get_queryset_fail(self):
@@ -91,7 +91,7 @@ class TestBaseView(TestCase):
         query = view.get_queryset()
 
         self.assertIsInstance(query, sa.orm.Query)
-        self.assertEqual(query._only_entity_zero().class_, ClassicModel)
+        self.assertEqual(query._only_full_mapper_zero("get").class_, ClassicModel)
 
     def test_get_session(self):
         class OwnerView(SQLAlchemyMixin):

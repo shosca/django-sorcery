@@ -75,8 +75,9 @@ class Query(sa.orm.Query):
             MyModel.objects.order_by("-id")
             MyModel.objects.order_by("name")
         """
-        if len(self._entities) == 1 and all(isinstance(criteria, str) for criteria in criterion):
-            info = meta.model_info(self._entity_zero())
+        model = self._only_full_mapper_zero("get")
+        if all(isinstance(criteria, str) for criteria in criterion):
+            info = meta.model_info(model)
             new_criterion = []
             for criteria in criterion:
                 direction = sa.asc

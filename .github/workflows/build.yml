@@ -49,7 +49,7 @@ jobs:
       env:
         DATABASE_URL: postgresql://postgres:postgres@postgres
     - name: Upload Coverage
-      run: coveralls
+      run: coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.github_token }}
         COVERALLS_FLAG_NAME: ${{ matrix.container.image }}
