@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    django_sorcery.management.commands.sorcery
    django_sorcery.management.commands.sorcery_createall

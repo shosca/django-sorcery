@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    django_sorcery.db.meta.base
    django_sorcery.db.meta.column

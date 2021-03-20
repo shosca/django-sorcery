@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    django_sorcery.formsets.base
    django_sorcery.formsets.inline

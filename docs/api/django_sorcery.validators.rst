@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    django_sorcery.validators.base
    django_sorcery.validators.runner

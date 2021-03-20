@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    django_sorcery.views.base
    django_sorcery.views.detail

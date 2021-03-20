@@ -10,6 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    django_sorcery.db
    django_sorcery.formsets
@@ -22,6 +23,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    django_sorcery.compat
    django_sorcery.exceptions
