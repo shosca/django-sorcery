@@ -75,8 +75,8 @@ class Query(sa.orm.Query):
             MyModel.objects.order_by("-id")
             MyModel.objects.order_by("name")
         """
-        model = self._only_full_mapper_zero("get")
         if all(isinstance(criteria, str) for criteria in criterion):
+            model = self._only_full_mapper_zero("get")
             info = meta.model_info(model)
             new_criterion = []
             for criteria in criterion:
