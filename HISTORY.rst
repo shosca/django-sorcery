@@ -2,8 +2,20 @@ Changelog
 =========
 
 
-0.11.0 (2021-03-20)
+0.11.1 (2021-03-20)
 -----------------------------
+- Attempt django like order by only when all criterion are strings
+  (#158) [Serkan Hosca]
+
+
+0.11.1 (2021-03-20)
+-------------------
+- Attempt django like order by only when all criterion are strings.
+  [Serkan Hosca]
+
+
+0.11.0 (2021-03-20)
+-------------------
 - Add sqlalchemy 1.4 support (#157) [Serkan Hosca]
 - Github actions build badge (#155) [Serkan Hosca]
 - Adding github actions (#154) [Serkan Hosca]
