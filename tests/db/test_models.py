@@ -321,7 +321,6 @@ class TestBaseModel(TestCase):
             {
                 "bigint": None,
                 "biginteger": None,
-                "binary": None,
                 "boolean": None,
                 "boolean_notnull": None,
                 "char": None,

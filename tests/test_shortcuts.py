@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django_sorcery import shortcuts
 
@@ -32,6 +33,13 @@ class TestShortcuts(TestCase):
 
         with self.assertRaises(Http404):
             shortcuts.get_object_or_404(Owner.query, id=0)
+
+        with self.assertRaises(ImproperlyConfigured):
+
+            class Dummy:
+                pass
+
+            shortcuts.get_object_or_404(Dummy, id=0)
 
     def test_get_list_or_404(self):
 

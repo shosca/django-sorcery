@@ -185,7 +185,7 @@ class AllKindsOfFields(db.Model):
     timestamp = db.Column(db.TIMESTAMP())
 
     # blobs
-    binary = db.Column(db.Binary())
+    # binary = db.Column(db.Binary())
     # blob = db.Column(db.BLOB())
     largebinary = db.Column(db.LargeBinary())
     # varbinary = db.Column(db.VARBINARY())

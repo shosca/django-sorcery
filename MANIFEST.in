@@ -9,6 +9,7 @@ include LICENSE
 include Makefile
 include pytest.ini
 include tox.ini
+include Dockerfile
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 

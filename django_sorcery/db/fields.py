@@ -367,5 +367,5 @@ class URLField(CharField):
 class BinaryField(Field):
     """Django like binary field."""
 
-    type_class = sa.Binary
+    type_class = sa.LargeBinary
     length_is_required = False

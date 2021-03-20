@@ -17,6 +17,20 @@ from .session import SignallingSession
 from .transaction import TransactionContext
 
 
+def instrument(name):
+    def do(self, *args, **kwargs):
+        return getattr(self.registry(), name)(*args, **kwargs)
+
+    return do
+
+
+def makeprop(name):
+    def get(self):
+        return getattr(self.registry(), name)
+
+    return property(get)
+
+
 class _sqla_meta(type):
     def __new__(mcs, name, bases, attrs):
         typ = super().__new__(mcs, name, bases, attrs)
@@ -24,14 +38,53 @@ class _sqla_meta(type):
         # figure out all props to be proxied
         dummy = sa.orm.Session()
         props = {i for i in dir(dummy) if not i.startswith("__")}
-        props.update(sa.orm.Session.public_methods)
+        props.update(
+            [
+                "__contains__",
+                "__iter__",
+                "add",
+                "add_all",
+                "autocommit",
+                "autoflush",
+                "begin",
+                "begin_nested",
+                "bind",
+                "bulk_insert_mappings",
+                "bulk_save_objects",
+                "bulk_update_mappings",
+                "close",
+                "commit",
+                "connection",
+                "delete",
+                "deleted",
+                "dirty",
+                "execute",
+                "expire",
+                "expire_all",
+                "expunge",
+                "expunge_all",
+                "flush",
+                "get_bind",
+                "identity_map",
+                "info",
+                "is_active",
+                "is_modified",
+                "merge",
+                "new",
+                "no_autoflush",
+                "query",
+                "refresh",
+                "rollback",
+                "scalar",
+            ]
+        )
 
         for i in props:
             if not hasattr(typ, name):
                 if hasattr(dummy, i) and inspect.isroutine(getattr(dummy, i)):
-                    setattr(typ, i, sa.orm.scoping.instrument(i))
+                    setattr(typ, i, instrument(i))
                 else:
-                    setattr(typ, i, sa.orm.scoping.makeprop(i))
+                    setattr(typ, i, makeprop(i))
 
         return typ
 
@@ -70,7 +123,7 @@ class SQLAlchemy(RelationsMixin, metaclass=_sqla_meta):
 
         for module, is_partial in [(sa, False), (sa.sql, False), (sa.orm, False), (fields, True)]:
             for key in module.__all__:
-                if not hasattr(self, key):
+                if not hasattr(self, key) and not hasattr(type(self), key):
                     value = getattr(module, key)
                     setattr(
                         self, key, functools.wraps(value)(functools.partial(value, db=self)) if is_partial else value
