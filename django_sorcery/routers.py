@@ -208,11 +208,11 @@ class SimpleRouter(BaseRouter):
         """Given a viewset, and a mapping of http methods to actions, return a
         new mapping which only includes any mappings that are actually
         implemented by the viewset."""
-        bound_methods = {}
-        for method, action in method_map.items():
-            if hasattr(viewset, action):
-                bound_methods[method] = action
-        return bound_methods
+        return {
+            method: action
+            for method, action in method_map.items()
+            if hasattr(viewset, action)
+        }
 
     def get_lookup_regex(self, viewset, lookup_prefix=""):
         """Given a viewset, return the portion of URL regex that is used to
