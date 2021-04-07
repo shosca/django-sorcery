@@ -51,9 +51,9 @@ class TestHistory(MigrationMixin, TestCase):
         self.assertEqual(
             out.readlines(),
             [
-                "Migrations for tests.testapp on database test\n",
+                "Migrations for tests_testapp on database test\n",
                 "<base> -> 000000000000 (zero) (head), zero\n",
-                "Migrations for tests.otherapp on database test\n",
+                "Migrations for tests_otherapp on database test\n",
             ],
         )
 
@@ -70,12 +70,12 @@ class TestHistory(MigrationMixin, TestCase):
 
         cmd = Command(stdout=out)
 
-        cmd.run_from_argv(["./manage.py sorcery", "history", "tests.testapp", "-r", "base:head", "--no-color"])
+        cmd.run_from_argv(["./manage.py sorcery", "history", "tests_testapp", "-r", "base:head", "--no-color"])
 
         out.seek(0)
         self.assertEqual(
             out.readlines(),
-            ["Migrations for tests.testapp on database test\n", "<base> -> 000000000000 (zero) (head), zero\n"],
+            ["Migrations for tests_testapp on database test\n", "<base> -> 000000000000 (zero) (head), zero\n"],
         )
 
     def test_bad_range(self):
@@ -85,7 +85,7 @@ class TestHistory(MigrationMixin, TestCase):
         cmd = Command(stdout=out, stderr=err)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "history", "tests.testapp", "-r", "base-head", "--no-color"])
+            cmd.run_from_argv(["./manage.py sorcery", "history", "tests_testapp", "-r", "base-head", "--no-color"])
 
         err.seek(0)
         self.assertEqual(err.readlines(), ["CommandError: History range requires [start]:[end], [start]:, or :[end]\n"])

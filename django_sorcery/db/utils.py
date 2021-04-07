@@ -1,8 +1,9 @@
+from contextlib import suppress
+
 import sqlalchemy as sa
 from django.db import DEFAULT_DB_ALIAS
 from django.utils.module_loading import import_string
 
-from ..utils import suppress
 from .sqlalchemy import SQLAlchemy
 from .transaction import TransactionContext
 from .url import get_settings, make_url

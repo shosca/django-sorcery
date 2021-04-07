@@ -81,8 +81,8 @@ class TestModelMeta(TestCase):
         self.assertEqual(info.other_location, info.composites["other_location"])
         self.assertNotEqual(info.location, info.other_location)
 
-        self.assertEqual(info.label, "tests.testapp.Business")
-        self.assertEqual(info.label_lower, "tests.testapp.business")
+        self.assertEqual(info.label, "tests_testapp.Business")
+        self.assertEqual(info.label_lower, "tests_testapp.business")
 
         info = meta.model_info(Vehicle)
         self.assertEqual(info.private_fields, ())
