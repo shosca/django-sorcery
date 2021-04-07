@@ -75,9 +75,9 @@ class TestHeads(MigrationMixin, TestCase):
         self.assertEqual(
             out.readlines(),
             [
-                "Heads for tests.testapp on database test\n",
-                "000000000001 (head) <tests.testapp> \n",
-                "Heads for tests.otherapp on database test\n",
+                "Heads for tests_testapp on database test\n",
+                "000000000001 (head) <tests_testapp> \n",
+                "Heads for tests_otherapp on database test\n",
             ],
         )
 
@@ -90,8 +90,8 @@ class TestHeads(MigrationMixin, TestCase):
         self.assertEqual(
             out.readlines(),
             [
-                "Heads for tests.testapp on database test\n",
-                "[tests.testapp]\n",
+                "Heads for tests_testapp on database test\n",
+                "[tests_testapp]\n",
                 "Rev: 000000000001 (head)\n",
                 "Parent: 000000000000\n",
                 "Path: {}/000000000001_.py\n".format(MIGRATION_DIR),
@@ -101,6 +101,6 @@ class TestHeads(MigrationMixin, TestCase):
                 "    Revision ID: 000000000001\n",
                 "    Revises: 000000000000\n",
                 "    Create Date: 2018-07-24 02:02:55.504526\n",
-                "Heads for tests.otherapp on database test\n",
+                "Heads for tests_otherapp on database test\n",
             ],
         )

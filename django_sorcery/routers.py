@@ -33,8 +33,8 @@ def action(methods=None, detail=None, url_path=None, url_name=None, **kwargs):
     def decorator(func):
         func.bind_to_methods = methods
         func.detail = detail
-        func.url_path = url_path if url_path else func.__name__
-        func.url_name = url_name if url_name else func.__name__.replace("_", "-")
+        func.url_path = url_path or func.__name__
+        func.url_name = url_name or func.__name__.replace("_", "-")
         func.kwargs = kwargs
         return func
 
@@ -183,7 +183,7 @@ class SimpleRouter(BaseRouter):
         for route in self.routes:
             if isinstance(route, DynamicRoute) and route.detail:
                 routes += [self._get_dynamic_route(route, action) for action in detail_actions]
-            elif isinstance(route, DynamicRoute) and not route.detail:
+            elif isinstance(route, DynamicRoute):
                 routes += [self._get_dynamic_route(route, action) for action in list_actions]
             else:
                 routes.append(route)
@@ -234,11 +234,14 @@ class SimpleRouter(BaseRouter):
         if model:
             info = meta.model_info(model)
 
-            regexes = []
-            for key, _ in info.primary_keys.items():
-                regexes.append(
-                    base_regex.format(lookup_prefix=lookup_prefix, lookup_url_kwarg=key, lookup_value="[^/.]+")
+            regexes = [
+                base_regex.format(
+                    lookup_prefix=lookup_prefix,
+                    lookup_url_kwarg=key,
+                    lookup_value="[^/.]+",
                 )
+                for key, _ in info.primary_keys.items()
+            ]
 
             return "/".join(regexes)
 

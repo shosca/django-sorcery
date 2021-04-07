@@ -16,7 +16,7 @@ class OtherAppInOtherApp(db.Model):
     name = db.Column(db.String())
 
     class Meta:
-        app_label = "tests.testapp"
+        app_label = "tests_testapp"
 
 
 db.configure_mappers()

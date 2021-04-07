@@ -68,8 +68,7 @@ class BaseModelFormSet(BaseFormSet):
             except IndexError:
                 pass
         kwargs["session"] = self.session
-        form = super()._construct_form(i, **kwargs)
-        return form
+        return super()._construct_form(i, **kwargs)
 
     def add_fields(self, form, index):
         info = meta.model_info(self.model)

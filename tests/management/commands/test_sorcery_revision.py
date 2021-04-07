@@ -49,7 +49,7 @@ class TestRevision(MigrationMixin, TestCase):
         cmd = Command(stdout=out)
 
         cmd.run_from_argv(
-            ["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "-m", "zero", "--no-color"]
+            ["./manage.py sorcery", "makemigrations", "tests_testapp", "-r", rev, "-m", "zero", "--no-color"]
         )
 
         self.assertTrue(os.path.isfile(os.path.join(MIGRATION_DIR, "{}_zero.py".format(rev))))
@@ -65,7 +65,7 @@ class TestRevision(MigrationMixin, TestCase):
 
         with self.assertRaises(SystemExit):
             cmd.run_from_argv(
-                ["./manage.py sorcery", "makemigrations", "tests.testapp", "-r", rev, "-m", "zero", "--no-color"]
+                ["./manage.py sorcery", "makemigrations", "tests_testapp", "-r", rev, "-m", "zero", "--no-color"]
             )
 
         db.engine.dialect.max_identifier_length = original_length
