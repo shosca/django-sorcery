@@ -1,7 +1,8 @@
+from contextlib import suppress
+
 import sqlalchemy as sa
 from django.conf import settings
 from django_sorcery.db.query import Operation
-from django_sorcery.utils import suppress
 
 from ..base import TestCase
 from ..testapp.models import ModelOne, Owner, db

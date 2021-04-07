@@ -1,4 +1,5 @@
 """Django-esque declarative fields for sqlalchemy."""
+from contextlib import suppress
 
 import sqlalchemy as sa
 from django import forms as djangoforms
@@ -7,7 +8,6 @@ from django.db.backends.base import operations
 from django.forms import fields as djangofields
 from django.utils.module_loading import import_string
 
-from ..utils import suppress
 from .url import DIALECT_MAP_TO_DJANGO
 
 
@@ -103,11 +103,7 @@ class Field(sa.Column):
             "unique",
             "_proxies",
         ]
-        column_kwargs = {}
-        for k in column_args:
-            if k in kwargs:
-                column_kwargs[k] = kwargs.pop(k)
-
+        column_kwargs = {k: kwargs.pop(k) for k in column_args if k in kwargs}
         column_kwargs["primary_key"] = kwargs.pop("primary_key", False)
         column_kwargs["nullable"] = kwargs.pop("nullable", not column_kwargs["primary_key"])
         return column_kwargs

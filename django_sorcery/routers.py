@@ -234,11 +234,14 @@ class SimpleRouter(BaseRouter):
         if model:
             info = meta.model_info(model)
 
-            regexes = []
-            for key, _ in info.primary_keys.items():
-                regexes.append(
-                    base_regex.format(lookup_prefix=lookup_prefix, lookup_url_kwarg=key, lookup_value="[^/.]+")
+            regexes = [
+                base_regex.format(
+                    lookup_prefix=lookup_prefix,
+                    lookup_url_kwarg=key,
+                    lookup_value="[^/.]+",
                 )
+                for key, _ in info.primary_keys.items()
+            ]
 
             return "/".join(regexes)
 

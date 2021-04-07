@@ -1,4 +1,5 @@
 """Base model view things with sqlalchemy."""
+from contextlib import suppress
 
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
@@ -10,7 +11,6 @@ from sqlalchemy import literal
 from sqlalchemy.exc import InvalidRequestError
 
 from ..db import meta
-from ..utils import suppress
 
 
 class SQLAlchemyMixin(ContextMixin):

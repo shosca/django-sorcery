@@ -50,13 +50,13 @@ class NestedValidationError(ValidationError):
             super().__init__(message, code, params)
 
     def update_error_dict(self, error_dict):
-        if hasattr(self, "error_dict"):
-            for field, errors in self.error_dict.items():
-                holder = error_dict.setdefault(field, errors.__class__())
-                (getattr(holder, "update", None) or holder.extend)(errors)
-            return error_dict
-        else:
+        if not hasattr(self, "error_dict"):
             return super().update_error_dict(error_dict)
+
+        for field, errors in self.error_dict.items():
+            holder = error_dict.setdefault(field, errors.__class__())
+            (getattr(holder, "update", None) or holder.extend)(errors)
+        return error_dict
 
     def __iter__(self):
         if hasattr(self, "code"):

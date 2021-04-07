@@ -164,19 +164,15 @@ class SQLAlchemy(RelationsMixin, metaclass=_sqla_meta):
         If there's already a session in current scope, will raise
         InvalidRequestError
         """
-        if kwargs:
-            if self.registry.has():
-                raise sa.exc.InvalidRequestError(
-                    "Scoped session is already present; " "no new arguments may be specified."
-                )
-
-            else:
-                session = self.session_factory(**kwargs)
-                self.registry.set(session)
-                return session
-
-        else:
+        if not kwargs:
             return self.registry()
+
+        if self.registry.has():
+            raise sa.exc.InvalidRequestError("Scoped session is already present; " "no new arguments may be specified.")
+
+        session = self.session_factory(**kwargs)
+        self.registry.set(session)
+        return session
 
     def Table(self, name, *args, **kwargs):
         """Returns a sqlalchemy table that is automatically added to

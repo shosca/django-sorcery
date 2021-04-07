@@ -1,5 +1,6 @@
 """Helper functions for creating Form classes from SQLAlchemy models."""
 from collections import OrderedDict
+from contextlib import suppress
 from itertools import chain
 
 from django.core.exceptions import (
@@ -19,7 +20,6 @@ from django.forms.models import (
 from django.forms.utils import ErrorList
 
 from .db import meta
-from .utils import suppress
 
 
 def _get_default_kwargs(

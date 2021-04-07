@@ -1,10 +1,11 @@
 """sqlalchemy relationship related things."""
+from contextlib import suppress
 from itertools import chain
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 
-from ..utils import setdefaultattr, suppress
+from ..utils import setdefaultattr
 from .signals import declare_first
 
 
@@ -161,11 +162,7 @@ class RelationsMixin:
         return m2m
 
     def _get_kwargs_for_relation(self, kwargs, prefix="fk_"):
-        opts = {}
-        for key in list(kwargs.keys()):
-            if key.startswith(prefix):
-                opts[key] = kwargs.pop(key)
-        return opts
+        return {key: kwargs.pop(key) for key in list(kwargs.keys()) if key.startswith(prefix)}
 
 
 def _add_foreign_keys(cls, parent_cls, relation):
@@ -206,9 +203,9 @@ def _add_foreign_keys(cls, parent_cls, relation):
     if cols_created:
         # pk and fk ordering must match for foreign key constraint
         pks, fks = [], []
-        for pk in cols:
+        for pk, value in cols.items():
             pks.append(pk)
-            fks.append(cols[pk])
+            fks.append(value)
 
         constraint = sa.ForeignKeyConstraint(fks, pks, **fk_kwargs)
         cls.__table__.append_constraint(constraint)

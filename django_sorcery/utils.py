@@ -1,15 +1,8 @@
 """Some common utilities."""
-import contextlib
 import inspect
 import unicodedata
 
 from django.conf import settings
-
-
-try:
-    suppress = contextlib.suppress
-except AttributeError:  # pragma: nocover
-    from .compat import suppress  # noqa pragma: nocover
 
 
 def sanitize_separators(value):

@@ -41,14 +41,14 @@ class TestUpgrade(MigrationMixin, TestCase):
         for rev in ["000000000000", "000000000001"]:
             self.write_migration(MIGRATION.format(rev=rev), "{}_zero.py".format(rev))
             self.write_migration(MIGRATION.format(rev=rev), "{}_zero.py".format(rev))
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
     def tearDown(self):
         super().tearDown()
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
         for rev in ["000000000000", "000000000001"]:
             self.delete_migration("{}_zero.py".format(rev))
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
     def test(self):
         out = six.StringIO()
@@ -92,7 +92,7 @@ class TestUpgrade(MigrationMixin, TestCase):
         out = six.StringIO()
         cmd = Command(stdout=out)
 
-        cmd.run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp", "-r", ":000000000000", "--no-color"])
+        cmd.run_from_argv(["./manage.py sorcery", "upgrade", "tests_testapp", "-r", ":000000000000", "--no-color"])
         revs = db.execute("select * from public.alembic_version_tests_testapp").fetchall()
         self.assertEqual(revs, [("000000000000",)])
 
@@ -103,7 +103,7 @@ class TestUpgrade(MigrationMixin, TestCase):
         cmd = Command(stdout=out, stderr=err)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp", "-r", "revision", "--no-color"])
+            cmd.run_from_argv(["./manage.py sorcery", "upgrade", "tests_testapp", "-r", "revision", "--no-color"])
 
         err.seek(0)
         self.assertEqual(err.readlines(), ["CommandError: Can't locate revision identified by 'revision'\n"])
