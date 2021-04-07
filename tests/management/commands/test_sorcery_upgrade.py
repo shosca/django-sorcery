@@ -74,10 +74,7 @@ class TestUpgrade(MigrationMixin, TestCase):
             "INSERT INTO public.alembic_version_tests_testapp (version_num) VALUES ('000000000000')",
         ]
         for statement in statements:
-            found = False
-            for line in lines:
-                if statement in line:
-                    found = True
+            found = any(statement in line for line in lines)
 
             self.assertTrue(found, statement)
 
