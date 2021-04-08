@@ -52,7 +52,7 @@ class TestStamp(MigrationMixin, TestCase):
     def test(self):
         out = six.StringIO()
         cmd = Command(stdout=out)
-        cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests.testapp", "--no-color"])
+        cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests_testapp", "--no-color"])
 
         revs = db.execute("select * from alembic_version_tests_testapp").fetchall()
         self.assertEqual(revs, [("000000000000",)])
@@ -62,4 +62,4 @@ class TestStamp(MigrationMixin, TestCase):
         cmd = Command(stdout=out)
 
         with self.assertRaises(SystemExit):
-            cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests.testapp", "-r", ":000000000000", "--no-color"])
+            cmd.run_from_argv(["./manage.py sorcery", "stamp", "tests_testapp", "-r", ":000000000000", "--no-color"])

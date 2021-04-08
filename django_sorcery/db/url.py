@@ -1,12 +1,11 @@
 import os
+from contextlib import suppress
 from importlib import import_module
 
 import sqlalchemy as sa
 from django.conf import settings
 from django.utils.encoding import force_text
 from django.utils.module_loading import import_string
-
-from ..utils import suppress
 
 
 DIALECT_MAP = {

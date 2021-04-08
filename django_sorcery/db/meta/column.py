@@ -2,6 +2,7 @@
 import datetime
 import decimal
 import enum
+from contextlib import suppress
 
 import sqlalchemy as sa
 from dateutil.parser import parse
@@ -15,7 +16,7 @@ from django.utils import timezone
 from django.utils.text import capfirst
 
 from ... import fields as sorceryfields
-from ...utils import sanitize_separators, suppress
+from ...utils import sanitize_separators
 
 
 def _make_naive(value):
@@ -81,8 +82,7 @@ class column_info:
                 break
 
         _cls = override_cls or cls
-        instance = super().__new__(_cls)
-        return instance
+        return super().__new__(_cls)
 
     def __init__(self, column, prop=None, parent=None, name=None):
         self.property = prop
@@ -116,9 +116,8 @@ class column_info:
         self.label = self.column.info.get("label") or (capfirst(" ".join(self.name.split("_"))) if self.name else None)
 
         self.field_kwargs = {"required": self.required, "validators": self.validators, "help_text": self.help_text}
-        if self.default:
-            if not callable(self.default):
-                self.field_kwargs["initial"] = self.default
+        if self.default and not callable(self.default):
+            self.field_kwargs["initial"] = self.default
 
         if self.label:
             self.field_kwargs["label"] = self.label

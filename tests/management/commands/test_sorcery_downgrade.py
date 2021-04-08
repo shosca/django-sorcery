@@ -66,16 +66,16 @@ class TestDowngrade(MigrationMixin, TestCase):
         self.write_migration(M1, "{}_.py".format("000000000000"))
         self.write_migration(M2, "{}_.py".format("000000000001"))
 
-        Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "tests.testapp", "--no-color"])
+        Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "tests_testapp", "--no-color"])
 
     def tearDown(self):
         super().tearDown()
 
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
         for rev in ["000000000000", "000000000001"]:
             self.delete_migration("{}_.py".format(rev))
 
-        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "--no-color"])
+        Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
     def test(self):
         out = six.StringIO()
@@ -87,7 +87,7 @@ class TestDowngrade(MigrationMixin, TestCase):
 
         Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "--no-color"])
 
-        cmd.run_from_argv(["./manage.py sorcery", "downgrade", "tests.testapp", "-r", "000000000000", "--no-color"])
+        cmd.run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "-r", "000000000000", "--no-color"])
         revs = db.execute("select * from public.alembic_version_tests_testapp").fetchall()
         self.assertEqual(revs, [("000000000000",)])
 
@@ -128,5 +128,5 @@ class TestDowngrade(MigrationMixin, TestCase):
 
         with self.assertRaises(SystemExit):
             cmd.run_from_argv(
-                ["./manage.py sorcery", "downgrade", "tests.testapp", "-r", ":000000000000", "--no-color"]
+                ["./manage.py sorcery", "downgrade", "tests_testapp", "-r", ":000000000000", "--no-color"]
             )

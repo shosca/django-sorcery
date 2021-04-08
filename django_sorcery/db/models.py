@@ -128,11 +128,7 @@ def _deserialize(model, data, identity_map):
 
     info = meta.model_info(model)
 
-    kwargs = {}
-    for prop in info.primary_keys:
-        if prop in data:
-            kwargs[prop] = data.get(prop)
-
+    kwargs = {prop: data.get(prop) for prop in info.primary_keys if prop in data}
     pk = info.identity_key_from_dict(kwargs)
     if pk is not None and pk in identity_map:
         return identity_map[pk]
@@ -228,8 +224,7 @@ def clone(instance, *rels, **kwargs):
             sub_rels = [(r, kw) for r, kw in relations.items() if r is not attr]
             kwargs[relation.key] = clone(sub_instance, *sub_rels, **relations[attr])
 
-    cloned = mapper.class_(**kwargs)
-    return cloned
+    return mapper.class_(**kwargs)
 
 
 class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):

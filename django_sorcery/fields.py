@@ -1,11 +1,10 @@
 """Field mapping from SQLAlchemy type's to form fields."""
 import json
+from contextlib import suppress
 
 from django.core.exceptions import ValidationError
 from django.forms import fields as djangofields
 from django.utils.translation import gettext_lazy
-
-from .utils import suppress
 
 
 class EnumField(djangofields.ChoiceField):
