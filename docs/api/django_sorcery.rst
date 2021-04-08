@@ -25,7 +25,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   django_sorcery.compat
    django_sorcery.exceptions
    django_sorcery.fields
    django_sorcery.forms

@@ -2,16 +2,15 @@ Changelog
 =========
 
 
-0.11.1 (2021-03-20)
+0.11.2 (2021-04-08)
 -----------------------------
-- Attempt django like order by only when all criterion are strings
-  (#158) [Serkan Hosca]
+- Django 3.2 support (#159) [Serkan Hosca]
 
 
 0.11.1 (2021-03-20)
 -------------------
-- Attempt django like order by only when all criterion are strings.
-  [Serkan Hosca]
+- Attempt django like order by only when all criterion are strings
+  (#158) [Serkan Hosca]
 
 
 0.11.0 (2021-03-20)
