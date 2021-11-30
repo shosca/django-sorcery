@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.11.2 (2021-04-08)
+0.11.3 (2021-11-30)
 -----------------------------
+- [pre-commit.ci] pre-commit autoupdate (#162) [Serkan Hosca, pre-
+  commit-ci[bot], pre-commit-ci[bot]]
+
+
+0.11.2 (2021-04-08)
+-------------------
 - Django 3.2 support (#159) [Serkan Hosca]
 
 
