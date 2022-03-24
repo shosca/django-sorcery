@@ -4,7 +4,7 @@ from importlib import import_module
 
 import sqlalchemy as sa
 from django.conf import settings
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
 
 
@@ -27,11 +27,11 @@ def integer(x):
 
 
 def string(x):
-    return force_text(x)
+    return force_str(x)
 
 
 def string_list(x):
-    return force_text(x).split(",")
+    return force_str(x).split(",")
 
 
 def importable(x):
@@ -42,11 +42,11 @@ def importable(x):
 
 
 def importable_list(x):
-    return [importable(i) for i in force_text(x).split(",")]
+    return [importable(i) for i in force_str(x).split(",")]
 
 
 def importable_list_tuples(x):
-    return [(importable(i), j) for i, j in [k.split(":") for k in force_text(x).split(",")]]
+    return [(importable(i), j) for i, j in [k.split(":") for k in force_str(x).split(",")]]
 
 
 ENGINE_OPTIONS_NORMALIZATION = {
