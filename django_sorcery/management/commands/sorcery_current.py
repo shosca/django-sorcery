@@ -20,8 +20,11 @@ class Current(AlembicCommand):
 
         for appconfig in appconfigs:
             self.stdout.write(
-                self.style.SUCCESS("Revision for {} on database {}".format(appconfig.name, appconfig.db.alias))
+                self.style.SUCCESS(
+                    f"Revision for {appconfig.name} on database {appconfig.db.alias}"
+                )
             )
+
             with alembic.context.EnvironmentContext(
                 appconfig.config,
                 appconfig.script,
