@@ -19,9 +19,7 @@ class Current(AlembicCommand):
         appconfigs = [self.lookup_app(app_label)] if app_label is not None else self.sorcery_apps.values()
 
         for appconfig in appconfigs:
-            self.stdout.write(
-                self.style.SUCCESS("Revision for {} on database {}".format(appconfig.name, appconfig.db.alias))
-            )
+            self.stdout.write(self.style.SUCCESS(f"Revision for {appconfig.name} on database {appconfig.db.alias}"))
             with alembic.context.EnvironmentContext(
                 appconfig.config,
                 appconfig.script,
@@ -33,8 +31,8 @@ class Current(AlembicCommand):
         """Displays the alembic revision."""
         if verbose:
             self.stdout.write("Current revision(s) for {!r}".format(context.connection.engine.url))
-        for rev in appconfig.script.get_all_current(rev):
-            self.stdout.write(rev.cmd_format(verbose))
+        for revision in appconfig.script.get_all_current(rev):
+            self.stdout.write(revision.cmd_format(verbose))
 
         return []
 
