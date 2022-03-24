@@ -1,0 +1,13 @@
+.env
+.git
+.idea
+**/*.pyc
+**/*.pyo
+**/__pycache__
+**/*.db
+**/*.egg-info
+**/.tox
+**/htmlcov
+.pytest_cache
+.mypy_cache
+.tox

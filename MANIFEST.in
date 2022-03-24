@@ -10,6 +10,8 @@ include Makefile
 include pytest.ini
 include tox.ini
 include Dockerfile
+exclude .*
+exclude tests/testapp/migrations/*.py
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 

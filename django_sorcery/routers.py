@@ -2,10 +2,15 @@
 import itertools
 from collections import namedtuple
 
-from django.conf.urls import url
 from django.core.exceptions import ImproperlyConfigured
 
 from .db import meta
+
+
+try:
+    from django.conf.urls import url as re_path
+except ImportError:  # pragma: no cover
+    from django.urls import re_path
 
 
 Route = namedtuple("Route", ["url", "mapping", "name", "detail", "initkwargs"])
@@ -271,13 +276,13 @@ class SimpleRouter(BaseRouter):
                 #   so a slash in the beginning will (A) cause Django to give
                 #   warnings and (B) generate URLS that will require using '//'.
                 if not prefix and regex[:2] == "^/":
-                    regex = "^" + regex[2:]
+                    regex = f"^{regex[2:]}"
 
                 initkwargs = route.initkwargs.copy()
                 initkwargs.update({"basename": basename, "detail": route.detail})
 
                 view = viewset.as_view(mapping, **initkwargs)
                 name = route.name.format(basename=basename)
-                ret.append(url(regex, view, name=name))
+                ret.append(re_path(regex, view, name=name))
 
         return ret
