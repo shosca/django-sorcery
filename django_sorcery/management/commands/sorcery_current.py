@@ -33,8 +33,8 @@ class Current(AlembicCommand):
         """Displays the alembic revision."""
         if verbose:
             self.stdout.write("Current revision(s) for {!r}".format(context.connection.engine.url))
-        for rev in appconfig.script.get_all_current(rev):
-            self.stdout.write(rev.cmd_format(verbose))
+        for revision in appconfig.script.get_all_current(rev):
+            self.stdout.write(revision.cmd_format(verbose))
 
         return []
 

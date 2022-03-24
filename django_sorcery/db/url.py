@@ -19,7 +19,7 @@ DIALECT_MAP_TO_DJANGO = {v: k for k, v in DIALECT_MAP.items()}
 
 
 def boolean(x):
-    return str(x) in ["True", "1"]
+    return str(x) in {"True", "1"}
 
 
 def integer(x):
@@ -101,7 +101,7 @@ def _asdict(url):
         "host": url.host,
         "port": url.port,
         "database": url.database,
-        "query": {k: v for k, v in url.query.items()},
+        "query": dict(url.query.items()),
     }
 
 
@@ -131,10 +131,8 @@ def make_url(alias_or_url):
         name of the alias or url as string
     """
     settings_kwargs = {}
-    try:
+    with suppress(KeyError):
         _, settings_kwargs = make_url_from_settings(alias_or_url)
-    except KeyError:
-        pass
 
     try:
         url = sa.engine.url.make_url(alias_or_url)
@@ -147,7 +145,7 @@ def make_url(alias_or_url):
 
     alias = alias_or_url
 
-    url = sa.engine.url.make_url(os.environ.get(alias.upper() + "_URL", None))
+    url = sa.engine.url.make_url(os.environ.get(f"{alias.upper()}_URL", None))
     if url:
         return _options_from_url(url, settings_kwargs)
 
