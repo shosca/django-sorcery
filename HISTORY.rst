@@ -2,8 +2,21 @@ Changelog
 =========
 
 
-0.11.3 (2021-11-30)
+0.12.0 (2022-03-25)
 -----------------------------
+- Django 4.0 support (#170) [Diego Guerrero, Serkan Hosca]
+- [pre-commit.ci] pre-commit autoupdate (#166) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#165) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#164) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#163) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+
+
+0.11.3 (2021-11-30)
+-------------------
 - [pre-commit.ci] pre-commit autoupdate (#162) [Serkan Hosca, pre-
   commit-ci[bot], pre-commit-ci[bot]]
 
