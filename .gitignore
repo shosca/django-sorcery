@@ -57,3 +57,5 @@ db.sqlite3
 *.sqlite3
 .vscode
 .python-version
+
+tests/testapp/migrations/*.py

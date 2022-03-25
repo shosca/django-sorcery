@@ -1,11 +1,10 @@
 name: Build
 
 on:
+  pull_request:
   push:
     branches:
       - master
-
-  pull_request:
 
 jobs:
   build:
@@ -32,6 +31,8 @@ jobs:
             toxenv: py38
           - image: python:3.9
             toxenv: py39
+          - image: python:3.10
+            toxenv: py310
 
     container:
       image: ${{ matrix.container.image }}

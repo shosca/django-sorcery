@@ -4,7 +4,7 @@ from importlib import import_module
 
 import sqlalchemy as sa
 from django.conf import settings
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
 
 
@@ -19,7 +19,7 @@ DIALECT_MAP_TO_DJANGO = {v: k for k, v in DIALECT_MAP.items()}
 
 
 def boolean(x):
-    return str(x) in ["True", "1"]
+    return str(x) in {"True", "1"}
 
 
 def integer(x):
@@ -27,11 +27,11 @@ def integer(x):
 
 
 def string(x):
-    return force_text(x)
+    return force_str(x)
 
 
 def string_list(x):
-    return force_text(x).split(",")
+    return force_str(x).split(",")
 
 
 def importable(x):
@@ -42,11 +42,11 @@ def importable(x):
 
 
 def importable_list(x):
-    return [importable(i) for i in force_text(x).split(",")]
+    return [importable(i) for i in force_str(x).split(",")]
 
 
 def importable_list_tuples(x):
-    return [(importable(i), j) for i, j in [k.split(":") for k in force_text(x).split(",")]]
+    return [(importable(i), j) for i, j in [k.split(":") for k in force_str(x).split(",")]]
 
 
 ENGINE_OPTIONS_NORMALIZATION = {
@@ -101,7 +101,7 @@ def _asdict(url):
         "host": url.host,
         "port": url.port,
         "database": url.database,
-        "query": {k: v for k, v in url.query.items()},
+        "query": dict(url.query.items()),
     }
 
 
@@ -131,10 +131,8 @@ def make_url(alias_or_url):
         name of the alias or url as string
     """
     settings_kwargs = {}
-    try:
+    with suppress(KeyError):
         _, settings_kwargs = make_url_from_settings(alias_or_url)
-    except KeyError:
-        pass
 
     try:
         url = sa.engine.url.make_url(alias_or_url)
@@ -147,7 +145,7 @@ def make_url(alias_or_url):
 
     alias = alias_or_url
 
-    url = sa.engine.url.make_url(os.environ.get(alias.upper() + "_URL", None))
+    url = sa.engine.url.make_url(os.environ.get(f"{alias.upper()}_URL", None))
     if url:
         return _options_from_url(url, settings_kwargs)
 

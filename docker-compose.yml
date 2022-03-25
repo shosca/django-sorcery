@@ -15,6 +15,9 @@ services:
       context: .
       args:
         PYVER: python:3.6
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    command: sleep infinity
     depends_on:
       - pg
     environment:
@@ -25,29 +28,36 @@ services:
     - /tmp:/root/.cache
 
   py37:
+    <<: *base
     build:
       context: .
       args:
         PYVER: python:3.7
-    <<: *base
 
   py38:
+    <<: *base
     build:
       context: .
       args:
         PYVER: python:3.8
-    <<: *base
 
   py39:
+    <<: *base
     build:
       context: .
       args:
         PYVER: python:3.9
+
+  py310:
     <<: *base
+    build:
+      context: .
+      args:
+        PYVER: python:3.10
 
   pypy36:
+    <<: *base
     build:
       context: .
       args:
         PYVER: pypy:3.7
-    <<: *base
