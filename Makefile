@@ -46,7 +46,9 @@ clean-test:  ## remove test and coverage artifacts
 resetdb: $(RESETDBS)
 
 lint:  ## run pre-commit hooks on all files
-	pre-commit run --all-files
+	-if python -c "import sys; exit(1) if (sys.version_info.major, sys.version_info.minor) < (3, 7) else exit(0)"; then \
+		pre-commit run --all-files ; \
+	fi
 
 coverage: ## check code coverage quickly with the default Python
 	py.test $(PYTEST_OPTS) \
