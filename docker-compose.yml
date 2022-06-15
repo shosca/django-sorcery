@@ -21,6 +21,7 @@ services:
       - pg
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@pg
+      - TOX_WORK_DIR=/tmp/tox
     working_dir: /code
     volumes:
     - .:/code

@@ -23,6 +23,8 @@ jobs:
     strategy:
       matrix:
         container:
+          - image: python:latest
+            toxenv: lint
           - image: python:3.6
             toxenv: py36
           - image: python:3.7
@@ -50,6 +52,7 @@ jobs:
       env:
         DATABASE_URL: postgresql://postgres:postgres@postgres
     - name: Upload Coverage
+      if: "!startsWith('lint', matrix.container.toxenv)"
       run: coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.github_token }}
