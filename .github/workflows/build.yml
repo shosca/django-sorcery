@@ -26,26 +26,47 @@ jobs:
           - image: python:latest
             toxenv: lint
           - image: python:3.6
-            toxenv: py36
+            toxenv: py36-sqla12
+          - image: python:3.6
+            toxenv: py36-sqla13
+          - image: python:3.6
+            toxenv: py36-sqla14
           - image: python:3.7
-            toxenv: py37
+            toxenv: py37-sqla12
+          - image: python:3.7
+            toxenv: py37-sqla13
+          - image: python:3.7
+            toxenv: py37-sqla14
           - image: python:3.8
-            toxenv: py38
+            toxenv: py38-sqla12
+          - image: python:3.8
+            toxenv: py38-sqla13
+          - image: python:3.8
+            toxenv: py38-sqla14
           - image: python:3.9
-            toxenv: py39
+            toxenv: py39-sqla12
+          - image: python:3.9
+            toxenv: py39-sqla13
+          - image: python:3.9
+            toxenv: py39-sqla14
           - image: python:3.10
-            toxenv: py310
+            toxenv: py310-sqla12
+          - image: python:3.10
+            toxenv: py310-sqla13
+          - image: python:3.10
+            toxenv: py310-sqla14
 
     container:
       image: ${{ matrix.container.image }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
         apt-get update
         apt-get install -y postgresql-client
-        pip install -r requirements.txt
+        pip install pre-commit tox tox-pyenv tox-factor coveralls
+
     - name: Tox
       run: |
         tox -f ${{ matrix.container.toxenv }}
