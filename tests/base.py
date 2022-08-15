@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
+
 from django import test
+
 from django_sorcery.db import databases
 
 

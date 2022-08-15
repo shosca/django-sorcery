@@ -3,6 +3,7 @@ from contextlib import suppress
 from importlib import import_module
 
 import sqlalchemy as sa
+
 from django.conf import settings
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string

@@ -1,6 +1,7 @@
 from contextlib import suppress
 
 import sqlalchemy as sa
+
 from django.db import DEFAULT_DB_ALIAS
 from django.utils.module_loading import import_string
 

@@ -2,6 +2,7 @@
 from functools import partial
 
 import alembic
+
 from django.core.management import CommandError
 
 from ..alembic import AlembicCommand

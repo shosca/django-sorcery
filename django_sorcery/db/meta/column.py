@@ -4,8 +4,10 @@ import decimal
 import enum
 from contextlib import suppress
 
-import sqlalchemy as sa
 from dateutil.parser import parse
+
+import sqlalchemy as sa
+
 from django import forms as djangoforms
 from django.conf import settings
 from django.core import validators as djangovalidators

@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from django_sorcery.management.commands.sorcery import Command
 
 from ...models_multidb import default_db, other_db

@@ -6,11 +6,7 @@ from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import FormMixin
 
 from .. import forms
-from .detail import (
-    BaseDetailView,
-    SingleObjectMixin,
-    SingleObjectTemplateResponseMixin,
-)
+from .detail import BaseDetailView, SingleObjectMixin, SingleObjectTemplateResponseMixin
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):

@@ -1,5 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
+
 from django_sorcery import shortcuts
 
 from .base import TestCase

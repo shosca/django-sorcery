@@ -20,9 +20,10 @@
 import os
 import sys
 
+import sphinx_rtd_theme
+
 import django
 import django.test.utils
-import sphinx_rtd_theme
 from django.conf import settings
 
 

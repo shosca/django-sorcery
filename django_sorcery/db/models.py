@@ -4,9 +4,10 @@ from itertools import chain
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
+from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
+
 from django.core.exceptions import ValidationError
 from django.utils.text import camel_case_to_spaces
-from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
 from . import meta, signals
 from .mixins import CleanMixin
