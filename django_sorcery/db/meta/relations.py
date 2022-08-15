@@ -2,6 +2,7 @@
 from itertools import chain
 
 import sqlalchemy as sa
+
 from django.core.exceptions import ImproperlyConfigured
 
 

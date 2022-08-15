@@ -1,6 +1,7 @@
 import six
 
 from django.test import TestCase
+
 from django_sorcery.management.commands.sorcery_history import Command
 
 from .base import MigrationMixin

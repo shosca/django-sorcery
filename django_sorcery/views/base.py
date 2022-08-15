@@ -1,14 +1,15 @@
 """Base model view things with sqlalchemy."""
 from contextlib import suppress
 
+from sqlalchemy import literal
+from sqlalchemy.exc import InvalidRequestError
+
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
 from django.utils.translation import gettext
 from django.views.generic.base import ContextMixin
-from sqlalchemy import literal
-from sqlalchemy.exc import InvalidRequestError
 
 from ..db import meta
 

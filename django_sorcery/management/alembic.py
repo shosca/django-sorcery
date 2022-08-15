@@ -4,9 +4,11 @@ from collections import OrderedDict, namedtuple
 
 import alembic
 import alembic.config
+
+from sqlalchemy.orm import configure_mappers
+
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.functional import cached_property
-from sqlalchemy.orm import configure_mappers
 
 from ..db import alembic as sorcery_alembic, databases, meta, signals
 from ..db.alembic import include_object, process_revision_directives

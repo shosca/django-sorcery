@@ -1,9 +1,7 @@
 from django.test import TestCase
+
 from django_sorcery.db import signals
-from django_sorcery.db.alembic.signals import (
-    include_object,
-    process_revision_directives,
-)
+from django_sorcery.db.alembic.signals import include_object, process_revision_directives
 
 
 class TestIncludeObject(TestCase):

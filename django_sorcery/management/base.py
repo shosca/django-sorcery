@@ -3,6 +3,7 @@ import inspect
 import os
 
 import sqlalchemy as sa
+
 from django.core.management.base import BaseCommand, CommandParser
 
 

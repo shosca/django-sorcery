@@ -3,22 +3,19 @@ from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 
 import pytz
+
 import sqlalchemy as sa
+
 from django import forms as djangoforms
 from django.core import validators as django_validators
 from django.core.exceptions import ValidationError
 from django.forms import fields as djangofields, widgets
+
 from django_sorcery import fields as sorceryfields
 from django_sorcery.db import fields as dbfields, meta
 
 from ...base import TestCase, mock
-from ...testapp.models import (
-    COLORS,
-    AllKindsOfFields,
-    Business,
-    Vehicle,
-    VehicleType,
-)
+from ...testapp.models import COLORS, AllKindsOfFields, Business, Vehicle, VehicleType
 
 
 class TestColumnMeta(TestCase):

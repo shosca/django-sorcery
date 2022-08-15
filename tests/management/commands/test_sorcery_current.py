@@ -2,6 +2,7 @@ import six
 
 from django.conf import settings
 from django.test import TestCase
+
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_current import Command
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade

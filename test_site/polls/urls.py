@@ -1,4 +1,5 @@
 from django.urls import include, path
+
 from django_sorcery.routers import SimpleRouter
 
 from . import views

@@ -4,6 +4,7 @@ from functools import partial
 
 import sqlalchemy as sa
 import sqlalchemy.orm  # noqa
+
 from django.db.models.constants import LOOKUP_SEP
 
 from ..utils import lower

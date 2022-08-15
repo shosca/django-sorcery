@@ -3,20 +3,10 @@ from collections import OrderedDict
 from contextlib import suppress
 from itertools import chain
 
-from django.core.exceptions import (
-    NON_FIELD_ERRORS,
-    ImproperlyConfigured,
-    ValidationError,
-)
+from django.core.exceptions import NON_FIELD_ERRORS, ImproperlyConfigured, ValidationError
 from django.forms import ALL_FIELDS
-from django.forms.forms import (
-    BaseForm as DjangoBaseForm,
-    DeclarativeFieldsMetaclass,
-)
-from django.forms.models import (
-    BaseModelForm as DjangoBaseModelForm,
-    ModelFormOptions,
-)
+from django.forms.forms import BaseForm as DjangoBaseForm, DeclarativeFieldsMetaclass
+from django.forms.models import BaseModelForm as DjangoBaseModelForm, ModelFormOptions
 from django.forms.utils import ErrorList
 
 from .db import meta

@@ -1,6 +1,7 @@
 import unittest
 
 import attr
+
 from django_sorcery.db import SQLAlchemy, databases, middleware
 
 from ..base import mock
