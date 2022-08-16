@@ -76,8 +76,8 @@ class model_info(metaclass=model_info_meta):
             app_config = apps.get_containing_app_config(self.model_class.__module__)
             self.app_label = getattr(app_config, "label", None) or "django_sorcery"
 
-        self.label = "{}.{}".format(self.app_label, self.object_name)
-        self.label_lower = "{}.{}".format(self.app_label, self.model_name)
+        self.label = f"{self.app_label}.{self.object_name}"
+        self.label_lower = f"{self.app_label}.{self.model_name}"
 
         sa.event.listen(self.mapper, "mapper_configured", self._init)
         self._init(self.mapper, self.model_class)
@@ -148,10 +148,16 @@ class model_info(metaclass=model_info_meta):
 
     def __repr__(self):
         reprs = ["<model_info({!s})>".format(self.model_class.__name__)]
-        reprs.extend("    " + repr(i) for i in self.primary_keys.values())
-        reprs.extend("    " + repr(i) for _, i in sorted(self.properties.items()))
-        reprs.extend("    " + i for i in chain(*[repr(c).split("\n") for _, c in sorted(self.composites.items())]))
-        reprs.extend("    " + repr(i) for _, i in sorted(self.relationships.items()))
+        reprs.extend(f"    {repr(i)}" for i in self.primary_keys.values())
+        reprs.extend(f"    {repr(i)}" for _, i in sorted(self.properties.items()))
+        reprs.extend(
+            f"    {i}"
+            for i in chain(
+                *[repr(c).split("\n") for _, c in sorted(self.composites.items())]
+            )
+        )
+
+        reprs.extend(f"    {repr(i)}" for _, i in sorted(self.relationships.items()))
         return "\n".join(reprs)
 
     @property
@@ -186,10 +192,7 @@ class model_info(metaclass=model_info_meta):
         if any(pk is None for pk in pks):
             return None
 
-        if len(pks) < 2:
-            return next(iter(pks), None)
-
-        return tuple(pks)
+        return next(iter(pks), None) if len(pks) < 2 else tuple(pks)
 
     def primary_keys_from_instance(self, instance):
         """Return a dict containing the primary keys of the ``instance``"""

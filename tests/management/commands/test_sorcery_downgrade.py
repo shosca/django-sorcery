@@ -62,8 +62,8 @@ class TestDowngrade(MigrationMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.write_migration(M1, "{}_.py".format("000000000000"))
-        self.write_migration(M2, "{}_.py".format("000000000001"))
+        self.write_migration(M1, '000000000000_.py')
+        self.write_migration(M2, '000000000001_.py')
 
         Upgrade().run_from_argv(["./manage.py sorcery", "upgrade", "tests_testapp", "--no-color"])
 
@@ -72,7 +72,7 @@ class TestDowngrade(MigrationMixin, TestCase):
 
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
         for rev in ["000000000000", "000000000001"]:
-            self.delete_migration("{}_.py".format(rev))
+            self.delete_migration(f"{rev}_.py")
 
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 

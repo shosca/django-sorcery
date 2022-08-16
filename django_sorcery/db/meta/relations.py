@@ -55,8 +55,10 @@ class relation_info:
         self.local_remote_pairs_for_identity_key = []
         try:
             # ensure local_remote pairs are of same order as remote pk
-            for i in target_pk:
-                self.local_remote_pairs_for_identity_key.append((pairs[i], i))
+            self.local_remote_pairs_for_identity_key.extend(
+                (pairs[i], i) for i in target_pk
+            )
+
         except KeyError:
             # if relation is missing one of related pk columns
             # but actual constraint has it defined
@@ -78,8 +80,10 @@ class relation_info:
 
             if len(matching_constraints) == 1:
                 pairs = {i.column: i.parent for i in matching_constraints[0].elements}
-                for i in target_pk:
-                    self.local_remote_pairs_for_identity_key.append((pairs[i], i))
+                self.local_remote_pairs_for_identity_key.extend(
+                    (pairs[i], i) for i in target_pk
+                )
+
             else:
                 # if everything fails, return default pairs
                 self.local_remote_pairs_for_identity_key = self.local_remote_pairs[:]
@@ -98,10 +102,7 @@ class relation_info:
         from ...fields import ModelChoiceField
         from ...fields import ModelMultipleChoiceField
 
-        if self.uselist:
-            return ModelMultipleChoiceField
-
-        return ModelChoiceField
+        return ModelMultipleChoiceField if self.uselist else ModelChoiceField
 
     def __repr__(self):
-        return "<relation_info({}.{})>".format(self.parent_model.__name__, self.name)
+        return f"<relation_info({self.parent_model.__name__}.{self.name})>"

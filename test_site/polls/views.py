@@ -29,8 +29,9 @@ class PollsViewSet(ModelViewSet):
         if not hasattr(self, "_choice_formset"):
             instance = instance or self.object
             self._choice_formset = ChoiceFormSet(
-                instance=instance, data=self.request.POST if self.request.POST else None
+                instance=instance, data=self.request.POST or None
             )
+
 
         return self._choice_formset
 

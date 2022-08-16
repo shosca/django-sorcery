@@ -306,7 +306,7 @@ class TestModelForm(TestCase):
                     '  <label for="id_owner">Owner:</label>',
                     '  <select id="id_owner" name="owner">',
                     "    <option selected value>---------</option>",
-                    '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
+                    f'    <option value="{self.owner.id}">{self.owner}</option>',
                     "  </select>",
                     "</p>",
                     "<p>",
@@ -340,6 +340,7 @@ class TestModelForm(TestCase):
                 ]
             )
         )
+
         self.assertEqual(soup.prettify(), expected_soup.prettify())
 
     def test_modelform_factory_instance_render(self):
@@ -404,7 +405,7 @@ class TestModelForm(TestCase):
                     '  <label for="id_owner">Owner:</label>',
                     '  <select id="id_owner" name="owner">',
                     "    <option selected value>---------</option>",
-                    '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
+                    f'    <option value="{self.owner.id}">{self.owner}</option>',
                     "  </select>",
                     "</p>",
                     "<p>",
@@ -438,6 +439,7 @@ class TestModelForm(TestCase):
                 ]
             )
         )
+
 
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
