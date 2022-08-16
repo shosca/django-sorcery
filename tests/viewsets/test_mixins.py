@@ -1,10 +1,13 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.urls import reverse
-from django_sorcery import forms, viewsets
+
+from django_sorcery import forms
+from django_sorcery import viewsets
 
 from ..base import TestCase
-from ..testapp.models import Owner, db
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestListModelMixin(TestCase):

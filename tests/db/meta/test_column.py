@@ -1,5 +1,8 @@
 import enum
-from datetime import date, datetime, time, timedelta
+from datetime import date
+from datetime import datetime
+from datetime import time
+from datetime import timedelta
 from decimal import Decimal
 
 import pytz
@@ -7,18 +10,20 @@ import sqlalchemy as sa
 from django import forms as djangoforms
 from django.core import validators as django_validators
 from django.core.exceptions import ValidationError
-from django.forms import fields as djangofields, widgets
-from django_sorcery import fields as sorceryfields
-from django_sorcery.db import fields as dbfields, meta
+from django.forms import fields as djangofields
+from django.forms import widgets
 
-from ...base import TestCase, mock
-from ...testapp.models import (
-    COLORS,
-    AllKindsOfFields,
-    Business,
-    Vehicle,
-    VehicleType,
-)
+from django_sorcery import fields as sorceryfields
+from django_sorcery.db import fields as dbfields
+from django_sorcery.db import meta
+
+from ...base import TestCase
+from ...base import mock
+from ...testapp.models import COLORS
+from ...testapp.models import AllKindsOfFields
+from ...testapp.models import Business
+from ...testapp.models import Vehicle
+from ...testapp.models import VehicleType
 
 
 class TestColumnMeta(TestCase):

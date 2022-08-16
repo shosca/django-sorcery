@@ -1,11 +1,14 @@
 import sqlalchemy as sa
 from django.core.exceptions import ImproperlyConfigured
+
 from django_sorcery import fields
 from django_sorcery.db import meta
 
 from ...base import TestCase
 from ...models_terrible_relations import Foo
-from ...testapp.models import Owner, Part, Vehicle
+from ...testapp.models import Owner
+from ...testapp.models import Part
+from ...testapp.models import Vehicle
 
 
 class TestRelationshipMeta(TestCase):

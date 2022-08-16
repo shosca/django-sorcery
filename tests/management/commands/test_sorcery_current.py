@@ -1,14 +1,14 @@
 import six
-
 from django.conf import settings
 from django.test import TestCase
+
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_current import Command
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade
 from django_sorcery.management.commands.sorcery_upgrade import Upgrade
 
-from .base import MIGRATION_DIR, MigrationMixin
-
+from .base import MIGRATION_DIR
+from .base import MigrationMixin
 
 M1 = '''"""zero
 

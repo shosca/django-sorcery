@@ -1,3 +1,3 @@
 if True:
-    from .runner import ValidationRunner  # noqa
     from .base import *  # noqa
+    from .runner import ValidationRunner  # noqa

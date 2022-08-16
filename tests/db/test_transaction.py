@@ -1,8 +1,10 @@
 from django.core.exceptions import ValidationError
+
 from django_sorcery.db.transaction import TransactionContext
 
 from ..base import TestCase
-from ..testapp.models import Owner, db
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestTransaction(TestCase):

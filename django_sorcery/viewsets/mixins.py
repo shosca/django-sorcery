@@ -7,7 +7,8 @@ from django.views.generic.edit import FormMixin
 
 from ..db import meta
 from ..forms import modelform_factory
-from ..views.base import BaseMultipleObjectMixin, BaseSingleObjectMixin
+from ..views.base import BaseMultipleObjectMixin
+from ..views.base import BaseSingleObjectMixin
 
 
 class ListModelMixin(BaseMultipleObjectMixin):

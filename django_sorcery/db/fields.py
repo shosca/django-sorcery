@@ -10,7 +10,6 @@ from django.utils.module_loading import import_string
 
 from .url import DIALECT_MAP_TO_DJANGO
 
-
 __all__ = [
     "BigIntegerField",
     "BinaryField",

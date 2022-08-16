@@ -4,7 +4,8 @@ from inspect import getmembers
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.decorators import classonlymethod
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View
 
 from . import mixins
 

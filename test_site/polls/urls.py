@@ -1,8 +1,9 @@
-from django.urls import include, path
+from django.urls import include
+from django.urls import path
+
 from django_sorcery.routers import SimpleRouter
 
 from . import views
-
 
 router = SimpleRouter()
 router.register("", views.PollsViewSet)

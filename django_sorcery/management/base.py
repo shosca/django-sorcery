@@ -3,7 +3,8 @@ import inspect
 import os
 
 import sqlalchemy as sa
-from django.core.management.base import BaseCommand, CommandParser
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandParser
 
 
 class NamespacedCommand(BaseCommand):

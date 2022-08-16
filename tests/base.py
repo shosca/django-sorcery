@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from django import test
-from django_sorcery.db import databases
 
+from django_sorcery.db import databases
 
 try:
     from unittest import mock  # noqa

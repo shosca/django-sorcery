@@ -1,8 +1,12 @@
 import pytest
-from django_sorcery.pytest_plugin import sqlalchemy_profiler, transact  # noqa
+
+from django_sorcery.pytest_plugin import sqlalchemy_profiler  # noqa
+from django_sorcery.pytest_plugin import transact  # noqa
 from django_sorcery.testing import CommitException
 
-from .testapp.models import Business, Owner, db
+from .testapp.models import Business
+from .testapp.models import Owner
+from .testapp.models import db
 
 
 def test_profiler(sqlalchemy_profiler):  # noqa

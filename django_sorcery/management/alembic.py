@@ -1,16 +1,21 @@
 """Alembic Django command things."""
 import os
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
+from collections import namedtuple
 
 import alembic
 import alembic.config
-from django.core.management.base import BaseCommand, CommandError
-from django.utils.functional import cached_property
 from sqlalchemy.orm import configure_mappers
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
+from django.utils.functional import cached_property
 
-from ..db import alembic as sorcery_alembic, databases, meta, signals
-from ..db.alembic import include_object, process_revision_directives
-
+from ..db import alembic as sorcery_alembic
+from ..db import databases
+from ..db import meta
+from ..db import signals
+from ..db.alembic import include_object
+from ..db.alembic import process_revision_directives
 
 SORCERY_ALEMBIC_CONFIG_FOLDER = os.path.abspath(os.path.dirname(sorcery_alembic.__file__))
 

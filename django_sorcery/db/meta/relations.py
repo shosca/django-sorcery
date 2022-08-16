@@ -95,7 +95,8 @@ class relation_info:
             return form_class(self.related_model, **field_kwargs)
 
     def get_form_class(self):
-        from ...fields import ModelChoiceField, ModelMultipleChoiceField
+        from ...fields import ModelChoiceField
+        from ...fields import ModelMultipleChoiceField
 
         if self.uselist:
             return ModelMultipleChoiceField

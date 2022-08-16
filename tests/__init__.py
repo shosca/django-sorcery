@@ -1,8 +1,7 @@
 import os
 
-import django
 from psycopg2cffi import compat
-
+import django
 
 compat.register()
 

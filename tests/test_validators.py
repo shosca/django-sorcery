@@ -1,19 +1,19 @@
 from collections import namedtuple
 
 from django.core.exceptions import ValidationError
+
 from django_sorcery.exceptions import NestedValidationError
-from django_sorcery.validators import (
-    ValidateCantRemove,
-    ValidateEmptyWhen,
-    ValidateNotEmptyWhen,
-    ValidateOnlyOneOf,
-    ValidateTogetherModelFields,
-    ValidateValue,
-    ValidationRunner,
-)
+from django_sorcery.validators import ValidateCantRemove
+from django_sorcery.validators import ValidateEmptyWhen
+from django_sorcery.validators import ValidateNotEmptyWhen
+from django_sorcery.validators import ValidateOnlyOneOf
+from django_sorcery.validators import ValidateTogetherModelFields
+from django_sorcery.validators import ValidateValue
+from django_sorcery.validators import ValidationRunner
 
 from .base import TestCase
-from .testapp.models import ValidateUniqueModel, db
+from .testapp.models import ValidateUniqueModel
+from .testapp.models import db
 
 
 class TestValidatorRunner(TestCase):

@@ -1,7 +1,8 @@
 """sqlalchemy session related things."""
 from itertools import chain
 
-from sqlalchemy import event, orm
+from sqlalchemy import event
+from sqlalchemy import orm
 
 from ..utils import setdefaultattr
 from . import signals

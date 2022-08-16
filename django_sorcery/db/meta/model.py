@@ -1,12 +1,14 @@
 """Metadata for sqlalchemy models."""
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
+from collections import namedtuple
 from functools import partial
 from itertools import chain
 
 import inflect
 import sqlalchemy as sa
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import ValidationError
 
 from ...exceptions import NestedValidationError
 from ...validators import ValidationRunner
@@ -14,7 +16,6 @@ from .base import model_info_meta
 from .column import column_info
 from .composite import composite_info
 from .relations import relation_info
-
 
 Identity = namedtuple("Key", ["model", "pk"])
 inflector = inflect.engine()

@@ -2,11 +2,13 @@
 
 from django.core.exceptions import ImproperlyConfigured
 from django.forms import fields as djangofields
-from django.forms.formsets import BaseFormSet, formset_factory
+from django.forms.formsets import BaseFormSet
+from django.forms.formsets import formset_factory
 from django.forms.widgets import HiddenInput
 
 from ..db import meta
-from ..forms import ModelForm, modelform_factory
+from ..forms import ModelForm
+from ..forms import modelform_factory
 
 
 class BaseModelFormSet(BaseFormSet):

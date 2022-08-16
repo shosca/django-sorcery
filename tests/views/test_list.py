@@ -2,13 +2,13 @@ import sqlalchemy as sa
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.utils.html import escape
-from django_sorcery.views.list import (
-    MultipleObjectMixin,
-    MultipleObjectTemplateResponseMixin,
-)
+
+from django_sorcery.views.list import MultipleObjectMixin
+from django_sorcery.views.list import MultipleObjectTemplateResponseMixin
 
 from ..base import TestCase
-from ..testapp.models import Owner, db
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestListView(TestCase):

@@ -9,7 +9,6 @@ from django.db.models.constants import LOOKUP_SEP
 from ..utils import lower
 from . import meta
 
-
 Operation = namedtuple("Operation", ["name", "args", "kwargs"])
 
 # todo add transforms support - e.g. column__date__gt

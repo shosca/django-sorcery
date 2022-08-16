@@ -2,7 +2,8 @@
 
 from ..db import meta
 from ..forms import ModelForm
-from .base import BaseModelFormSet, modelformset_factory
+from .base import BaseModelFormSet
+from .base import modelformset_factory
 
 
 class BaseInlineFormSet(BaseModelFormSet):

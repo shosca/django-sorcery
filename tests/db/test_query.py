@@ -1,16 +1,15 @@
 from django.conf import settings
+
 from django_sorcery.db.query import QueryProperty
 
 from ..base import TestCase
-from ..testapp.models import (
-    CompositePkModel,
-    Owner,
-    Point,
-    Vehicle,
-    VehicleType,
-    Vertex,
-    db,
-)
+from ..testapp.models import CompositePkModel
+from ..testapp.models import Owner
+from ..testapp.models import Point
+from ..testapp.models import Vehicle
+from ..testapp.models import VehicleType
+from ..testapp.models import Vertex
+from ..testapp.models import db
 
 
 class TestQuery(TestCase):

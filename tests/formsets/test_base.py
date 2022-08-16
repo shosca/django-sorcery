@@ -1,9 +1,11 @@
 from django.core.exceptions import ImproperlyConfigured
+
 from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import modelformset_factory
 
 from ..base import TestCase
-from ..testapp.models import Owner, db
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestModelFormSet(TestCase):

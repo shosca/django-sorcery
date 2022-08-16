@@ -8,10 +8,14 @@ import sqlalchemy.orm  # noqa
 from sqlalchemy.ext.declarative import declarative_base
 
 from ..utils import make_args
-from . import fields, signals
-from .composites import BaseComposite, CompositeField
-from .models import Base, BaseMeta
-from .query import Query, QueryProperty
+from . import fields
+from . import signals
+from .composites import BaseComposite
+from .composites import CompositeField
+from .models import Base
+from .models import BaseMeta
+from .query import Query
+from .query import QueryProperty
 from .relations import RelationsMixin
 from .session import SignallingSession
 from .transaction import TransactionContext

@@ -1,13 +1,13 @@
 """sqlalchemy profiling things."""
 import logging
 import time
-from collections import defaultdict, namedtuple
+from collections import defaultdict
+from collections import namedtuple
 from functools import partial
 from threading import local
 
 import sqlalchemy as sa
 from django.conf import settings
-
 
 logger = logging.getLogger(__name__)
 STATEMENT_TYPES = {"SELECT": "select", "INSERT INTO": "insert", "UPDATE": "update", "DELETE": "delete"}

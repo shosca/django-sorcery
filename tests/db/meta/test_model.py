@@ -1,11 +1,15 @@
 import sqlalchemy as sa
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
+
 from django_sorcery.db import meta  # noqa
 
 from ...base import TestCase
 from ...otherapp.models import OtherAppInOtherApp
-from ...testapp.models import Business, CompositePkModel, Owner, Vehicle
+from ...testapp.models import Business
+from ...testapp.models import CompositePkModel
+from ...testapp.models import Owner
+from ...testapp.models import Vehicle
 
 
 class TestModelMeta(TestCase):

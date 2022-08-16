@@ -1,13 +1,12 @@
 """Some Django like shortcuts that support sqlalchemy models."""
 from contextlib import suppress
 
+from sqlalchemy.exc import InvalidRequestError
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
-from sqlalchemy.exc import InvalidRequestError
 
 
 def _get_query(klass):
-
     query = getattr(klass, "query", None) or getattr(klass, "objects", None)
 
     if query:

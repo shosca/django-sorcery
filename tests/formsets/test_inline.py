@@ -3,7 +3,10 @@ from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import inlineformset_factory
 
 from ..base import TestCase
-from ..testapp.models import Owner, Vehicle, VehicleType, db
+from ..testapp.models import Owner
+from ..testapp.models import Vehicle
+from ..testapp.models import VehicleType
+from ..testapp.models import db
 
 
 class TestInlineFormSet(TestCase):

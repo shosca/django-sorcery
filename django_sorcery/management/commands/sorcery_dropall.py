@@ -1,7 +1,7 @@
 """DropAll command."""
 
-from django.core.management.base import BaseCommand
 from sqlalchemy.orm import configure_mappers
+from django.core.management.base import BaseCommand
 
 from ...db import databases
 

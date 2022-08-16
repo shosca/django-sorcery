@@ -1,15 +1,15 @@
 import os
 
 import six
-
 from django.test import TestCase
+
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade
 from django_sorcery.management.commands.sorcery_revision import Command
 from django_sorcery.management.commands.sorcery_upgrade import Upgrade
 
-from .base import MIGRATION_DIR, MigrationMixin
-
+from .base import MIGRATION_DIR
+from .base import MigrationMixin
 
 rev = "000000000000"
 

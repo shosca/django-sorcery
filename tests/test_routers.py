@@ -1,6 +1,10 @@
 from django.core.exceptions import ImproperlyConfigured
+
 from django_sorcery import viewsets
-from django_sorcery.routers import BaseRouter, Route, SimpleRouter, action
+from django_sorcery.routers import BaseRouter
+from django_sorcery.routers import Route
+from django_sorcery.routers import SimpleRouter
+from django_sorcery.routers import action
 
 from .base import TestCase
 from .testapp.models import Owner

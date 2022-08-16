@@ -1,13 +1,13 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.utils.html import escape
-from django_sorcery.views.detail import (
-    SingleObjectMixin,
-    SingleObjectTemplateResponseMixin,
-)
+
+from django_sorcery.views.detail import SingleObjectMixin
+from django_sorcery.views.detail import SingleObjectTemplateResponseMixin
 
 from ..base import TestCase
-from ..testapp.models import Owner, db
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestDetailView(TestCase):

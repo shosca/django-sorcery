@@ -2,15 +2,14 @@
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View
 from django.views.generic.edit import FormMixin
 
 from .. import forms
-from .detail import (
-    BaseDetailView,
-    SingleObjectMixin,
-    SingleObjectTemplateResponseMixin,
-)
+from .detail import BaseDetailView
+from .detail import SingleObjectMixin
+from .detail import SingleObjectTemplateResponseMixin
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):

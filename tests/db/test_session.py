@@ -1,7 +1,10 @@
 from django_sorcery.db import signals  # noqa
 
 from ..base import TestCase
-from ..testapp.models import CompositePkModel, Owner, OwnerQuery, db
+from ..testapp.models import CompositePkModel
+from ..testapp.models import Owner
+from ..testapp.models import OwnerQuery
+from ..testapp.models import db
 
 
 class TestSession(TestCase):

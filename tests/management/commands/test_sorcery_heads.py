@@ -1,10 +1,10 @@
 import six
-
 from django.test import TestCase
+
 from django_sorcery.management.commands.sorcery_heads import Command
 
-from .base import MIGRATION_DIR, MigrationMixin
-
+from .base import MIGRATION_DIR
+from .base import MigrationMixin
 
 M1 = '''"""zero
 
