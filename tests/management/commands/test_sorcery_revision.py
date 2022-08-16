@@ -1,15 +1,15 @@
 import os
 
 import six
-
 from django.test import TestCase
+
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade
 from django_sorcery.management.commands.sorcery_revision import Command
 from django_sorcery.management.commands.sorcery_upgrade import Upgrade
 
-from .base import MIGRATION_DIR, MigrationMixin
-
+from .base import MIGRATION_DIR
+from .base import MigrationMixin
 
 rev = "000000000000"
 
@@ -23,8 +23,8 @@ class TestRevision(MigrationMixin, TestCase):
 
     def tearDown(self):
         super().tearDown()
-        self.delete_migration("{}_.py".format(rev))
-        self.delete_migration("{}_zero.py".format(rev))
+        self.delete_migration(f"{rev}_.py")
+        self.delete_migration(f"{rev}_zero.py")
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
 
     def test_without_app(self):
@@ -52,7 +52,7 @@ class TestRevision(MigrationMixin, TestCase):
             ["./manage.py sorcery", "makemigrations", "tests_testapp", "-r", rev, "-m", "zero", "--no-color"]
         )
 
-        self.assertTrue(os.path.isfile(os.path.join(MIGRATION_DIR, "{}_zero.py".format(rev))))
+        self.assertTrue(os.path.isfile(os.path.join(MIGRATION_DIR, f"{rev}_zero.py")))
 
     def test_longer_version_table_identifier(self):
         out = six.StringIO()

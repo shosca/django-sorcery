@@ -1,16 +1,16 @@
 import os
 
-from django.test import TestCase, override_settings
-from django_sorcery.db.url import (
-    boolean,
-    importable,
-    importable_list,
-    importable_list_tuples,
-    integer,
-    make_url,
-    string,
-    string_list,
-)
+from django.test import TestCase
+from django.test import override_settings
+
+from django_sorcery.db.url import boolean
+from django_sorcery.db.url import importable
+from django_sorcery.db.url import importable_list
+from django_sorcery.db.url import importable_list_tuples
+from django_sorcery.db.url import integer
+from django_sorcery.db.url import make_url
+from django_sorcery.db.url import string
+from django_sorcery.db.url import string_list
 
 
 @override_settings(

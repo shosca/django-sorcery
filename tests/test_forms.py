@@ -1,21 +1,22 @@
 from django import forms as djangoforms
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ValidationError
 from django.forms import fields as djangofields
-from django_sorcery import fields as sorceryfields, forms
+
+from django_sorcery import fields as sorceryfields
+from django_sorcery import forms
 
 from .base import TestCase
-from .testapp.models import (
-    ClassicModel,
-    ModelFullCleanFail,
-    ModelOne,
-    ModelTwo,
-    Option,
-    Owner,
-    Part,
-    Vehicle,
-    VehicleType,
-    db,
-)
+from .testapp.models import ClassicModel
+from .testapp.models import ModelFullCleanFail
+from .testapp.models import ModelOne
+from .testapp.models import ModelTwo
+from .testapp.models import Option
+from .testapp.models import Owner
+from .testapp.models import Part
+from .testapp.models import Vehicle
+from .testapp.models import VehicleType
+from .testapp.models import db
 
 
 class TestFieldsForModel(TestCase):
@@ -305,7 +306,7 @@ class TestModelForm(TestCase):
                     '  <label for="id_owner">Owner:</label>',
                     '  <select id="id_owner" name="owner">',
                     "    <option selected value>---------</option>",
-                    '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
+                    f'    <option value="{self.owner.id}">{self.owner}</option>',
                     "  </select>",
                     "</p>",
                     "<p>",
@@ -339,6 +340,7 @@ class TestModelForm(TestCase):
                 ]
             )
         )
+
         self.assertEqual(soup.prettify(), expected_soup.prettify())
 
     def test_modelform_factory_instance_render(self):
@@ -403,7 +405,7 @@ class TestModelForm(TestCase):
                     '  <label for="id_owner">Owner:</label>',
                     '  <select id="id_owner" name="owner">',
                     "    <option selected value>---------</option>",
-                    '    <option value="{}">{}</option>'.format(self.owner.id, self.owner),
+                    f'    <option value="{self.owner.id}">{self.owner}</option>',
                     "  </select>",
                     "</p>",
                     "<p>",

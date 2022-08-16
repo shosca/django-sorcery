@@ -1,11 +1,14 @@
 from django.http import HttpResponseRedirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
+from django.urls import reverse_lazy
+
 from django_sorcery.formsets import inlineformset_factory
 from django_sorcery.routers import action
 from django_sorcery.viewsets import ModelViewSet
 
-from .models import Choice, Question, db
-
+from .models import Choice
+from .models import Question
+from .models import db
 
 ChoiceFormSet = inlineformset_factory(relation=Question.choices, fields=(Choice.choice_text.key,), session=db)
 
@@ -25,9 +28,7 @@ class PollsViewSet(ModelViewSet):
     def get_choice_formset(self, instance=None):
         if not hasattr(self, "_choice_formset"):
             instance = instance or self.object
-            self._choice_formset = ChoiceFormSet(
-                instance=instance, data=self.request.POST if self.request.POST else None
-            )
+            self._choice_formset = ChoiceFormSet(instance=instance, data=self.request.POST or None)
 
         return self._choice_formset
 

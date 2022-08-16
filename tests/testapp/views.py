@@ -1,8 +1,13 @@
 from django.urls import reverse_lazy
-from django_sorcery import forms, views, viewsets
+
+from django_sorcery import forms
+from django_sorcery import views
+from django_sorcery import viewsets
 from django_sorcery.routers import action
 
-from .models import Owner, Vehicle, db
+from .models import Owner
+from .models import Vehicle
+from .models import db
 
 
 class OwnerListView(views.ListView):

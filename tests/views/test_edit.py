@@ -1,10 +1,12 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
+
 from django_sorcery import forms
 from django_sorcery.views import edit
 
 from ..base import TestCase
-from ..testapp.models import Owner, db
+from ..testapp.models import Owner
+from ..testapp.models import db
 from ..testapp.views import OwnerCreateViewWithForm
 
 

@@ -4,7 +4,6 @@ import logging
 from . import databases
 from .signals import all_signals
 
-
 before_middleware_request = all_signals.signal("before_middleware_request")
 after_middleware_response = all_signals.signal("after_middleware_response")
 

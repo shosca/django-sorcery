@@ -3,7 +3,8 @@ import inspect
 import os
 
 import sqlalchemy as sa
-from django.core.management.base import BaseCommand, CommandParser
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandParser
 
 
 class NamespacedCommand(BaseCommand):
@@ -48,9 +49,10 @@ class NamespacedCommand(BaseCommand):
         args = sa.util.get_cls_kwargs(CommandParser)
         kwargs = {
             "cmd": None,
-            "prog": "{} {}".format(os.path.basename(prog_name), subcommand),
+            "prog": f"{os.path.basename(prog_name)} {subcommand}",
             "description": self.help or None,
         }
+
         parser = CommandParser(**{k: v for k, v in kwargs.items() if k in args})
 
         for name, command_cls in self.commands.items():

@@ -1,14 +1,17 @@
 import json
 
 from django.core.exceptions import ValidationError
+
 from django_sorcery import fields
-from django_sorcery.forms import (
-    apply_limit_choices_to_form_field,
-    modelform_factory,
-)
+from django_sorcery.forms import apply_limit_choices_to_form_field
+from django_sorcery.forms import modelform_factory
 
 from .base import TestCase
-from .testapp.models import CompositePkModel, Owner, Vehicle, VehicleType, db
+from .testapp.models import CompositePkModel
+from .testapp.models import Owner
+from .testapp.models import Vehicle
+from .testapp.models import VehicleType
+from .testapp.models import db
 
 
 class TestEnumField(TestCase):
@@ -85,7 +88,8 @@ class TestEnumField(TestCase):
 class TestModelChoiceField(TestCase):
     def setUp(self):
         super().setUp()
-        db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
+        db.add_all([Owner(first_name=f"first_name {i}", last_name=f"last_name {i}") for i in range(10)])
+
         db.flush()
 
     def test_apply_limit_value(self):
@@ -198,7 +202,8 @@ class TestModelChoiceField(TestCase):
 class TestModelMultipleChoiceField(TestCase):
     def setUp(self):
         super().setUp()
-        db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
+        db.add_all([Owner(first_name=f"first_name {i}", last_name=f"last_name {i}") for i in range(10)])
+
         db.flush()
 
     def test_to_python(self):

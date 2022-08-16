@@ -2,15 +2,14 @@
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View
 from django.views.generic.edit import FormMixin
 
 from .. import forms
-from .detail import (
-    BaseDetailView,
-    SingleObjectMixin,
-    SingleObjectTemplateResponseMixin,
-)
+from .detail import BaseDetailView
+from .detail import SingleObjectMixin
+from .detail import SingleObjectTemplateResponseMixin
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):
@@ -62,10 +61,7 @@ class ProcessFormView(View):
         """Handle POST requests: instantiate a form instance with the passed
         POST variables and then check if it's valid."""
         form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return self.form_invalid(form)
+        return self.form_valid(form) if form.is_valid() else self.form_invalid(form)
 
     put = post
 

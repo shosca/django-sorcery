@@ -3,7 +3,10 @@ from django_sorcery.forms import ALL_FIELDS
 from django_sorcery.formsets import inlineformset_factory
 
 from ..base import TestCase
-from ..testapp.models import Owner, Vehicle, VehicleType, db
+from ..testapp.models import Owner
+from ..testapp.models import Vehicle
+from ..testapp.models import VehicleType
+from ..testapp.models import db
 
 
 class TestInlineFormSet(TestCase):
@@ -138,9 +141,7 @@ class TestInlineFormSet(TestCase):
                     "<p>",
                     '  <label for="id_vehicles-0-DELETE">Delete:</label>',
                     '  <input id="id_vehicles-0-DELETE" name="vehicles-0-DELETE" type="checkbox" />',
-                    '  <input id="id_vehicles-0-id" name="vehicles-0-id" type="hidden" value="{}" />'.format(
-                        self.owner.vehicles[0].id
-                    ),
+                    f'  <input id="id_vehicles-0-id" name="vehicles-0-id" type="hidden" value="{self.owner.vehicles[0].id}" />',
                     "</p>",
                     "<p>",
                     '  <label for="id_vehicles-1-type">Type:</label>',
@@ -152,9 +153,7 @@ class TestInlineFormSet(TestCase):
                     "<p>",
                     '  <label for="id_vehicles-1-DELETE">Delete:</label>',
                     '  <input id="id_vehicles-1-DELETE" name="vehicles-1-DELETE" type="checkbox" />',
-                    '  <input id="id_vehicles-1-id" name="vehicles-1-id" type="hidden" value="{}" />'.format(
-                        self.owner.vehicles[1].id
-                    ),
+                    f'  <input id="id_vehicles-1-id" name="vehicles-1-id" type="hidden" value="{self.owner.vehicles[1].id}" />',
                     "</p>",
                     "<p>",
                     '  <label for="id_vehicles-2-type">Type:</label>',
@@ -192,4 +191,5 @@ class TestInlineFormSet(TestCase):
                 ]
             )
         )
+
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())

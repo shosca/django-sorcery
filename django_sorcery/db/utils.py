@@ -6,7 +6,8 @@ from django.utils.module_loading import import_string
 
 from .sqlalchemy import SQLAlchemy
 from .transaction import TransactionContext
-from .url import get_settings, make_url
+from .url import get_settings
+from .url import make_url
 
 
 class dbdict(dict):

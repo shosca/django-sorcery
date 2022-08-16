@@ -1,12 +1,14 @@
 from django.http import HttpResponse
-from django.test import RequestFactory, override_settings
-from django_sorcery.db.profiler import (
-    SQLAlchemyProfiler,
-    SQLAlchemyProfilingMiddleware,
-)
+from django.test import RequestFactory
+from django.test import override_settings
+
+from django_sorcery.db.profiler import SQLAlchemyProfiler
+from django_sorcery.db.profiler import SQLAlchemyProfilingMiddleware
 
 from ..base import TestCase
-from ..testapp.models import Business, Owner, db
+from ..testapp.models import Business
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 def get_response(request):

@@ -2,12 +2,17 @@ import unittest
 
 import sqlalchemy as sa
 from django.conf import settings
+
 from django_sorcery.db import databases
 from django_sorcery.db.sqlalchemy import SQLAlchemy
-from django_sorcery.db.utils import dbdict, index_foreign_keys
+from django_sorcery.db.utils import dbdict
+from django_sorcery.db.utils import index_foreign_keys
 
 from ..base import mock
-from ..models_multidb import Bar, Foo, default_db, other_db
+from ..models_multidb import Bar
+from ..models_multidb import Foo
+from ..models_multidb import default_db
+from ..models_multidb import other_db
 
 
 class TestDbDict(unittest.TestCase):

@@ -141,5 +141,4 @@ for the used session within the request::
 from .sqlalchemy import SQLAlchemy  # noqa
 from .utils import dbdict
 
-
 databases = dbdict()

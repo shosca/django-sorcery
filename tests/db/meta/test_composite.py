@@ -1,8 +1,12 @@
 from django.core.exceptions import ValidationError
+
 from django_sorcery.db import meta  # noqa
 
 from ...base import TestCase
-from ...testapp.models import Address, Business, Point, Vertex
+from ...testapp.models import Address
+from ...testapp.models import Business
+from ...testapp.models import Point
+from ...testapp.models import Vertex
 
 
 class TestCompositeMeta(TestCase):

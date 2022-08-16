@@ -1,6 +1,7 @@
 from io import StringIO
 
 from django.core.management.base import BaseCommand
+
 from django_sorcery.management import NamespacedCommand
 
 from ..base import TestCase

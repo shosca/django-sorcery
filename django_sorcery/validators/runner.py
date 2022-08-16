@@ -1,6 +1,7 @@
 """Validation runner."""
 
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError
 
 from ..exceptions import NestedValidationError
 

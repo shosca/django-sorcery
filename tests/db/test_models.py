@@ -2,23 +2,23 @@ import datetime
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django_sorcery.db import meta, models
+
+from django_sorcery.db import meta
+from django_sorcery.db import models
 from django_sorcery.utils import make_args
 
 from ..base import TestCase
-from ..testapp.models import (
-    Address,
-    AllKindsOfFields,
-    Business,
-    DummyEnum,
-    Option,
-    Owner,
-    Part,
-    SelectedAutoCoerce,
-    Vehicle,
-    VehicleType,
-    db,
-)
+from ..testapp.models import Address
+from ..testapp.models import AllKindsOfFields
+from ..testapp.models import Business
+from ..testapp.models import DummyEnum
+from ..testapp.models import Option
+from ..testapp.models import Owner
+from ..testapp.models import Part
+from ..testapp.models import SelectedAutoCoerce
+from ..testapp.models import Vehicle
+from ..testapp.models import VehicleType
+from ..testapp.models import db
 
 
 class TestModelRepr(TestCase):

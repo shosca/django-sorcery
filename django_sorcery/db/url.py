@@ -7,7 +7,6 @@ from django.conf import settings
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
 
-
 DIALECT_MAP = {
     "django.db.backends.sqlite3": "sqlite",
     "django.db.backends.postgresql": "postgresql",

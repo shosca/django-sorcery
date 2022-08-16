@@ -4,10 +4,13 @@ import sqlalchemy as sa
 from django import forms as djangoforms
 from django.core import validators as django_validators
 from django.forms import fields as djangofields
-from django_sorcery import fields as formfields
-from django_sorcery.db import fields, meta
 
-from ..base import TestCase, mock
+from django_sorcery import fields as formfields
+from django_sorcery.db import fields
+from django_sorcery.db import meta
+
+from ..base import TestCase
+from ..base import mock
 
 
 class DummyEnum(enum.Enum):

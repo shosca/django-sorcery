@@ -18,13 +18,11 @@ USER sorcerer
 ENV PATH=/opt/pyenv/bin:/home/sorcerer/.pyenv/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 WORKDIR /code
 
-RUN pyenv install 3.6:latest
 RUN pyenv install 3.7:latest
 RUN pyenv install 3.8:latest
 RUN pyenv install 3.9:latest
 RUN pyenv install 3.10:latest
 
-RUN pyenv install pypy3.6:latest
 RUN pyenv install pypy3.7:latest
 RUN pyenv install pypy3.8:latest
 
