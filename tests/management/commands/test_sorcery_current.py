@@ -66,10 +66,10 @@ class TestCurrent(MigrationMixin, TestCase):
         super().setUp()
 
         for rev in ["000000000000", "000000000001"]:
-            self.delete_migration("{}_.py".format(rev))
+            self.delete_migration(f"{rev}_.py")
 
-        self.write_migration(M1, "{}_.py".format("000000000000"))
-        self.write_migration(M2, "{}_.py".format("000000000001"))
+        self.write_migration(M1, '000000000000_.py')
+        self.write_migration(M2, '000000000001_.py')
 
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
@@ -81,7 +81,7 @@ class TestCurrent(MigrationMixin, TestCase):
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
         for rev in ["000000000000", "000000000001"]:
-            self.delete_migration("{}_.py".format(rev))
+            self.delete_migration(f"{rev}_.py")
 
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
@@ -113,7 +113,7 @@ class TestCurrent(MigrationMixin, TestCase):
                 f"Current revision(s) for postgresql://postgres:***@{settings.DB_URL.host}/test\n",
                 "Rev: 000000000001 (head)\n",
                 "Parent: 000000000000\n",
-                "Path: {}/000000000001_.py\n".format(MIGRATION_DIR),
+                f"Path: {MIGRATION_DIR}/000000000001_.py\n",
                 "\n",
                 "    one\n",
                 "    \n",

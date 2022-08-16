@@ -36,8 +36,8 @@ def makeprop(name):
 
 
 class _sqla_meta(type):
-    def __new__(mcs, name, bases, attrs):
-        typ = super().__new__(mcs, name, bases, attrs)
+    def __new__(cls, name, bases, attrs):
+        typ = super().__new__(cls, name, bases, attrs)
 
         # figure out all props to be proxied
         dummy = sa.orm.Session()

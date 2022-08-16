@@ -32,7 +32,7 @@ class ListModelMixin(BaseMultipleObjectMixin):
     def get_list_context_object_name(self, object_list):
         """Get the name to use for the object."""
         model = self.get_model()
-        return "%s_list" % model.__name__.lower()
+        return f"{model.__name__.lower()}_list"
 
     def get_list_context_data(self, **kwargs):
         """Returns context data for list action."""
@@ -127,10 +127,7 @@ class ModelFormMixin(FormMixin, RetrieveModelMixin):
 
     def process_form(self, form):
         """Checks if form is valid and processes accordingly."""
-        if form.is_valid():
-            return self.form_valid(form)
-
-        return self.form_invalid(form)
+        return self.form_valid(form) if form.is_valid() else self.form_invalid(form)
 
     def form_valid(self, form):
         """Processes a valid form."""

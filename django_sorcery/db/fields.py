@@ -45,11 +45,8 @@ class Field(sa.Column):
     def __init__(self, *args, **kwargs):
         self.db = kwargs.pop("db", None)
 
-        name = None
         args = list(args)
-        if args and isinstance(args[0], str):
-            name = args.pop(0)
-
+        name = args.pop(0) if args and isinstance(args[0], str) else None
         column_type = kwargs.pop("type_", None)
         if args and hasattr(args[0], "_sqla_type"):
             column_type = args.pop(0)
@@ -266,10 +263,13 @@ class ValidateIntegerFieldMixin:
         ops = operations.BaseDatabaseOperations
         with suppress(ImportError):
             ops = (
-                import_string(DIALECT_MAP_TO_DJANGO.get(self.db.url.get_dialect().name) + ".base.DatabaseOperations")
+                import_string(
+                    f"{DIALECT_MAP_TO_DJANGO.get(self.db.url.get_dialect().name)}.base.DatabaseOperations"
+                )
                 if self.db
                 else operations.BaseDatabaseOperations
             )
+
 
         return ops.integer_field_ranges
 

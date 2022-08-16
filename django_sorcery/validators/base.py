@@ -72,8 +72,10 @@ class ValidateUnique:
         if state.persistent:
             # need to exlude the current model since it's already in db
             pks = info.mapper.primary_key_from_instance(m)
-            for name, pk in zip(info.primary_keys, pks):
-                clauses.append(getattr(m.__class__, name) != pk)
+            clauses.extend(
+                getattr(m.__class__, name) != pk
+                for name, pk in zip(info.primary_keys, pks)
+            )
 
         query = self.session.query(m.__class__).filter(*clauses)
         exists = self.session.query(sa.literal(True)).filter(query.exists()).scalar()

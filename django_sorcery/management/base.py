@@ -49,9 +49,10 @@ class NamespacedCommand(BaseCommand):
         args = sa.util.get_cls_kwargs(CommandParser)
         kwargs = {
             "cmd": None,
-            "prog": "{} {}".format(os.path.basename(prog_name), subcommand),
+            "prog": f"{os.path.basename(prog_name)} {subcommand}",
             "description": self.help or None,
         }
+
         parser = CommandParser(**{k: v for k, v in kwargs.items() if k in args})
 
         for name, command_cls in self.commands.items():

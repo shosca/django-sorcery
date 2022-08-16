@@ -1,4 +1,5 @@
 """sqlalchemy query related things."""
+
 from collections import namedtuple
 from functools import partial
 
@@ -14,34 +15,31 @@ Operation = namedtuple("Operation", ["name", "args", "kwargs"])
 # todo add transforms support - e.g. column__date__gt
 LOOKUP_TO_EXPRESSION = {
     "contains": lambda column, value: column.contains(value),
-    # "date"
-    # "day"
     "endswith": lambda column, value: column.endswith(value),
     "exact": lambda column, value: column == value,
     "gt": lambda column, value: column > value,
     "gte": lambda column, value: column >= value,
-    # "hour"
-    "icontains": lambda column, value: sa.func.lower(column).contains(lower(value)),
-    "iendswith": lambda column, value: sa.func.lower(column).endswith(lower(value)),
+    "icontains": lambda column, value: sa.func.lower(column).contains(
+        lower(value)
+    ),
+    "iendswith": lambda column, value: sa.func.lower(column).endswith(
+        lower(value)
+    ),
     "iexact": lambda column, value: sa.func.lower(column) == lower(value),
-    "iin": lambda column, value: sa.func.lower(column).in_(lower(i) for i in value),
+    "iin": lambda column, value: sa.func.lower(column).in_(
+        lower(i) for i in value
+    ),
     "in": lambda column, value: column.in_(value),
-    # "iregex"
-    "isnull": lambda column, value: column == None if value else column != None,  # noqa
-    "istartswith": lambda column, value: sa.func.lower(column).startswith(lower(value)),
+    "isnull": lambda column, value: column is None
+    if value
+    else column != None,
+    "istartswith": lambda column, value: sa.func.lower(column).startswith(
+        lower(value)
+    ),
     "lt": lambda column, value: column < value,
     "lte": lambda column, value: column <= value,
-    # "minute"
-    # "month"
-    # "quarter"
     "range": lambda column, value: column.between(*value),
-    # "regex"
-    # "second"
     "startswith": lambda column, value: column.startswith(value),
-    # "time"
-    # "week"
-    # "week_day"
-    # "year"
 }
 
 
@@ -58,11 +56,7 @@ class Query(sa.orm.Query):
             mapper = self._only_full_mapper_zero("get")
             pk = meta.model_info(mapper).primary_keys_from_dict(kwargs)
 
-            if pk is not None:
-                return super().get(pk)
-
-            return None
-
+            return super().get(pk) if pk is not None else None
         return super().get(*args, **kwargs)
 
     def order_by(self, *criterion):
@@ -236,10 +230,9 @@ class QueryProperty:
 
         if not model:
             raise AttributeError(
-                "Cannot access {} when not bound to a model. "
-                "You can explicitly instantiate descriptor with model class - `db.queryproperty(Model)`."
-                "".format(self.__class__.__name__)
+                f"Cannot access {self.__class__.__name__} when not bound to a model. You can explicitly instantiate descriptor with model class - `db.queryproperty(Model)`."
             )
+
 
         try:
             mapper = sa.orm.class_mapper(model)

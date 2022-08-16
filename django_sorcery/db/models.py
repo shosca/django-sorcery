@@ -233,9 +233,9 @@ class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
     """Base metaclass for models which registers models to DB model registry
     when models are created."""
 
-    def __new__(mcs, name, bases, attrs):
-        klass = super().__new__(mcs, name, bases, attrs)
-        mcs.db.models_registry.append(klass)
+    def __new__(cls, name, bases, attrs):
+        klass = super().__new__(cls, name, bases, attrs)
+        cls.db.models_registry.append(klass)
         return klass
 
 

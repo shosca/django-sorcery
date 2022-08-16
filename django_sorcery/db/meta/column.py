@@ -166,7 +166,7 @@ class column_info:
 
     def validate(self, value, instance):
         """Validate value and raise ValidationError if necessary."""
-        getattr(instance, "clean_" + self.name, bool)()
+        getattr(instance, f"clean_{self.name}", bool)()
 
     def run_validators(self, value):
         """Run field's validators and raise ValidationError if necessary."""
@@ -194,9 +194,7 @@ class string_column_info(column_info):
         self.field_kwargs["max_length"] = self.column.type.length
 
     def to_python(self, value):
-        if value is None:
-            return value
-        return str(value).strip()
+        return value if value is None else str(value).strip()
 
 
 class text_column_info(string_column_info):
@@ -324,9 +322,7 @@ class boolean_column_info(column_info):
             return bool(value)
         if value in ("t", "T"):
             return True
-        if value in ("f", "F"):
-            return False
-        return self.coercer.to_python(value)
+        return False if value in ("f", "F") else self.coercer.to_python(value)
 
 
 class date_column_info(column_info):

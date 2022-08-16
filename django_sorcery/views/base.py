@@ -84,11 +84,7 @@ class SQLAlchemyMixin(ContextMixin):
         """Returns the base template path."""
         model = self.get_model()
         app_config = apps.get_containing_app_config(model.__module__)
-        return "{}/{}{}.html".format(
-            model.__name__.lower() if app_config is None else app_config.label,
-            model.__name__.lower(),
-            self.template_name_suffix,
-        )
+        return f"{model.__name__.lower() if app_config is None else app_config.label}/{model.__name__.lower()}{self.template_name_suffix}.html"
 
 
 class BaseMultipleObjectMixin(SQLAlchemyMixin):

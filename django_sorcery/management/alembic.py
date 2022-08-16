@@ -62,8 +62,9 @@ class AlembicCommand(BaseCommand):
         version_table = (
             getattr(app, "version_table", None)
             or db.kwargs.get("version_table")
-            or "alembic_version_%s" % app.label.lower().replace(".", "_")
+            or f'alembic_version_{app.label.lower().replace(".", "_")}'
         )
+
 
         max_length = db.engine.dialect.max_identifier_length
         if max_length and len(version_table) >= max_length:
