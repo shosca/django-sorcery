@@ -6,7 +6,6 @@ from django.core.exceptions import ImproperlyConfigured
 
 from .db import meta
 
-
 try:
     from django.conf.urls import url as re_path
 except ImportError:  # pragma: no cover

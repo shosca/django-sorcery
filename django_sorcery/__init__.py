@@ -1,14 +1,3 @@
-from .__version__ import (
-    __author__,
-    __author_email__,
-    __description__,
-    __version__,
-)
+__version__ = "0.12.0"
 
-
-__all__ = [
-    "__author__",
-    "__author_email__",
-    "__description__",
-    "__version__",
-]
+VERSION = tuple(__version__.split("."))

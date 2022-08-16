@@ -1,12 +1,11 @@
 import six
-
 from django.test import TestCase
+
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade
 from django_sorcery.management.commands.sorcery_upgrade import Command
 
 from .base import MigrationMixin
-
 
 MIGRATION = '''"""zero
 
@@ -39,15 +38,15 @@ class TestUpgrade(MigrationMixin, TestCase):
     def setUp(self):
         super().setUp()
         for rev in ["000000000000", "000000000001"]:
-            self.write_migration(MIGRATION.format(rev=rev), "{}_zero.py".format(rev))
-            self.write_migration(MIGRATION.format(rev=rev), "{}_zero.py".format(rev))
+            self.write_migration(MIGRATION.format(rev=rev), f"{rev}_zero.py")
+            self.write_migration(MIGRATION.format(rev=rev), f"{rev}_zero.py")
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
     def tearDown(self):
         super().tearDown()
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
         for rev in ["000000000000", "000000000001"]:
-            self.delete_migration("{}_zero.py".format(rev))
+            self.delete_migration(f"{rev}_zero.py")
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "tests_testapp", "--no-color"])
 
     def test(self):

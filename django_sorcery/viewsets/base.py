@@ -4,7 +4,8 @@ from inspect import getmembers
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.decorators import classonlymethod
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View
 
 from . import mixins
 
@@ -14,7 +15,7 @@ class GenericViewSet(TemplateResponseMixin, View):
 
     def get_template_names(self):
 
-        self.template_name_suffix = "_" + self.action
+        self.template_name_suffix = f"_{self.action}"
         names = []
 
         try:
@@ -96,7 +97,7 @@ class GenericViewSet(TemplateResponseMixin, View):
         # resolved URL.
         view.cls = cls
         view.initkwargs = initkwargs
-        view.suffix = initkwargs.get("suffix", None)
+        view.suffix = initkwargs.get("suffix")
         view.actions = actions
         return view
 

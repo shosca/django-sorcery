@@ -1,3 +1,112 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-sorcery"
+authors = [{name = "Serkan Hosca", email = "serkan@hosca.com"}]
+description = "Django and SQLAlchemy integration"
+license = {text = "MIT"}
+readme = "README.rst"
+keywords = ["sqlalchemy django framework forms"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Django :: 1.11",
+    "Framework :: Django :: 2.0",
+    "Framework :: Django :: 2.1",
+    "Framework :: Django :: 2.2",
+    "Framework :: Django :: 3.0",
+    "Framework :: Django :: 3.1",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Internet :: WWW/HTTP :: WSGI",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">= 3.7"
+dependencies = [
+    "alembic",
+    "blinker",
+    "inflect",
+    "django",
+    "python-dateutil",
+    "sqlalchemy<2",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/shosca/django-sorcery"
+Documentation = "https://django-sorcery.readthedocs.io"
+Source = "https://github.com/shosca/django-sorcery"
+
+[project.entry-points]
+pytest11 = {django-sorcery = "django_sorcery.pytest_plugin"}
+
+[tool.setuptools]
+include-package-data = true
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests",
+    "tests.*",
+]
+namespaces = false
+
+[tool.setuptools.dynamic]
+version = {attr = "django_sorcery.__version__"}
+
+[tool.distutils.bdist_wheel]
+universal = 1
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--tb native -r sfxX -p no:django-sorcery"
+
+[tool.flakeheaven]
+format = "grouped"
+max_line_length = 120
+show_source = true
+exclude = [
+    "*.rst",
+    ".eggs",
+    ".tox",
+    ".git",
+    "migrations*",
+    "docs/*",
+]
+
+[tool.flakeheaven.plugins]
+"flake8-*" = ["+*"]
+mccabe = ["+*"]
+pycodestyle = ["+*", "-E203", "-E501", "-W503"]
+pyflakes = ["+*"]
+pylint = ["+*"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["django_sorcery", "tests"]
+known_sqlalchemy = "sqlalchemy"
+known_django = "django"
+sections = ["FUTURE","STDLIB","THIRDPARTY","SQLALCHEMY","DJANGO","FIRSTPARTY","LOCALFOLDER"]
+no_lines_before = ["SQLALCHEMY", "DJANGO"]
+force_single_line = true
+
 [tool.black]
 line-length = 120
 target-version = ['py35', 'py36', 'py37']

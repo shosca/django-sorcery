@@ -80,7 +80,7 @@ next:  # print next version
 	@echo $(NEXT)
 
 bump: history
-	@sed -i 's/$(VERSION)/$(NEXT)/g' $(PACKAGE)/__version__.py
+	@sed -i 's/$(VERSION)/$(NEXT)/g' $(PACKAGE)/__init__.py
 	@sed -i 's/Next version (unreleased yet)/$(NEXT) ($(shell date +"%Y-%m-%d"))/g' HISTORY.rst
 	@git add .
 	@git commit -am "Bump version: $(VERSION) → $(NEXT)"

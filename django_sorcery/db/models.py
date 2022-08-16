@@ -4,11 +4,13 @@ from itertools import chain
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative  # noqa
 import sqlalchemy.orm  # noqa
+from sqlalchemy.orm.base import MANYTOONE
+from sqlalchemy.orm.base import NO_VALUE
 from django.core.exceptions import ValidationError
 from django.utils.text import camel_case_to_spaces
-from sqlalchemy.orm.base import MANYTOONE, NO_VALUE
 
-from . import meta, signals
+from . import meta
+from . import signals
 from .mixins import CleanMixin
 
 
@@ -231,9 +233,9 @@ class BaseMeta(sqlalchemy.ext.declarative.DeclarativeMeta):
     """Base metaclass for models which registers models to DB model registry
     when models are created."""
 
-    def __new__(mcs, name, bases, attrs):
-        klass = super().__new__(mcs, name, bases, attrs)
-        mcs.db.models_registry.append(klass)
+    def __new__(cls, name, bases, attrs):
+        klass = super().__new__(cls, name, bases, attrs)
+        cls.db.models_registry.append(klass)
         return klass
 
 

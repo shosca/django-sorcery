@@ -1,14 +1,15 @@
 """Base model view things with sqlalchemy."""
 from contextlib import suppress
 
+from sqlalchemy import literal
+from sqlalchemy.exc import InvalidRequestError
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
-from django.core.paginator import InvalidPage, Paginator
+from django.core.paginator import InvalidPage
+from django.core.paginator import Paginator
 from django.http import Http404
 from django.utils.translation import gettext
 from django.views.generic.base import ContextMixin
-from sqlalchemy import literal
-from sqlalchemy.exc import InvalidRequestError
 
 from ..db import meta
 
@@ -83,11 +84,7 @@ class SQLAlchemyMixin(ContextMixin):
         """Returns the base template path."""
         model = self.get_model()
         app_config = apps.get_containing_app_config(model.__module__)
-        return "{}/{}{}.html".format(
-            model.__name__.lower() if app_config is None else app_config.label,
-            model.__name__.lower(),
-            self.template_name_suffix,
-        )
+        return f"{model.__name__.lower() if app_config is None else app_config.label}/{model.__name__.lower()}{self.template_name_suffix}.html"
 
 
 class BaseMultipleObjectMixin(SQLAlchemyMixin):

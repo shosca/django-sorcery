@@ -1,15 +1,13 @@
 from django.core.exceptions import ValidationError
 
 from ..base import TestCase
-from ..testapp.models import (
-    Address,
-    Business,
-    Owner,
-    Part,
-    Vehicle,
-    VehicleType,
-    db,
-)
+from ..testapp.models import Address
+from ..testapp.models import Business
+from ..testapp.models import Owner
+from ..testapp.models import Part
+from ..testapp.models import Vehicle
+from ..testapp.models import VehicleType
+from ..testapp.models import db
 
 
 class TestCleanMixin(TestCase):

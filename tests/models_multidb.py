@@ -1,6 +1,5 @@
 from django_sorcery.db import databases
 
-
 default_db = databases.get("default")
 other_db = databases.get("fromdbs")
 

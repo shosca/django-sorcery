@@ -1,13 +1,13 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.utils.html import escape
-from django_sorcery.views.detail import (
-    SingleObjectMixin,
-    SingleObjectTemplateResponseMixin,
-)
+
+from django_sorcery.views.detail import SingleObjectMixin
+from django_sorcery.views.detail import SingleObjectTemplateResponseMixin
 
 from ..base import TestCase
-from ..testapp.models import Owner, db
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestDetailView(TestCase):
@@ -44,7 +44,10 @@ class TestDetailView(TestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.content.decode().strip(), "owner" + escape(repr(Owner.query.get(1))))
+        self.assertEqual(
+            response.content.decode().strip(),
+            f"owner{escape(repr(Owner.query.get(1)))}",
+        )
 
     def test_detail_generic_with_template(self):
 
@@ -60,7 +63,10 @@ class TestDetailView(TestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.content.decode().strip(), "owner" + escape(repr(Owner.query.get(1))))
+        self.assertEqual(
+            response.content.decode().strip(),
+            f"owner{escape(repr(Owner.query.get(1)))}",
+        )
 
     def test_detail_generic_404(self):
 

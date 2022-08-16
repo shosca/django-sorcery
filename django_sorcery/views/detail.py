@@ -1,7 +1,8 @@
 """Django detail view things for sqlalchemy."""
 
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View
 
 from .base import BaseSingleObjectMixin
 

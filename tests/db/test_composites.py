@@ -1,7 +1,10 @@
 from django_sorcery.db.composites import CompositeField
 
 from ..base import TestCase
-from ..testapp.models import Address, Business, States, db
+from ..testapp.models import Address
+from ..testapp.models import Business
+from ..testapp.models import States
+from ..testapp.models import db
 
 
 class TestComposite(TestCase):

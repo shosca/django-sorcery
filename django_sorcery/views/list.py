@@ -1,7 +1,8 @@
 """Django list view things for sqlalchemy."""
 
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import View
 
 from .base import BaseMultipleObjectMixin
 
@@ -17,7 +18,7 @@ class MultipleObjectMixin(BaseMultipleObjectMixin):
             return self.context_object_name
 
         model = self.get_model()
-        return "%s_list" % model.__name__.lower()
+        return f"{model.__name__.lower()}_list"
 
     def get_context_data(self, object_list=None, **kwargs):
         """Get the context for this view."""

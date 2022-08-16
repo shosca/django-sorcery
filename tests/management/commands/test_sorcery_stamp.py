@@ -1,12 +1,11 @@
 import six
-
 from django.test import TestCase
+
 from django_sorcery.db import databases
 from django_sorcery.management.commands.sorcery_downgrade import Downgrade
 from django_sorcery.management.commands.sorcery_stamp import Command
 
 from .base import MigrationMixin
-
 
 M1 = '''"""zero
 
@@ -39,14 +38,14 @@ class TestStamp(MigrationMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.delete_migration("{}_.py".format("000000000000"))
-        self.write_migration(M1, "{}_.py".format("000000000000"))
+        self.delete_migration("000000000000_.py")
+        self.write_migration(M1, "000000000000_.py")
 
     def tearDown(self):
         super().tearDown()
 
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
-        self.delete_migration("{}_.py".format("000000000000"))
+        self.delete_migration("000000000000_.py")
         Downgrade().run_from_argv(["./manage.py sorcery", "downgrade", "--no-color"])
 
     def test(self):

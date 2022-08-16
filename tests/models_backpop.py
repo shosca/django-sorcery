@@ -1,6 +1,5 @@
 from django_sorcery.db import databases
 
-
 db = databases.get("minimal_backpop")
 
 

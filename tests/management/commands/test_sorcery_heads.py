@@ -1,10 +1,10 @@
 import six
-
 from django.test import TestCase
+
 from django_sorcery.management.commands.sorcery_heads import Command
 
-from .base import MIGRATION_DIR, MigrationMixin
-
+from .base import MIGRATION_DIR
+from .base import MigrationMixin
 
 M1 = '''"""zero
 
@@ -58,13 +58,13 @@ def downgrade():
 class TestHeads(MigrationMixin, TestCase):
     def setUp(self):
         super().setUp()
-        self.write_migration(M1, "{}_.py".format("000000000000"))
-        self.write_migration(M2, "{}_.py".format("000000000001"))
+        self.write_migration(M1, "000000000000_.py")
+        self.write_migration(M2, "000000000001_.py")
 
     def tearDown(self):
         super().tearDown()
         for rev in ["000000000000", "000000000001"]:
-            self.delete_migration("{}_.py".format(rev))
+            self.delete_migration(f"{rev}_.py")
 
     def test(self):
         out = six.StringIO()
@@ -94,7 +94,7 @@ class TestHeads(MigrationMixin, TestCase):
                 "[tests_testapp]\n",
                 "Rev: 000000000001 (head)\n",
                 "Parent: 000000000000\n",
-                "Path: {}/000000000001_.py\n".format(MIGRATION_DIR),
+                f"Path: {MIGRATION_DIR}/000000000001_.py\n",
                 "\n",
                 "    one\n",
                 "    \n",

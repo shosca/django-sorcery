@@ -2,7 +2,6 @@ import os
 
 from ... import testapp
 
-
 MIGRATION_DIR = os.path.abspath(os.path.join(os.path.dirname(testapp.__file__), "migrations"))
 
 

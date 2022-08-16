@@ -1,9 +1,12 @@
 import sqlalchemy as sa
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
+
 from django_sorcery.views.base import SQLAlchemyMixin
 
-from ..testapp.models import ClassicModel, Owner, db
+from ..testapp.models import ClassicModel
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestBaseView(TestCase):

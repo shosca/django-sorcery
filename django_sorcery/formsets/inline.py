@@ -2,7 +2,8 @@
 
 from ..db import meta
 from ..forms import ModelForm
-from .base import BaseModelFormSet, modelformset_factory
+from .base import BaseModelFormSet
+from .base import modelformset_factory
 
 
 class BaseInlineFormSet(BaseModelFormSet):
@@ -22,10 +23,7 @@ class BaseInlineFormSet(BaseModelFormSet):
         return cls.fk.name
 
     def initial_form_count(self):
-        if self.save_as_new:
-            return 0
-
-        return super().initial_form_count()
+        return 0 if self.save_as_new else super().initial_form_count()
 
     def save(self, flush=False, **kwargs):
         instances = super().save(flush=flush)
@@ -51,7 +49,7 @@ def _get_foreign_key(relation, parent_model, model, fk_name=None):
         if len(relations) == 1:
             return relations[0]
 
-        raise ValueError("Couldn't find a relation from '{}' to '{}'.".format(parent_model.__name__, model.__name__))
+        raise ValueError(f"Couldn't find a relation from '{parent_model.__name__}' to '{model.__name__}'.")
 
 
 def inlineformset_factory(

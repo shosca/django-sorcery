@@ -1,13 +1,13 @@
 """sqlalchemy profiling things."""
 import logging
 import time
-from collections import defaultdict, namedtuple
+from collections import defaultdict
+from collections import namedtuple
 from functools import partial
 from threading import local
 
 import sqlalchemy as sa
 from django.conf import settings
-
 
 logger = logging.getLogger(__name__)
 STATEMENT_TYPES = {"SELECT": "select", "INSERT INTO": "insert", "UPDATE": "update", "DELETE": "delete"}
@@ -190,17 +190,20 @@ class SQLAlchemyProfilingMiddleware:
         try:
             stats = self.profiler.stats
             if stats["duration"] or self.log_results:
-                self.log(**{"sa_{}".format(k): v for k, v in stats.items()})
+                self.log(**{f"sa_{k}": v for k, v in stats.items()})
         except Exception:  # pragma: nocover
             # The show must go on...
             pass  # pragma: nocover
         else:
             if self.header_results:
                 for k, v in stats.items():
-                    response["X-SA-{}".format("".join(i.title() for i in k.split("_")))] = v
+                    response[f'X-SA-{"".join(i.title() for i in k.split("_"))}'] = v
         self.profiler.clear()
         return response
 
     def log(self, **kwargs):
         """Log sqlalchemy stats for current request."""
-        self.logger.info("SQLAlchemy profiler %s", " ".join("{}={}".format(k, v) for k, v in kwargs.items()))
+        self.logger.info(
+            "SQLAlchemy profiler %s",
+            " ".join(f"{k}={v}" for k, v in kwargs.items()),
+        )

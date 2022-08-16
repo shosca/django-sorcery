@@ -2,12 +2,12 @@ from django_sorcery import routers
 
 from .testapp import views
 
-
 try:
-    from django.conf.urls import url as re_path
     from django.conf.urls import include
+    from django.conf.urls import url as re_path
 except ImportError:  # pragma: no cover
-    from django.urls import re_path, include
+    from django.urls import include
+    from django.urls import re_path
 
 
 router = routers.SimpleRouter()

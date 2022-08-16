@@ -2,10 +2,13 @@ from contextlib import suppress
 
 import sqlalchemy as sa
 from django.conf import settings
+
 from django_sorcery.db.query import Operation
 
 from ..base import TestCase
-from ..testapp.models import ModelOne, Owner, db
+from ..testapp.models import ModelOne
+from ..testapp.models import Owner
+from ..testapp.models import db
 
 
 class TestSQLAlchemy(TestCase):
