@@ -441,7 +441,6 @@ class TestModelForm(TestCase):
         self.assertHTMLEqual(soup.prettify(), expected_soup.prettify())
 
     def test_form_field_callback_in_base_meta(self):
-
         self.callback_called = False
 
         def callback(*args, **kwargs):
@@ -460,7 +459,6 @@ class TestModelForm(TestCase):
         self.assertTrue(self.callback_called)
 
     def test_fields_bad_value(self):
-
         with self.assertRaises(TypeError) as ctx:
             forms.modelform_factory(Owner, forms.ModelForm, fields="abc1234")
 
@@ -469,7 +467,6 @@ class TestModelForm(TestCase):
         )
 
     def test_empty_fields_and_exclude(self):
-
         with self.assertRaises(ImproperlyConfigured) as ctx:
 
             class OwnerForm(forms.ModelForm):
@@ -580,7 +577,6 @@ class TestModelForm(TestCase):
         self.assertEqual(form.instance.name, "classic")
 
     def test_modelform_factory_with_formfield_callback(self):
-
         self.callback_called = False
 
         def callback(*args, **kwargs):
@@ -591,7 +587,6 @@ class TestModelForm(TestCase):
         self.assertTrue(self.callback_called)
 
     def test_modelform_factory_with_no_fields_exclude(self):
-
         with self.assertRaises(ImproperlyConfigured) as ctx:
             forms.modelform_factory(Owner, session=db)
 

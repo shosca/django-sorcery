@@ -39,7 +39,6 @@ class TestDetailView(TestCase):
         )
 
     def test_detail_generic(self):
-
         url = reverse("owner_detail", kwargs={"id": 1})
 
         response = self.client.get(url)
@@ -47,7 +46,6 @@ class TestDetailView(TestCase):
         self.assertEqual(response.content.decode().strip(), "owner" + escape(repr(Owner.query.get(1))))
 
     def test_detail_generic_with_template(self):
-
         url = reverse("owner_detail_tmpl", kwargs={"id": 1})
 
         response = self.client.get(url)
@@ -55,7 +53,6 @@ class TestDetailView(TestCase):
         self.assertEqual(response.content.decode().strip(), escape(repr(Owner.query.get(1))))
 
     def test_detail_generic_with_slug(self):
-
         url = reverse("owner_detail_slug", kwargs={"slug": "Owner1"})
 
         response = self.client.get(url)
@@ -63,7 +60,6 @@ class TestDetailView(TestCase):
         self.assertEqual(response.content.decode().strip(), "owner" + escape(repr(Owner.query.get(1))))
 
     def test_detail_generic_404(self):
-
         url = reverse("owner_detail", kwargs={"id": 99})
 
         response = self.client.get(url)
@@ -71,7 +67,6 @@ class TestDetailView(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_detail_generic_context_name(self):
-
         url = reverse("owner_detail_context_name", kwargs={"id": 1})
 
         response = self.client.get(url)
@@ -80,7 +75,6 @@ class TestDetailView(TestCase):
         self.assertIsInstance(response.context_data["item"], Owner)
 
     def test_detail_get_template_name_field_from_object(self):
-
         view = SingleObjectTemplateResponseMixin()
         view.object = Owner(last_name="owner_template")
         view.template_name_field = "last_name"
@@ -90,7 +84,6 @@ class TestDetailView(TestCase):
         self.assertEqual(template_names, [view.object.last_name])
 
     def test_detail_get_template_name_fail(self):
-
         view = SingleObjectTemplateResponseMixin()
         view.object = Owner(last_name="owner_template")
 

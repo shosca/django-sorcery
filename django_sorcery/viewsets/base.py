@@ -13,7 +13,6 @@ class GenericViewSet(TemplateResponseMixin, View):
     """Base class for all sqlalchemy model generic viewsets."""
 
     def get_template_names(self):
-
         self.template_name_suffix = "_" + self.action
         names = []
 

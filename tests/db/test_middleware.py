@@ -7,7 +7,6 @@ from ..base import mock
 
 
 class DummyMiddeware(middleware.BaseMiddleware):
-
     rollback_called = False
     flush_called = False
     commit_called = False

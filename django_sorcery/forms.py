@@ -81,7 +81,6 @@ def fields_for_model(
     info = meta.model_info(model)
 
     for name, attr in chain(info.properties.items(), info.relationships.items()):
-
         if name.startswith("_"):
             continue
 
@@ -145,7 +144,6 @@ def model_to_dict(instance, fields=None, exclude=None):
     exclude = set(exclude or [])
     data = {}
     for name in info.properties:
-
         if name.startswith("_"):
             continue
 

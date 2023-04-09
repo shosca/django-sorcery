@@ -89,7 +89,6 @@ class TestModelChoiceField(TestCase):
         db.flush()
 
     def test_apply_limit_value(self):
-
         field = fields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.first_name == "first_name 1"])
         apply_limit_choices_to_form_field(field)
         self.assertEqual(field.queryset.count(), 1)
@@ -103,7 +102,6 @@ class TestModelChoiceField(TestCase):
         self.assertEqual(field.queryset.count(), 1)
 
     def test_choices(self):
-
         field = fields.ModelChoiceField(Owner, db)
 
         self.assertListEqual(
@@ -114,7 +112,6 @@ class TestModelChoiceField(TestCase):
         self.assertListEqual(list(field.choices), [(owner.id, str(owner)) for owner in Owner.query])
 
     def test_get_object(self):
-
         owner = Owner.objects.first()
 
         field = fields.ModelChoiceField(Owner, db)

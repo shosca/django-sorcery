@@ -22,7 +22,6 @@ class TestUtils(TestCase):
         self.assertEqual(obj.test, default)
 
     def test_make_args(self):
-
         value = utils.make_args("abc", kw="something")
 
         self.assertEqual(value, ("abc", {"kw": "something"}))

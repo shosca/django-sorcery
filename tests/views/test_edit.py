@@ -10,7 +10,6 @@ from ..testapp.views import OwnerCreateViewWithForm
 
 class TestCreateView(TestCase):
     def test_create(self):
-
         url = reverse("owner_create")
 
         response = self.client.get(url)
@@ -25,7 +24,6 @@ class TestCreateView(TestCase):
         self.assertEqual(response.url, reverse("owners_list"))
 
     def test_create_with_form_class(self):
-
         url = reverse("owner_create_form")
 
         response = self.client.get(url)
@@ -35,7 +33,6 @@ class TestCreateView(TestCase):
         self.assertTrue(type(response.context_data["form"]) is OwnerCreateViewWithForm.form_class)
 
     def test_create_bad_field_form_config(self):
-
         url = reverse("owner_create_field_form")
 
         with self.assertRaises(ImproperlyConfigured) as ctx:
@@ -44,7 +41,6 @@ class TestCreateView(TestCase):
         self.assertEqual(str(ctx.exception), "Specifying both 'fields' and 'form_class' is not permitted.")
 
     def test_create_get_success_url_bad_config(self):
-
         view = OwnerCreateViewWithForm()
 
         with self.assertRaises(ImproperlyConfigured) as ctx:
@@ -55,7 +51,6 @@ class TestCreateView(TestCase):
         )
 
     def test_create_form_invalid(self):
-
         url = reverse("vehicle_create")
 
         response = self.client.post(url, {})
@@ -118,7 +113,6 @@ class TestDeleteView(TestCase):
         self.assertTrue(state.deleted)
 
     def test_delete_get_success_url(self):
-
         view = edit.DeletionMixin()
 
         with self.assertRaises(ImproperlyConfigured):

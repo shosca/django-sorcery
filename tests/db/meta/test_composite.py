@@ -7,7 +7,6 @@ from ...testapp.models import Address, Business, Point, Vertex
 
 class TestCompositeMeta(TestCase):
     def test_composite_meta(self):
-
         info = meta.model_info(Vertex)
         self.assertEqual(set(info.composites.keys()), {"start", "end"})
 

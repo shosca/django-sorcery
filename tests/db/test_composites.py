@@ -6,7 +6,6 @@ from ..testapp.models import Address, Business, States, db
 
 class TestComposite(TestCase):
     def test_autogenerate_columns(self):
-
         self.assertIsInstance(Business.location.property, CompositeField)
         self.assertIsInstance(Business.other_location.property, CompositeField)
 
@@ -20,7 +19,6 @@ class TestComposite(TestCase):
         self.assertEqual(Business._foo_state.prop.columns[0].type.name, "foo_states")
 
     def test_can_persist(self):
-
         instance = Business()
         instance.location = Address(States.NY, "street", "123")
         instance.other_location = Address(street="other street", state=States.NJ, zip="456")

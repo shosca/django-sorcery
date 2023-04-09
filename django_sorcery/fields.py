@@ -60,7 +60,6 @@ class ModelChoiceIterator:
         self.field = field
 
     def __iter__(self):
-
         if self.field.empty_label is not None:
             yield ("", self.field.empty_label)
 

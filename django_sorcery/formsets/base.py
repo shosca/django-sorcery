@@ -48,7 +48,6 @@ class BaseModelFormSet(BaseFormSet):
         pk_required = i < self.initial_form_count()
         if pk_required:
             if self.is_bound:
-
                 info = meta.model_info(self.model)
                 pks = {}
                 for name, pk_info in info.primary_keys.items():

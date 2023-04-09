@@ -10,7 +10,6 @@ from ..testapp.models import ModelOne, Owner, db
 
 class TestSQLAlchemy(TestCase):
     def test_session(self):
-
         session = db.session()
         self.assertEqual(db.session(), db.session())
         self.assertFalse(session.autocommit)
@@ -23,7 +22,6 @@ class TestSQLAlchemy(TestCase):
             db.session(autocommit=True)
 
     def test_callable(self):
-
         session = db()
         self.assertEqual(db(), db())
         self.assertFalse(session.autocommit)
@@ -77,14 +75,12 @@ class TestSQLAlchemy(TestCase):
         self.assertEqual(Owner.query.count(), 0)
 
     def test_atomic_context(self):
-
         with db.atomic():
             db.add(Owner(first_name="test", last_name="last"))
 
         self.assertEqual(Owner.query.count(), 1)
 
     def test_atomic_context_exception(self):
-
         with suppress(Exception), db.atomic():
             db.add(Owner(first_name="test", last_name="last"))
             raise Exception()

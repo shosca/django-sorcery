@@ -9,7 +9,7 @@ from .testing import Transact
 @pytest.fixture(scope="function")
 def sqlalchemy_profiler():
     """pytest fixture for sqlalchemy profiler."""
-    with SQLAlchemyProfiler() as profiler:
+    with SQLAlchemyProfiler() as profiler:  # pragma: nocover
         yield profiler
 
 

@@ -7,7 +7,6 @@ from sqlalchemy.exc import InvalidRequestError
 
 
 def _get_query(klass):
-
     query = getattr(klass, "query", None) or getattr(klass, "objects", None)
 
     if query:

@@ -23,7 +23,6 @@ from ..testapp.models import (
 
 class TestModelRepr(TestCase):
     def test_simple_repr(self):
-
         vehicle = Vehicle()
         self.assertEqual(models.simple_repr(vehicle), "Vehicle(id=None, is_used=False)")
 
@@ -45,7 +44,6 @@ class TestSerialization(TestCase):
         self.assertIsNone(models.serialize(None))
 
     def test_shallow_serialize(self):
-
         vehicle = Vehicle(owner=Owner(first_name="first_name", last_name="last_name"), type=VehicleType.car)
 
         self.assertDictEqual(
@@ -81,7 +79,6 @@ class TestSerialization(TestCase):
         )
 
     def test_serialize_with_relations(self):
-
         vehicle = Vehicle(
             name="vehicle",
             owner=Owner(first_name="first_name", last_name="last_name"),
@@ -110,7 +107,6 @@ class TestSerialization(TestCase):
         )
 
     def test_deserialize(self):
-
         data = {
             "_owner_id": None,
             "created_at": None,
@@ -179,7 +175,6 @@ class TestSerialization(TestCase):
         self.assertEqual(vehicle1.owner, vehicle2.owner)
 
     def test_deserialize_composites(self):
-
         data = {
             "id": None,
             "name": "test",
@@ -239,7 +234,6 @@ class TestClone(TestCase):
         self.assertEqual(clone.parts, [])
 
     def test_clone_with_relation(self):
-
         clone = models.clone(
             self.vehicle, Vehicle.owner, paint="blue", options=self.vehicle.options, parts=self.vehicle.parts
         )
@@ -279,7 +273,6 @@ class TestClone(TestCase):
         self.assertEqual(clone.other_location, business.other_location)
 
     def test_clone_with_relation_options(self):
-
         clone = models.clone(self.vehicle, make_args(Vehicle.owner, first_name="test"))
         db.add(clone)
         db.flush()
@@ -294,7 +287,6 @@ class TestClone(TestCase):
         self.assertEqual(clone.owner.first_name, "test")
 
     def test_clone_list_relation(self):
-
         clone = models.clone(self.vehicle, Vehicle.options)
         db.add(clone)
         db.flush()
@@ -485,7 +477,6 @@ class TestAutoCoerce(TestCase):
             self._run_tests(attr, tests)
 
     def test_integer(self):
-
         tests = [
             ("1", 1),
             ("abc", ValidationError),

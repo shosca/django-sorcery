@@ -108,7 +108,6 @@ class TestListView(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_list_context_name(self):
-
         url = reverse("owners_list_context_name")
         response = self.client.get(url)
         self.assertIn("owner_list", response.context_data)

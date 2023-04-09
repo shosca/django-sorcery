@@ -42,7 +42,6 @@ class TestShortcuts(TestCase):
             shortcuts.get_object_or_404(Dummy, id=0)
 
     def test_get_list_or_404(self):
-
         obj = shortcuts.get_list_or_404(Owner)
         self.assertTrue(list(obj))
 

@@ -26,12 +26,10 @@ class TestInlineFormSet(TestCase):
         self.assertEqual(formset_class.fk, info.relationships["vehicles"])
 
     def test_factory_with_bad_relation(self):
-
         with self.assertRaises(ValueError):
             inlineformset_factory(relation=Vehicle.owner, fields=ALL_FIELDS, session=db)
 
     def test_factory_for_non_existant_relation(self):
-
         with self.assertRaises(ValueError):
             inlineformset_factory(Vehicle, Owner, fields=ALL_FIELDS, session=db)
 

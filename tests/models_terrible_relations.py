@@ -5,7 +5,6 @@ db = databases.get("terrible")
 
 
 class Foo(db.Model):
-
     id1 = db.Column(db.Integer(), primary_key=True)
     id2 = db.Column(db.Integer(), primary_key=True)
 

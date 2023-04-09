@@ -43,7 +43,6 @@ class NamespacedCommand(BaseCommand):
             self.print_help(argv[0], argv[1])
 
     def create_parser(self, prog_name, subcommand):
-
         # for django<2.1 compat, filter kwargs
         args = sa.util.get_cls_kwargs(CommandParser)
         kwargs = {

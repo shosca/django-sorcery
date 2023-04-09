@@ -4,10 +4,10 @@ Signals
 
 Implements some basic signals using blinker
 """
+from collections import defaultdict
 from threading import local
 
 import blinker
-from blinker._utilities import defaultdict
 
 
 class ScopedSignal(blinker.NamedSignal):
@@ -26,6 +26,14 @@ class ScopedSignal(blinker.NamedSignal):
         self.__doc__ = doc
         self.local = local()
         self.cleanup()
+
+    @property
+    def is_muted(self):
+        return bool(self.local.__dict__.setdefault("is_muted", False))
+
+    @is_muted.setter
+    def is_muted(self, value):
+        self.local.__dict__["is_muted"] = value  # pragma: nocover
 
     @property
     def receivers(self):

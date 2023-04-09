@@ -16,7 +16,6 @@ class TestCreateAllDropAll(TestCase):
         other_db.create_all()
 
     def test_create_drop_commands(self):
-
         cmd = Command()
 
         cmd.run_from_argv(["./manage.py", "sorcery", "createall", "-d", other_db.alias])

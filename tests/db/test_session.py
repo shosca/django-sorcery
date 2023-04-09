@@ -61,7 +61,6 @@ class TestSession(TestCase):
         self.assertIsInstance(query, db.query_class)
 
     def test_commit_signals(self):
-
         with db.atomic():
             db.add(Owner(first_name="Joe", last_name="Smith"))
 
