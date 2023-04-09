@@ -62,7 +62,12 @@ class TestListView(TestCase):
         )
 
     def test_list_pagination(self):
-        db.add_all([Owner(id=i, first_name="Test {}".format(i), last_name="Owner {}".format(i)) for i in range(5, 50)])
+        db.add_all(
+            [
+                Owner(id=i, first_name=f"Test {i}", last_name=f"Owner {i}")
+                for i in range(5, 50)
+            ]
+        )
         db.flush()
 
         url = reverse("owners_list")
@@ -75,12 +80,17 @@ class TestListView(TestCase):
         )
 
     def test_list_pagination_last_page(self):
-        db.add_all([Owner(id=i, first_name="Test {}".format(i), last_name="Owner {}".format(i)) for i in range(5, 50)])
+        db.add_all(
+            [
+                Owner(id=i, first_name=f"Test {i}", last_name=f"Owner {i}")
+                for i in range(5, 50)
+            ]
+        )
         db.flush()
 
         url = reverse("owners_list")
 
-        response = self.client.get("{}?page=last".format(url))
+        response = self.client.get(f"{url}?page=last")
 
         self.assertEqual(
             response.content.decode().strip(),
@@ -88,22 +98,32 @@ class TestListView(TestCase):
         )
 
     def test_list_pagination_bad_page(self):
-        db.add_all([Owner(id=i, first_name="Test {}".format(i), last_name="Owner {}".format(i)) for i in range(5, 50)])
+        db.add_all(
+            [
+                Owner(id=i, first_name=f"Test {i}", last_name=f"Owner {i}")
+                for i in range(5, 50)
+            ]
+        )
         db.flush()
 
         url = reverse("owners_list")
 
-        response = self.client.get("{}?page=abc".format(url))
+        response = self.client.get(f"{url}?page=abc")
 
         self.assertEqual(response.status_code, 404)
 
     def test_list_pagination_bad_page_out_of_range(self):
-        db.add_all([Owner(id=i, first_name="Test {}".format(i), last_name="Owner {}".format(i)) for i in range(5, 50)])
+        db.add_all(
+            [
+                Owner(id=i, first_name=f"Test {i}", last_name=f"Owner {i}")
+                for i in range(5, 50)
+            ]
+        )
         db.flush()
 
         url = reverse("owners_list")
 
-        response = self.client.get("{}?page=100".format(url))
+        response = self.client.get(f"{url}?page=100")
 
         self.assertEqual(response.status_code, 404)
 

@@ -31,7 +31,7 @@ def get_object_or_404(klass, *args, **kwargs):
     instance = query.get(*args, **kwargs)
 
     if instance is None:
-        raise Http404("No %s matches the given query." % query)
+        raise Http404(f"No {query} matches the given query.")
 
     return instance
 
@@ -52,6 +52,6 @@ def get_list_or_404(klass, *args, **kwargs):
         query = query.filter_by(**kwargs)
 
     if not query.count():
-        raise Http404("No %s matches the given query." % query)
+        raise Http404(f"No {query} matches the given query.")
 
     return query

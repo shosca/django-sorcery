@@ -43,7 +43,10 @@ class TestDetailView(TestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.content.decode().strip(), "owner" + escape(repr(Owner.query.get(1))))
+        self.assertEqual(
+            response.content.decode().strip(),
+            f"owner{escape(repr(Owner.query.get(1)))}",
+        )
 
     def test_detail_generic_with_template(self):
         url = reverse("owner_detail_tmpl", kwargs={"id": 1})
@@ -57,7 +60,10 @@ class TestDetailView(TestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.content.decode().strip(), "owner" + escape(repr(Owner.query.get(1))))
+        self.assertEqual(
+            response.content.decode().strip(),
+            f"owner{escape(repr(Owner.query.get(1)))}",
+        )
 
     def test_detail_generic_404(self):
         url = reverse("owner_detail", kwargs={"id": 99})

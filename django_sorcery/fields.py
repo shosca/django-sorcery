@@ -40,10 +40,7 @@ class EnumField(djangofields.ChoiceField):
         raise ValidationError(self.error_messages["invalid_choice"], code="invalid", params={"value": str(value)})
 
     def valid_value(self, value):
-        if value is None:
-            return not self.required
-
-        return value in self.enum_class
+        return not self.required if value is None else value in self.enum_class
 
     def prepare_value(self, value):
         return value if value is None else value.name
@@ -97,11 +94,7 @@ class ModelChoiceField(djangofields.ChoiceField):
         limit_choices_to=None,
         **kwargs,
     ):
-        if required and (initial is not None):
-            self.empty_label = None
-        else:
-            self.empty_label = empty_label
-
+        self.empty_label = None if required and (initial is not None) else empty_label
         djangofields.Field.__init__(
             self, required=required, widget=widget, label=label, initial=initial, help_text=help_text, **kwargs
         )
@@ -197,10 +190,7 @@ class ModelMultipleChoiceField(ModelChoiceField):
         super().__init__(*args, **kwargs)
 
     def to_python(self, value):
-        if not value:
-            return []
-
-        return list(self._check_values(value))
+        return list(self._check_values(value)) if value else []
 
     def _check_values(self, value):
         return [self.get_object(pk) for pk in value]

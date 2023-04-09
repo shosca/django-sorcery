@@ -195,12 +195,15 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
     def __new__(mcs, name, bases, attrs):
         cls = super().__new__(mcs, name, bases, attrs)
 
-        base_formfield_callback = None
-        for base in bases:
-            if hasattr(base, "Meta") and hasattr(base.Meta, "formfield_callback"):
-                base_formfield_callback = base.Meta.formfield_callback
-                break
-
+        base_formfield_callback = next(
+            (
+                base.Meta.formfield_callback
+                for base in bases
+                if hasattr(base, "Meta")
+                and hasattr(base.Meta, "formfield_callback")
+            ),
+            None,
+        )
         formfield_callback = attrs.pop("formfield_callback", base_formfield_callback)
 
         if bases == (BaseModelForm,):
@@ -219,8 +222,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
         if opts.model:
             if opts.fields is None and opts.exclude is None:
                 raise ImproperlyConfigured(
-                    "Creating a ModelForm without either the 'fields' attribute or the 'exclude' attribute is "
-                    "prohibited; form %s needs updating." % name
+                    f"Creating a ModelForm without either the 'fields' attribute or the 'exclude' attribute is prohibited; form {name} needs updating."
                 )
 
             if opts.fields == ALL_FIELDS:
@@ -335,7 +337,7 @@ class BaseModelForm(DjangoBaseModelForm):
 
         if self.errors:
             raise ValueError(
-                "The {} could not be saved because the data didn't validate.".format(self.instance.__class__.__name__)
+                f"The {self.instance.__class__.__name__} could not be saved because the data didn't validate."
             )
 
         if self.instance not in opts.session:
@@ -376,7 +378,7 @@ class BaseModelForm(DjangoBaseModelForm):
     def update_attribute(self, instance, name, field, value):
         """Provides hooks for updating form instance's attribute for a field
         with value."""
-        field_setter = getattr(self, "set_" + name, None)
+        field_setter = getattr(self, f"set_{name}", None)
         if field_setter:
             field_setter(instance, name, field, value)
         else:
@@ -412,7 +414,7 @@ def modelform_factory(model, form=ModelForm, formfield_callback=None, **kwargs):
     if formfield_callback:
         meta_.formfield_callback = staticmethod(formfield_callback)
 
-    class_name = model.__name__ + "Form"
+    class_name = f"{model.__name__}Form"
 
     if getattr(meta_, "fields", None) is None and getattr(meta_, "exclude", None) is None:
         raise ImproperlyConfigured(

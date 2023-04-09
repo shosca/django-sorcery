@@ -85,7 +85,12 @@ class TestEnumField(TestCase):
 class TestModelChoiceField(TestCase):
     def setUp(self):
         super().setUp()
-        db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
+        db.add_all(
+            [
+                Owner(first_name=f"first_name {i}", last_name=f"last_name {i}")
+                for i in range(10)
+            ]
+        )
         db.flush()
 
     def test_apply_limit_value(self):
@@ -195,7 +200,12 @@ class TestModelChoiceField(TestCase):
 class TestModelMultipleChoiceField(TestCase):
     def setUp(self):
         super().setUp()
-        db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
+        db.add_all(
+            [
+                Owner(first_name=f"first_name {i}", last_name=f"last_name {i}")
+                for i in range(10)
+            ]
+        )
         db.flush()
 
     def test_to_python(self):
