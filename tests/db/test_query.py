@@ -115,7 +115,6 @@ class TestQueryProperty(TestCase):
         self.assertEqual(dummy.new_vehicles.count(), 1)
 
     def test_bad_attr(self):
-
         with self.assertRaises(AttributeError) as ctx:
             QueryProperty(db, Vehicle).dummy(db.joinedload(Vehicle.owner))
 
@@ -144,7 +143,6 @@ class TestQueryProperty(TestCase):
         )
 
     def test_stupid(self):
-
         qp = QueryProperty(db, Vehicle)
 
         class Dummy:

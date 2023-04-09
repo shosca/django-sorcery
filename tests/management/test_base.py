@@ -17,7 +17,6 @@ class SubCommand(BaseCommand):
 
 
 class DummyCommand(NamespacedCommand):
-
     sub1 = SubCommand
 
     class Meta:

@@ -25,12 +25,6 @@ jobs:
         container:
           - image: python:latest
             toxenv: lint
-          - image: python:3.6
-            toxenv: py36-sqla12
-          - image: python:3.6
-            toxenv: py36-sqla13
-          - image: python:3.6
-            toxenv: py36-sqla14
           - image: python:3.7
             toxenv: py37-sqla12
           - image: python:3.7
@@ -55,17 +49,26 @@ jobs:
             toxenv: py310-sqla13
           - image: python:3.10
             toxenv: py310-sqla14
+          - image: python:3.11
+            toxenv: py311-sqla12
+          - image: python:3.11
+            toxenv: py311-sqla13
+          - image: python:3.11
+            toxenv: py311-sqla14
 
     container:
       image: ${{ matrix.container.image }}
 
     steps:
     - uses: actions/checkout@v3
+    - run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
     - name: Install dependencies
       run: |
         apt-get update
         apt-get install -y postgresql-client
-        pip install pre-commit tox tox-pyenv tox-factor coveralls
+        pip install pre-commit tox coveralls
 
     - name: Tox
       run: |

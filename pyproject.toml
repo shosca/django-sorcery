@@ -20,3 +20,13 @@ exclude = '''
   | venv
 )/
 '''
+
+[tool.pytest.ini_options]
+minversion = 6.0
+addopts='''
+    -p no:django-sorcery
+    --tb native
+    -r sfxX
+    --maxfail=25
+    --cov-report=term-missing:skip-covered
+'''

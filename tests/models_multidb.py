@@ -6,13 +6,11 @@ other_db = databases.get("fromdbs")
 
 
 class Foo(default_db.Model):
-
     id = default_db.Column(default_db.Integer(), autoincrement=True, primary_key=True)
     name = default_db.Column(default_db.String(length=10), nullable=False)
 
 
 class Bar(other_db.Model):
-
     id = other_db.Column(other_db.Integer(), autoincrement=True, primary_key=True)
     name = other_db.Column(other_db.String(length=10), nullable=False)
 

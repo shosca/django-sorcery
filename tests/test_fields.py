@@ -85,11 +85,10 @@ class TestEnumField(TestCase):
 class TestModelChoiceField(TestCase):
     def setUp(self):
         super().setUp()
-        db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
+        db.add_all([Owner(first_name=f"first_name {i}", last_name=f"last_name {i}") for i in range(10)])
         db.flush()
 
     def test_apply_limit_value(self):
-
         field = fields.ModelChoiceField(Owner, db, limit_choices_to=[Owner.first_name == "first_name 1"])
         apply_limit_choices_to_form_field(field)
         self.assertEqual(field.queryset.count(), 1)
@@ -103,7 +102,6 @@ class TestModelChoiceField(TestCase):
         self.assertEqual(field.queryset.count(), 1)
 
     def test_choices(self):
-
         field = fields.ModelChoiceField(Owner, db)
 
         self.assertListEqual(
@@ -114,7 +112,6 @@ class TestModelChoiceField(TestCase):
         self.assertListEqual(list(field.choices), [(owner.id, str(owner)) for owner in Owner.query])
 
     def test_get_object(self):
-
         owner = Owner.objects.first()
 
         field = fields.ModelChoiceField(Owner, db)
@@ -198,7 +195,7 @@ class TestModelChoiceField(TestCase):
 class TestModelMultipleChoiceField(TestCase):
     def setUp(self):
         super().setUp()
-        db.add_all([Owner(first_name="first_name {}".format(i), last_name="last_name {}".format(i)) for i in range(10)])
+        db.add_all([Owner(first_name=f"first_name {i}", last_name=f"last_name {i}") for i in range(10)])
         db.flush()
 
     def test_to_python(self):
