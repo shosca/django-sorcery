@@ -10,14 +10,13 @@ gitchangelog
 ipython
 pdbpp
 pre_commit
-psycopg2cffi
+psycopg2
 pytest
 pytest-cov
+pytz
 simplejson
 Sphinx
 sphinx-autobuild
 sphinx_rtd_theme
 sqlalchemy_utils
 tox
-tox-factor
-tox-pyenv

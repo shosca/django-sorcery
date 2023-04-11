@@ -2,9 +2,7 @@ version: '3.7'
 
 services:
   pg:
-    # 12 breaks older versions of sqlalchemy so sticking with 11 for now
-    # https://github.com/sqlalchemy/sqlalchemy/issues/4463
-    image: postgres:11
+    image: postgres:12
     ports:
       - "5432:5432"
     environment:

@@ -53,7 +53,6 @@ class Address(db.BaseComposite):
 
 
 class Business(db.Model):
-
     id = db.IntegerField(autoincrement=True, primary_key=True)
     name = db.CharField(length=50)
     employees = db.IntegerField(default=5, nullable=False)
@@ -145,7 +144,6 @@ Choices = ["three", "four"]
 
 @autocoerce
 class AllKindsOfFields(db.Model):
-
     pk = db.Column(db.Integer(), primary_key=True)
 
     # flags
@@ -210,7 +208,6 @@ class Point:
 
 
 class Vertex(db.Model):
-
     pk = db.IntegerField(autoincrement=True, primary_key=True)
 
     x1 = db.IntegerField()

@@ -43,12 +43,11 @@ class NamespacedCommand(BaseCommand):
             self.print_help(argv[0], argv[1])
 
     def create_parser(self, prog_name, subcommand):
-
         # for django<2.1 compat, filter kwargs
         args = sa.util.get_cls_kwargs(CommandParser)
         kwargs = {
             "cmd": None,
-            "prog": "{} {}".format(os.path.basename(prog_name), subcommand),
+            "prog": f"{os.path.basename(prog_name)} {subcommand}",
             "description": self.help or None,
         }
         parser = CommandParser(**{k: v for k, v in kwargs.items() if k in args})

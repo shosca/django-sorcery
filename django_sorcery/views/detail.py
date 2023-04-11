@@ -51,7 +51,6 @@ class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
         try:
             names = super().get_template_names()
         except ImproperlyConfigured as e:
-
             names = []
 
             if self.object and self.template_name_field:

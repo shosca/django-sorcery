@@ -77,7 +77,6 @@ class TestMultiDbAtomic(unittest.TestCase):
         databases.commit()
 
     def test_multidb(self):
-
         with databases.atomic():
             default_db.add(Foo(name="1234"))
             other_db.add(Bar(name="1234"))

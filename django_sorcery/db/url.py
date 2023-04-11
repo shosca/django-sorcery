@@ -192,7 +192,6 @@ def make_url_from_settings(alias):
 
     Other options are ignored.
     """
-
     data = get_settings(alias)
 
     if "DIALECT" not in data:

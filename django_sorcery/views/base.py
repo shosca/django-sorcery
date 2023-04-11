@@ -50,7 +50,6 @@ class SQLAlchemyMixin(ContextMixin):
         model = self.get_model()
         query = None
         if model:
-
             query = getattr(model, "query", None) or getattr(model, "objects", None)
 
             if query is None and self.session:
@@ -60,7 +59,6 @@ class SQLAlchemyMixin(ContextMixin):
             query = query.options(*self.get_query_options())
 
         if not query:
-
             raise ImproperlyConfigured(
                 "%(cls)s is missing a QuerySet. Define %(cls)s.model and %(cls)s.session, %(cls)s.queryset, "
                 "or override %(cls)s.get_queryset()." % {"cls": self.__class__.__name__}
@@ -83,11 +81,8 @@ class SQLAlchemyMixin(ContextMixin):
         """Returns the base template path."""
         model = self.get_model()
         app_config = apps.get_containing_app_config(model.__module__)
-        return "{}/{}{}.html".format(
-            model.__name__.lower() if app_config is None else app_config.label,
-            model.__name__.lower(),
-            self.template_name_suffix,
-        )
+        prefix = model.__name__.lower() if app_config is None else app_config.label
+        return f"{prefix}/{model.__name__.lower()}{self.template_name_suffix}.html"
 
 
 class BaseMultipleObjectMixin(SQLAlchemyMixin):
@@ -121,7 +116,6 @@ class BaseMultipleObjectMixin(SQLAlchemyMixin):
             # queryset in memory.
             is_empty = True
             if self.get_paginate_by(queryset) is not None:
-
                 if hasattr(queryset, "session"):
                     session = queryset.session
                     is_empty = not session.query(literal(True)).filter(queryset.exists()).scalar()
@@ -202,7 +196,6 @@ class BaseSingleObjectMixin(SQLAlchemyMixin):
         slug attributes in the URLconf. Subclasses can override this to
         return any object
         """
-
         if queryset is None:
             queryset = self.get_queryset()
 

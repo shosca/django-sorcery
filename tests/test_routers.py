@@ -42,7 +42,6 @@ class TestSimpleRouter(TestCase):
             return pattern._regex
 
     def test_router(self):
-
         router = SimpleRouter()
 
         router.register("prefix", OwnerViewSet)

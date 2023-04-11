@@ -17,7 +17,6 @@ class TestTransaction(TestCase):
         db.commit()
 
     def test_transaction_context(self):
-
         transaction = TransactionContext(db)
         self.assertEqual(transaction.dbs, (db,))
         self.assertTrue(transaction.savepoint)
@@ -42,14 +41,12 @@ class TestTransaction(TestCase):
         self.assertEqual(Owner.objects.count(), 0)
 
     def test_context_manager(self):
-
         with TransactionContext(db):
             db.add(Owner(first_name="The", last_name="Dude"))
 
         self.assertEqual(Owner.objects.count(), 1)
 
     def test_context_manager_invalid(self):
-
         with self.assertRaises(ValidationError):
             with TransactionContext(db):
                 db.add(Owner(first_name="invalid", last_name="Dude"))

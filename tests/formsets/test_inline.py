@@ -26,12 +26,10 @@ class TestInlineFormSet(TestCase):
         self.assertEqual(formset_class.fk, info.relationships["vehicles"])
 
     def test_factory_with_bad_relation(self):
-
         with self.assertRaises(ValueError):
             inlineformset_factory(relation=Vehicle.owner, fields=ALL_FIELDS, session=db)
 
     def test_factory_for_non_existant_relation(self):
-
         with self.assertRaises(ValueError):
             inlineformset_factory(Vehicle, Owner, fields=ALL_FIELDS, session=db)
 
@@ -138,9 +136,7 @@ class TestInlineFormSet(TestCase):
                     "<p>",
                     '  <label for="id_vehicles-0-DELETE">Delete:</label>',
                     '  <input id="id_vehicles-0-DELETE" name="vehicles-0-DELETE" type="checkbox" />',
-                    '  <input id="id_vehicles-0-id" name="vehicles-0-id" type="hidden" value="{}" />'.format(
-                        self.owner.vehicles[0].id
-                    ),
+                    f'  <input id="id_vehicles-0-id" name="vehicles-0-id" type="hidden" value="{self.owner.vehicles[0].id}" />',
                     "</p>",
                     "<p>",
                     '  <label for="id_vehicles-1-type">Type:</label>',
@@ -152,9 +148,7 @@ class TestInlineFormSet(TestCase):
                     "<p>",
                     '  <label for="id_vehicles-1-DELETE">Delete:</label>',
                     '  <input id="id_vehicles-1-DELETE" name="vehicles-1-DELETE" type="checkbox" />',
-                    '  <input id="id_vehicles-1-id" name="vehicles-1-id" type="hidden" value="{}" />'.format(
-                        self.owner.vehicles[1].id
-                    ),
+                    f'  <input id="id_vehicles-1-id" name="vehicles-1-id" type="hidden" value="{self.owner.vehicles[1].id}" />',
                     "</p>",
                     "<p>",
                     '  <label for="id_vehicles-2-type">Type:</label>',

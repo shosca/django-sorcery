@@ -71,7 +71,6 @@ class TestListModelMixin(TestCase):
         )
 
     def test_list_allow_no_empty_with_no_owners(self):
-
         db.rollback()
 
         class OwnerViewSet(viewsets.ListModelMixin, viewsets.GenericViewSet):
@@ -137,7 +136,6 @@ class TestCreateModelMixin(TestCase):
             viewset.new(viewset.request)
 
     def test_new_with_form_class(self):
-
         form_cls = forms.modelform_factory(Owner, fields="__all__", session=db)
 
         class OwnerViewSet(viewsets.CreateModelMixin, viewsets.GenericViewSet):
@@ -202,7 +200,6 @@ class TestCreateModelMixin(TestCase):
         self.assertEqual(viewset.object.last_name, "last_name")
 
     def test_create_invalid(self):
-
         form_cls = forms.modelform_factory(Owner, fields=("first_name", "last_name"), session=db)
         form_cls.base_fields["first_name"].required = True
         form_cls.base_fields["last_name"].required = True
