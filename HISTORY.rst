@@ -2,8 +2,46 @@ Changelog
 =========
 
 
-0.12.0 (2022-03-25)
+0.13.0 (2023-04-11)
 -----------------------------
+- Drop py36, add dj42 and py311 to build matrix (#185) [Serkan Hosca]
+- Add dj41 to build matrix (#180) [Serkan Hosca]
+- [pre-commit.ci] pre-commit autoupdate (#179) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#178) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#177) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+
+
+
+- [pre-commit.ci] pre-commit autoupdate (#176) [Serkan Hosca, pre-
+  commit-ci[bot], pre-commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#175) [Serkan Hosca, pre-
+  commit-ci[bot], pre-commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#174) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+
+
+
+- [pre-commit.ci] pre-commit autoupdate (#167) [Serkan Hosca, pre-
+  commit-ci[bot], pre-commit-ci[bot]]
+
+
+
+
+
+
+
+
+
+
+
+- Multi python dockerfile for local dev (#173) [Serkan Hosca]
+
+
+0.12.0 (2022-03-25)
+-------------------
 - Django 4.0 support (#170) [Diego Guerrero, Serkan Hosca]
 - [pre-commit.ci] pre-commit autoupdate (#166) [pre-commit-ci[bot], pre-
   commit-ci[bot]]
